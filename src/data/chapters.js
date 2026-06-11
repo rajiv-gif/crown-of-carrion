@@ -7,7 +7,7 @@
 // and omens are short fragments, never long italic sentences.
 
 export const CAMPAIGN_TAGLINE =
-  'The Carrion Crown is not taken in one night. Five debts must be paid. The first is playable now.';
+  'The Carrion Crown is not taken in one night. Five debts must be paid. The first two are playable now.';
 
 export const CHAPTERS = [
   {
@@ -46,8 +46,25 @@ export const CHAPTERS = [
     danger: 'Dire',
     omens: 'Execution fields. Relic processions. Absolution sold by the pound.',
     requires: 'Complete Chapter I',
-    unlockedCopy: 'The Ash Roads and Cindershrive are open on the map. This debt is not playable yet — it arrives with the next chapter of this build.',
-    missions: [],
+    unlockedCopy: 'The Ash Roads and Cindershrive are open. The Church has started burning witnesses.',
+    missions: [
+      {
+        id: 'ashen_tithe',
+        script: 'ashen_tithe',
+        name: 'The Ashen Tithe',
+        patron: 'Chan, Merchant of Necessary Evils',
+        desc: 'A cynical merchant offers the route to Cindershrive, a ledger of Church indulgences, and a bill no sane captain would sign.',
+      },
+      {
+        id: 'saint_without_face',
+        script: 'saint_without_face',
+        name: 'The Saint Without a Face',
+        patron: 'No one living',
+        desc: 'The Ashen Church keeps a faceless saint under glass. It screams whenever Lucian dreams.',
+        requiresMission: 'ashen_tithe',
+        requiresText: 'Complete The Ashen Tithe',
+      },
+    ],
   },
   {
     id: 3,
@@ -104,7 +121,8 @@ export const CHAPTERS = [
 export function chapterStatus(ch, g) {
   if ((g.completedChapters || []).includes(ch.id)) return 'complete';
   if (ch.id === 1) return 'playable';
-  if (ch.id === 2 && (g.completedChapters || []).includes(1)) return 'unlocked';
+  if (ch.id === 2 && (g.completedChapters || []).includes(1)) return ch.missions.length ? 'playable' : 'unlocked';
+  if (ch.id === 3 && (g.completedChapters || []).includes(2)) return 'unlocked';
   return 'locked';
 }
 

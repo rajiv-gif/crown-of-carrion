@@ -77,14 +77,20 @@ function ChapterCard({ ch, g, dispatch }) {
       {(status === 'playable' || status === 'complete') &&
         ch.missions.map((m) => {
           const done = g.missionsDone.includes(m.id);
+          const missionLocked = m.requiresMission && !g.missionsDone.includes(m.requiresMission);
           return (
             <div key={m.id} className="chapter-mission">
               <div className="cm-name">
                 {m.name} <span className="dim-text">— {m.patron}</span>
               </div>
               <p className="mission-desc">{m.desc}</p>
-              <button className="btn btn-blood" onClick={() => dispatch({ type: 'START_SCRIPT', scriptId: m.script })}>
-                {done ? 'Collect again' : 'Take the contract'}
+              {missionLocked && <p className="lock-note">{m.requiresText || 'Another debt must be paid first.'}</p>}
+              <button
+                className="btn btn-blood"
+                disabled={missionLocked}
+                onClick={() => dispatch({ type: 'START_SCRIPT', scriptId: m.script })}
+              >
+                {missionLocked ? 'Locked' : done ? 'Collect again' : 'Take the contract'}
               </button>
             </div>
           );
@@ -124,7 +130,9 @@ export default function MapScreen() {
 
           <section className="panel">
             <h3 className="panel-title">THE BLACK TITHE</h3>
-            {Object.entries(PARTY).map(([key, p]) => {
+            {Object.entries(PARTY)
+              .filter(([key]) => ['lucian', 'sjen', 'veato'].includes(key) || g.flags?.[`${key}_joined`])
+              .map(([key, p]) => {
               const fed = Object.entries(g.sins[key] || {}).filter(([, r]) => r > 0);
               return (
                 <div key={p.name} className="roster-row">

@@ -19,6 +19,8 @@ export default function Dialogue() {
         dispatch({ type: 'TO_MAP' });
       } else if (node.action.aftermath) {
         dispatch({ type: 'AFTERMATH' });
+      } else if (node.action.missionDone) {
+        dispatch({ type: 'MISSION_DONE', mission: node.action.missionDone });
       }
     } else if (node.next) {
       dispatch({ type: 'GOTO_NODE', node: node.next });
@@ -56,7 +58,7 @@ export default function Dialogue() {
           </div>
         ) : (
           <button className="btn continue-btn" onClick={onContinue}>
-            {node.action?.combat ? '⚔ Steel out' : node.action?.aftermath ? 'Close the entry' : 'Continue ›'}
+            {node.action?.combat ? '⚔ Steel out' : node.action?.aftermath || node.action?.missionDone ? 'Close the entry' : 'Continue ›'}
           </button>
         )}
       </div>

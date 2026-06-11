@@ -35,6 +35,28 @@ export const PARTY = {
     abilities: ['basic_attack', 'poison_blade', 'backstab', 'smoke_step', 'crippling_cut'],
     passive: 'Hidden Knife — when Lucian strikes, Veato may strike from his shadow.',
   },
+  chan: {
+    name: 'Chan',
+    epithet: 'Merchant of Necessary Evils',
+    sigil: '§',
+    color: 'var(--gold)',
+    hp: 66,
+    atk: 9,
+    speed: 9,
+    abilities: ['basic_attack', 'ledgers_cut', 'bitter_appraisal', 'paid_in_advance'],
+    passive: 'Profitable Company — Chan finds margins in disasters, then charges the party for noticing.',
+  },
+  chibi: {
+    name: 'Chibi',
+    epithet: 'Small Knife, Large Problem',
+    sigil: '◈',
+    color: 'var(--pale)',
+    hp: 58,
+    atk: 11,
+    speed: 13,
+    abilities: ['basic_attack', 'spite_hex', 'needlework', 'duo_rite'],
+    passive: 'Sjen’s Shadow — Chibi reinforces Sjen’s worst instincts and hates everyone else efficiently.',
+  },
 };
 
 export const ENEMIES = {
@@ -76,6 +98,44 @@ export const ENEMIES = {
     speed: 8,
     abilities: ['debt_mark', 'collection_swing', 'chain_tax', 'kneel_debtor', 'chain_lash', 'heavy_blow'],
   },
+  ashen_flagellant: {
+    name: 'Ashen Flagellant',
+    sigil: '✕',
+    sprite: 'flagellant',
+    hp: 44,
+    atk: 13,
+    speed: 10,
+    abilities: ['penitent_flurry', 'rusted_blade', 'claw'],
+  },
+  censer_knight: {
+    name: 'Censer Knight',
+    sigil: '✕',
+    sprite: 'censer',
+    hp: 72,
+    atk: 15,
+    speed: 6,
+    abilities: ['smoke_censer', 'cinder_maul', 'heavy_blow'],
+  },
+  choir_taxman: {
+    name: 'Choir Taxman',
+    sigil: '✕',
+    sprite: 'taxman',
+    hp: 52,
+    atk: 12,
+    speed: 8,
+    abilities: ['audit_sin', 'burning_writ', 'chain_lash'],
+  },
+  faceless_saint: {
+    name: 'The Saint Without a Face',
+    epithet: 'Absolution With Teeth',
+    sigil: '✥',
+    sprite: 'saint',
+    boss: true,
+    hp: 255,
+    atk: 18,
+    speed: 9,
+    abilities: ['erase_face', 'absolve_screaming', 'martyr_tax', 'cinder_maul', 'audit_sin'],
+  },
 };
 
 export const ENCOUNTERS = {
@@ -94,5 +154,29 @@ export const ENCOUNTERS = {
     enemies: ['debt_bound_knight', 'chained_thrall'],
     gold: 65,
     xp: 110,
+  },
+  ash_road_ambush: {
+    name: 'The Ash Road Ambush',
+    opener:
+      'Chan’s shortcut is real. So is the ambush. White-robed penitents rise from the ditch with hooks, censers, and memorized prices.',
+    enemies: ['ashen_flagellant', 'ashen_flagellant', 'censer_knight', 'choir_taxman'],
+    gold: 42,
+    xp: 95,
+  },
+  cindershrive_gate: {
+    name: 'The Cindershrive Gate',
+    opener:
+      'At the city gate, absolution is sold by weight. The Church taxmen decide the Black Tithe looks heavy.',
+    enemies: ['choir_taxman', 'censer_knight', 'ashen_flagellant', 'choir_taxman'],
+    gold: 55,
+    xp: 120,
+  },
+  saint_without_face: {
+    name: 'The Saint Without a Face',
+    opener:
+      'The reliquary opens. There is no face under the veil. There is only a mouth where mercy should have been.',
+    enemies: ['faceless_saint', 'censer_knight', 'ashen_flagellant'],
+    gold: 90,
+    xp: 170,
   },
 };

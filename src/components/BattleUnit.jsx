@@ -27,6 +27,21 @@ const ANIM = {
   claw: 'act-slash',
   rusted_blade: 'act-slash',
   plague_bite: 'act-slash',
+  ledgers_cut: 'act-slash',
+  bitter_appraisal: 'act-shout',
+  paid_in_advance: 'act-cast',
+  spite_hex: 'act-cast',
+  needlework: 'act-dash',
+  duo_rite: 'act-cast',
+  wait_power: 'act-shout',
+  penitent_flurry: 'act-slash',
+  smoke_censer: 'act-cast',
+  cinder_maul: 'act-heavy',
+  audit_sin: 'act-cast',
+  burning_writ: 'act-cast',
+  erase_face: 'act-heavy',
+  absolve_screaming: 'act-cast',
+  martyr_tax: 'act-shout',
   gnaw: 'act-slash',
 };
 
@@ -44,6 +59,15 @@ const VFX = {
   rot_hex: 'vfx-burst vfx-purple',
   whispering_pact: 'vfx-burst vfx-purple',
   debt_of_flesh: 'vfx-burst vfx-purple',
+  ledgers_cut: 'vfx-slash vfx-red',
+  spite_hex: 'vfx-burst vfx-purple',
+  needlework: 'vfx-slash vfx-green',
+  cinder_maul: 'vfx-burst vfx-red',
+  audit_sin: 'vfx-burst vfx-purple',
+  burning_writ: 'vfx-burst vfx-red',
+  erase_face: 'vfx-burst vfx-red',
+  absolve_screaming: 'vfx-burst vfx-purple',
+  martyr_tax: 'vfx-burst vfx-red',
 };
 
 export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {

@@ -238,6 +238,12 @@ export function reducer(g, a) {
         s.unlockedRegions = [...new Set([...s.unlockedRegions, 'ash_roads'])];
         return mark(s, 'The first debt is paid. The ledger turns a page.');
       }
+      if (a.mission === 'saint_without_face' && !s.completedChapters.includes(2)) {
+        s.completedChapters = [...s.completedChapters, 2];
+        s.currentChapter = 3;
+        s.unlockedRegions = [...new Set([...s.unlockedRegions, 'iron_marches'])];
+        return mark(s, 'The second debt is ash. The next road opens.');
+      }
       return mark(s);
     }
     case 'WIPE_SAVE':

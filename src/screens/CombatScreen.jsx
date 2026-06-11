@@ -136,6 +136,14 @@ export default function CombatScreen() {
                 );
               })}
               <button
+                className="ability-btn"
+                title={ABILITIES.wait_power.desc}
+                onClick={() => onAbility('wait_power')}
+              >
+                <span className="ability-name">{ABILITIES.wait_power.name}</span>
+                <span className="ability-meta">{ABILITIES.wait_power.desc}</span>
+              </button>
+              <button
                 className={`ability-btn poultice ${sel === 'poultice' ? 'selected' : ''}`}
                 disabled={c.poultices <= 0}
                 title="Heals 30% max HP. Costs +2 corruption. Limited per mission."

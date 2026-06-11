@@ -17,6 +17,7 @@ import { abilityUnlocked, deriveMods, tensionTier } from '../data/sins.js';
 
 export const ABILITIES = {
   basic_attack: { name: 'Basic Attack', cd: 0, target: 'enemy', desc: 'A plain, ugly strike. Reliable. Unimpressive.' },
+  wait_power: { name: 'Wait for Power', cd: 0, target: 'none', desc: 'Skip this turn. Gain Focus and Might. Enemies may punish hesitation.' },
   // Lucian
   cleave: { name: 'Cleave', cd: 0, target: 'enemy', desc: 'A heavy, mutilating blow. 120% damage.' },
   execute: { name: 'Execute', cd: 3, target: 'enemy', desc: '300% damage to enemies below 35% health; 100% otherwise. Pride feeds it.' },
@@ -33,6 +34,14 @@ export const ABILITIES = {
   poison_blade: { name: 'Poison Blade', cd: 0, target: 'enemy', desc: '90% damage plus poison each turn. Cunning brews it stronger.' },
   smoke_step: { name: 'Smoke Step', cd: 3, target: 'self', desc: 'The next blow aimed at Veato finds only smoke.' },
   crippling_cut: { name: 'Crippling Cut', cd: 2, target: 'enemy', desc: '80% damage; the target bleeds and deals 30% less. Wrath opens the wound wider.' },
+  // Chan
+  ledgers_cut: { name: "Ledger's Cut", cd: 1, target: 'enemy', desc: 'Mark and bleed an enemy. Chan invoices the corpse later.' },
+  bitter_appraisal: { name: 'Bitter Appraisal', cd: 2, target: 'enemy', desc: 'Insult an enemy into Fear and Cripple. Accuracy through contempt.' },
+  paid_in_advance: { name: 'Paid in Advance', cd: 3, target: 'ally', desc: 'Shield an ally, then charge the company gold and tension.' },
+  // Chibi
+  spite_hex: { name: 'Spite Hex', cd: 0, target: 'enemy', desc: 'Rot damage that bites harder when Sjen is still standing.' },
+  needlework: { name: 'Needlework', cd: 2, target: 'enemy', desc: 'A small precise cut. Bleeds, poisons, and embarrasses larger targets.' },
+  duo_rite: { name: 'Duo Rite', cd: 3, target: 'none', desc: 'Chibi and Sjen feed the same ugly thought. Enemies rot; everyone else feels unwelcome.' },
   // Enemies
   claw: { name: 'Desperate Claw', cd: 0, target: 'party' },
   rusted_blade: { name: 'Rusted Blade', cd: 0, target: 'party' },
@@ -46,11 +55,20 @@ export const ABILITIES = {
   chain_tax: { name: 'Chain Tax', cd: 3, target: 'none' },
   kneel_debtor: { name: 'Kneel, Debtor', cd: 3, target: 'party' },
   final_ledger: { name: 'Final Ledger', cd: 99, target: 'party' },
+  penitent_flurry: { name: 'Penitent Flurry', cd: 2, target: 'party' },
+  smoke_censer: { name: 'Smoke Censer', cd: 3, target: 'none' },
+  cinder_maul: { name: 'Cinder Maul', cd: 2, target: 'party' },
+  audit_sin: { name: 'Audit Sin', cd: 2, target: 'party' },
+  burning_writ: { name: 'Burning Writ', cd: 2, target: 'party' },
+  erase_face: { name: 'Erase Face', cd: 3, target: 'party' },
+  absolve_screaming: { name: 'Absolve Screaming', cd: 4, target: 'none' },
+  martyr_tax: { name: 'Martyr Tax', cd: 3, target: 'none' },
   gnaw: { name: 'Gnaw', cd: 0, target: 'enemy' },
 };
 
 const DOTS = { bleed: 'bleeding', poison: 'poison', curse: 'rot' };
 const DEBUFFS = ['bleed', 'poison', 'curse', 'stun', 'fear', 'cripple'];
+const BASE_PARTY = ['lucian', 'sjen', 'veato'];
 
 // Banter escalates with the hottest pair's tension tier. Low costs nothing;
 // critical is a warning the player is meant to read. `who`/`bubble` mark
@@ -124,6 +142,7 @@ function removeStatus(u, t) {
 function effAtk(u) {
   let a = u.atk;
   if (hasStatus(u, 'might')) a *= 1.4;
+  if (hasStatus(u, 'focus')) a *= 1.35;
   if (hasStatus(u, 'cripple')) a *= 0.7;
   if (hasStatus(u, 'fear')) a *= 0.75;
   return a;
@@ -277,6 +296,13 @@ function resolveAbility(s, u, id, targetUid) {
       hit(s, u, t, 1.0, 'Basic Attack');
       if (u.key === 'lucian') hiddenKnife(s, t);
       break;
+    case 'wait_power':
+      addStatus(s, u, 'focus', 2);
+      addStatus(s, u, 'might', 1);
+      s.enemyFury = (s.enemyFury || 0) + 1;
+      log(s, `${u.name} waits, gathering power. The enemy sees the hesitation.`, 'gold');
+      evt(s, { k: 'float', unit: u.uid, text: 'Focus', type: 'word' });
+      break;
     case 'cleave':
       hit(s, u, t, 1.2, 'Cleave');
       hiddenKnife(s, t);
@@ -399,6 +425,55 @@ function resolveAbility(s, u, id, targetUid) {
         log(s, `${t.name}’s tendons remember the knife.`, 'hex');
       }
       break;
+    case 'ledgers_cut':
+      hit(s, u, t, 1.05, "Ledger's Cut");
+      if (t.alive) {
+        addStatus(s, t, 'marked', 2);
+        addStatus(s, t, 'bleed', 2, 5);
+        log(s, `Chan marks ${t.name} as a depreciating asset.`, 'gold');
+      }
+      break;
+    case 'bitter_appraisal':
+      hit(s, u, t, 0.55, 'Bitter Appraisal');
+      if (t.alive) {
+        addStatus(s, t, 'fear', 2);
+        addStatus(s, t, 'cripple', 2);
+        log(s, `Chan explains exactly why ${t.name} is overvalued. It hurts because he is right.`, 'dim');
+      }
+      break;
+    case 'paid_in_advance':
+      addStatus(s, t, 'shield', 99, 18);
+      s.skim += 8;
+      bumpTension(s, 'lucian_veato', 2);
+      bumpTension(s, 'sjen_veato', 1);
+      log(s, `Chan protects ${t.name}. The invoice arrives before the gratitude.`, 'gold');
+      break;
+    case 'spite_hex': {
+      const duo = byKey(s, 'sjen') ? 0.35 : 0;
+      hit(s, u, t, 0.7 + duo, 'Spite Hex');
+      if (t.alive) addStatus(s, t, 'curse', 3, 6 + (duo ? 3 : 0));
+      break;
+    }
+    case 'needlework':
+      hit(s, u, t, t.boss ? 1.35 : 1.1, 'Needlework');
+      if (t.alive) {
+        addStatus(s, t, 'bleed', 3, 5 + (t.boss ? 2 : 0));
+        addStatus(s, t, 'poison', 2, 4);
+      }
+      break;
+    case 'duo_rite': {
+      const sjen = byKey(s, 'sjen');
+      if (sjen) addStatus(s, sjen, 'might', 1);
+      addStatus(s, u, 'dodge', 1);
+      log(s, 'Chibi and Sjen share a look. Everyone else becomes less necessary.', 'hex');
+      for (const e of alive(s, 'enemy')) {
+        addStatus(s, e, 'curse', 2, 7);
+        if (Math.random() < 0.45) addStatus(s, e, 'fear', 1);
+      }
+      bumpTension(s, 'lucian_sjen', 2);
+      bumpTension(s, 'sjen_veato', 2);
+      break;
+    }
     // Enemy abilities
     case 'claw':
     case 'heavy_blow':
@@ -452,6 +527,53 @@ function resolveAbility(s, u, id, targetUid) {
       break;
     case 'final_ledger':
       hit(s, u, t, hasStatus(t, 'marked') ? 3.35 : 2.25, 'Final Ledger');
+      break;
+    case 'penitent_flurry':
+      hit(s, u, t, 0.72, 'Penitent Flurry');
+      if (t?.alive) hit(s, u, t, 0.72, 'Penitent Flurry');
+      if (t?.alive) addStatus(s, t, 'bleed', 2, 5 + (s.diff?.afflictionBonus || 0));
+      break;
+    case 'smoke_censer':
+      log(s, `${u.name} swings a censer until the field tastes like burned saints.`, 'hex');
+      for (const p of alive(s, 'party')) if (Math.random() < 0.6) addStatus(s, p, 'fear', 1);
+      addStatus(s, u, 'shield', 99, 16);
+      break;
+    case 'cinder_maul':
+      hit(s, u, t, 1.55, 'Cinder Maul');
+      if (t?.alive) addStatus(s, t, 'stun', 1);
+      break;
+    case 'audit_sin':
+      hit(s, u, t, 0.85, 'Audit Sin');
+      if (t?.alive) {
+        addStatus(s, t, 'marked', 2);
+        addStatus(s, t, 'fear', 1);
+      }
+      break;
+    case 'burning_writ':
+      hit(s, u, t, 1.0, 'Burning Writ');
+      if (t?.alive) {
+        addStatus(s, t, 'curse', 2, 6 + (s.diff?.afflictionBonus || 0));
+        addStatus(s, t, 'bleed', 2, 4);
+      }
+      break;
+    case 'erase_face':
+      hit(s, u, t, hasStatus(t, 'marked') ? 2.4 : 1.45, 'Erase Face');
+      if (t?.alive) {
+        addStatus(s, t, 'fear', 2);
+        addStatus(s, t, 'stun', 1);
+      }
+      break;
+    case 'absolve_screaming':
+      log(s, 'The Saint offers absolution. It sounds exactly like screaming.', 'death');
+      for (const p of alive(s, 'party')) {
+        hit(s, u, p, 0.65, 'Absolve Screaming');
+        if (p.alive && Math.random() < 0.45) addStatus(s, p, 'fear', 1);
+      }
+      break;
+    case 'martyr_tax':
+      log(s, 'Martyr Tax — every wound becomes doctrine.', 'blood');
+      for (const p of alive(s, 'party')) hit(s, u, p, 0.45, 'Martyr Tax');
+      addStatus(s, u, 'might', 2);
       break;
     default:
       break;
@@ -730,7 +852,12 @@ export function createCombat(g) {
   const enc = ENCOUNTERS[g.encounterId];
   const diff = DIFFICULTIES[g.difficulty || 'merciless'] || DIFFICULTIES.merciless;
   const units = [];
-  for (const key of ['lucian', 'sjen', 'veato']) {
+  const partyKeys = [
+    ...BASE_PARTY,
+    ...(g.flags?.chan_joined ? ['chan'] : []),
+    ...(g.flags?.chibi_joined ? ['chibi'] : []),
+  ];
+  for (const key of partyKeys) {
     const b = PARTY[key];
     const mods = deriveMods(g.sins?.[key]);
     const u = mkUnit(b, 'party', key, mods);
@@ -787,6 +914,7 @@ export function createCombat(g) {
     finalLedgerWarned: false,
     finalLedgerSpent: false,
     finalLedgerTarget: null,
+    enemyFury: 0,
   };
   log(s, enc.opener || `${enc.name}. The ledger opens.`, 'round');
   if (diff.id === 'merciless') log(s, 'Merciless ledger: skills are scarce, healing is mean, and Cocoli is listening.', 'death');
@@ -834,6 +962,11 @@ export function autoAct(state) {
   if (!u || !u.alive || s.over) return s;
   if (s.auto === 'enemy') {
     enemyAI(s, u);
+    if (!s.over && u.alive && s.enemyFury > 0 && Math.random() < 0.45) {
+      s.enemyFury -= 1;
+      log(s, `${u.name} punishes the hesitation and attacks again.`, 'blood');
+      enemyAI(s, u);
+    }
   } else if (s.auto === 'wretch') {
     const t = pick(alive(s, 'enemy'));
     if (t) resolveAbility(s, u, 'gnaw', t.uid);

@@ -16,6 +16,7 @@ const TITLES = {
   marked: 'Debt Mark — the next collection will hurt',
   vulnerable: 'Vulnerable — takes harder follow-up blows',
   rotten_guard: 'Rotten Guard — melee attackers risk poison',
+  focus: 'Focus — the next strikes hit harder',
 };
 
 function glyph(type) {

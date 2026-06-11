@@ -11,6 +11,7 @@ const BLOOD = '#c0392b';
 const HEX = '#8e7bb5';
 const POISON = '#8a9a4a';
 const BONE = '#cfc3a9';
+const GOLD = '#a98c45';
 const RAG = '#241c14';
 
 function Lucian() {
@@ -94,6 +95,44 @@ function Veato() {
       <path d="M84 60 L102 50 L104 55 L88 68 Z" fill={STEEL} />
       <path d="M99 52 L103 53 L101 56 Z" fill={POISON} opacity="0.7" />
       <path d="M42 80 L26 90 L24 84 L38 74 Z" fill={STEEL} />
+    </svg>
+  );
+}
+
+function Chan() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-chan" aria-label="Chan">
+      <path d="M42 100 L52 100 L50 140 L40 140 Z" fill={IRON_DARK} />
+      <path d="M58 100 L68 100 L72 140 L62 140 Z" fill={IRON_DARK} />
+      <path d="M36 44 L72 44 L76 104 L34 104 Z" fill="#20170f" />
+      <path d="M42 50 L68 50 L66 82 L44 82 Z" fill="#2b2116" />
+      <path d="M45 15 Q56 6 68 16 L66 34 L48 36 L42 28 Z" fill={IRON_DARK} />
+      <rect x="49" y="24" width="14" height="2" fill={GOLD} opacity="0.9" />
+      <path d="M72 58 L90 62 L86 72 L70 66 Z" fill="#20170f" />
+      <rect x="82" y="58" width="18" height="26" rx="1" fill="#1d1409" stroke={GOLD} strokeWidth="1.7" />
+      <path d="M86 66 L96 66 M86 72 L96 72" stroke={GOLD} strokeWidth="1.2" opacity="0.8" />
+      <path d="M38 60 L22 78 L28 84 L44 68 Z" fill="#20170f" />
+      <circle cx="23" cy="80" r="5" fill={GOLD} opacity="0.65" />
+    </svg>
+  );
+}
+
+function Chibi() {
+  return (
+    <svg viewBox="0 0 90 110" className="sil sil-chibi" aria-label="Chibi">
+      <path d="M30 72 L38 72 L35 104 L27 104 Z" fill={IRON_DARK} />
+      <path d="M46 72 L54 72 L58 104 L50 104 Z" fill={IRON_DARK} />
+      <path d="M25 38 L60 38 L64 78 L54 72 L45 82 L34 72 L24 78 Z" fill="#140f1c" />
+      <path d="M28 14 Q44 0 60 14 L62 36 Q45 44 26 36 Z" fill="#171024" />
+      <ellipse cx="44" cy="27" rx="8" ry="7" fill="#060409" />
+      <circle cx="41" cy="26" r="1.4" fill={BONE} />
+      <circle cx="48" cy="27" r="1.1" fill={HEX} />
+      <path d="M58 48 L76 42 L78 48 L60 58 Z" fill={STEEL} />
+      <path d="M28 50 L14 62 L10 58 L24 44 Z" fill={STEEL} />
+      <g className="sil-runes" fill={HEX} opacity="0.75">
+        <rect x="14" y="25" width="3.5" height="3.5" transform="rotate(45 16 27)" />
+        <rect x="70" y="24" width="3.5" height="3.5" transform="rotate(45 72 26)" />
+      </g>
     </svg>
   );
 }
@@ -203,14 +242,81 @@ function Knight() {
   );
 }
 
+function Flagellant() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-flagellant" aria-label="Ashen Flagellant">
+      <path d="M44 98 L52 98 L48 140 L38 140 Z" fill={RAG} />
+      <path d="M58 98 L66 98 L70 140 L60 140 Z" fill={RAG} />
+      <path d="M36 38 L72 38 L76 104 L66 96 L56 108 L46 96 L34 106 Z" fill="#2a211c" />
+      <path d="M46 12 Q56 4 66 14 L64 34 L48 34 Z" fill="#2e251f" />
+      <path d="M68 52 L94 36" stroke={BLOOD} strokeWidth="4" />
+      <path d="M88 38 L102 48 M92 34 L104 38" stroke="#5c5245" strokeWidth="2.2" />
+      <circle cx="57" cy="24" r="1.5" fill={BONE} />
+    </svg>
+  );
+}
+
+function Censer() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-censer" aria-label="Censer Knight">
+      <path d="M42 98 L52 98 L49 140 L38 140 Z" fill={IRON_DARK} />
+      <path d="M58 98 L68 98 L72 140 L60 140 Z" fill={IRON_DARK} />
+      <path d="M34 44 L76 44 L72 102 L40 102 Z" fill={IRON} />
+      <path d="M42 16 Q56 4 70 16 L72 32 L40 32 Z" fill={IRON_DARK} />
+      <rect x="46" y="28" width="18" height="3" fill={BLOOD} />
+      <path d="M74 60 Q92 72 86 98" stroke="#5c5245" strokeWidth="3" fill="none" strokeDasharray="5 4" />
+      <circle cx="84" cy="102" r="10" fill="#1d1409" stroke={STEEL} strokeWidth="2" />
+      <circle cx="84" cy="102" r="14" fill={HEX} opacity="0.15" />
+    </svg>
+  );
+}
+
+function Taxman() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-taxman" aria-label="Choir Taxman">
+      <path d="M40 98 L50 98 L48 140 L38 140 Z" fill={IRON_DARK} />
+      <path d="M58 98 L68 98 L72 140 L62 140 Z" fill={IRON_DARK} />
+      <path d="M34 42 L74 42 L78 104 L64 98 L56 108 L44 98 L32 106 Z" fill="#181121" />
+      <path d="M44 12 Q56 2 68 12 L70 34 L42 34 Z" fill="#120d18" />
+      <rect x="48" y="24" width="16" height="2.5" fill={HEX} />
+      <rect x="76" y="54" width="20" height="30" fill="#1d1409" stroke={BONE} strokeWidth="1.5" />
+      <path d="M80 62 L92 62 M80 68 L92 68 M80 74 L90 74" stroke={BONE} strokeWidth="1" />
+    </svg>
+  );
+}
+
+function Saint() {
+  return (
+    <svg viewBox="0 0 150 185" className="sil sil-saint" aria-label="The Saint Without a Face">
+      <path d="M50 52 L100 52 L116 170 L98 156 L84 176 L70 156 L52 174 L34 166 Z" fill="#18111b" />
+      <path d="M56 18 Q76 -4 96 18 L104 54 Q76 68 48 54 Z" fill="#211726" />
+      <ellipse cx="76" cy="40" rx="18" ry="20" fill="#e9e4d6" opacity="0.08" />
+      <path d="M64 42 Q76 54 88 42" stroke={BLOOD} strokeWidth="4" fill="none" />
+      <path d="M42 70 L18 96 L28 104 L52 80 Z" fill="#18111b" />
+      <path d="M102 70 L132 94 L122 104 L94 82 Z" fill="#18111b" />
+      <g className="sil-runes" fill={BONE} opacity="0.5">
+        <circle cx="34" cy="46" r="3" />
+        <circle cx="116" cy="50" r="3" />
+        <rect x="72" y="76" width="7" height="7" transform="rotate(45 75 79)" />
+      </g>
+    </svg>
+  );
+}
+
 const SPRITES = {
   lucian: Lucian,
   sjen: Sjen,
   veato: Veato,
+  chan: Chan,
+  chibi: Chibi,
   wretch: Wretch,
   villager: Villager,
   guard: Guard,
   knight: Knight,
+  flagellant: Flagellant,
+  censer: Censer,
+  taxman: Taxman,
+  saint: Saint,
 };
 
 export default function Silhouette({ name }) {
