@@ -1,0 +1,45 @@
+// Difficulty modes. Merciless is the game as designed; the others exist
+// so people can choose how much Cocoli they want to meet.
+
+export const DIFFICULTIES = {
+  story: {
+    id: 'story',
+    name: 'Story of Rot',
+    desc: 'For reading, not surviving. The Black Tithe is sturdier and Veyrath pulls its blows. Not recommended.',
+    partyHp: 1.25,
+    partyAtk: 1.1,
+    enemyHp: 0.9,
+    enemyAtk: 0.8,
+    poultices: 2,
+    tensionMult: 1,
+    afflictionBonus: 0,
+    scarExtraCorruption: 0,
+  },
+  grim: {
+    id: 'grim',
+    name: 'Grim',
+    desc: 'Dangerous and fair. Mistakes bleed. Death is possible.',
+    partyHp: 1,
+    partyAtk: 1,
+    enemyHp: 1,
+    enemyAtk: 1.18,
+    poultices: 1,
+    tensionMult: 1,
+    afflictionBonus: 1,
+    scarExtraCorruption: 0,
+  },
+  merciless: {
+    id: 'merciless',
+    name: 'Merciless',
+    desc: 'Recommended. The game as intended: every mistake collects interest, tension rises faster, and her scars cut deeper.',
+    recommended: true,
+    partyHp: 0.84,
+    partyAtk: 0.88,
+    enemyHp: 1.1,
+    enemyAtk: 1.28,
+    poultices: 1,
+    tensionMult: 1.5,
+    afflictionBonus: 2,
+    scarExtraCorruption: 3,
+  },
+};

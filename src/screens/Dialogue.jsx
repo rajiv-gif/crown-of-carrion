@@ -1,0 +1,65 @@
+import React from 'react';
+import { useGame } from '../App.jsx';
+import { SCRIPTS, SPEAKERS } from '../data/story.js';
+
+export default function Dialogue() {
+  const { g, dispatch } = useGame();
+  const script = SCRIPTS[g.scriptId];
+  const node = script?.nodes[g.nodeId];
+  if (!node) return null;
+
+  const sp = SPEAKERS[node.speaker] || { color: 'var(--bone)', sigil: '·' };
+  const isNarrator = node.speaker === 'narrator';
+
+  const onContinue = () => {
+    if (node.action) {
+      if (node.action.combat) {
+        dispatch({ type: 'START_COMBAT', encounterId: node.action.combat, then: node.action.then });
+      } else if (node.action.map) {
+        dispatch({ type: 'TO_MAP' });
+      } else if (node.action.aftermath) {
+        dispatch({ type: 'AFTERMATH' });
+      }
+    } else if (node.next) {
+      dispatch({ type: 'GOTO_NODE', node: node.next });
+    }
+  };
+
+  return (
+    <div className="screen dialogue-screen">
+      <div className="dialogue-panel panel" key={g.nodeId}>
+        {!isNarrator && (
+          <div className="speaker" style={{ color: sp.color }}>
+            <span className="speaker-sigil">{sp.sigil}</span> {node.speaker}
+          </div>
+        )}
+        <p className={`dialogue-text ${isNarrator ? 'narration' : ''}`}>{node.text}</p>
+
+        {node.choices ? (
+          <div className="choices">
+            {node.choices.map((c, i) => {
+              // Tension-locked choices: companions stop offering their plans
+              // to a captain they are this close to knifing.
+              const locked = c.lock && g.tension[c.lock.pair] >= c.lock.max;
+              return (
+                <button
+                  key={i}
+                  className={`choice-btn ${locked ? 'locked' : ''}`}
+                  disabled={locked}
+                  onClick={() => dispatch({ type: 'CHOOSE', effects: c.effects, next: c.next })}
+                >
+                  <span className="choice-num">{['I', 'II', 'III', 'IV', 'V'][i]}.</span> {c.text}
+                  {locked && <span className="lock-note">{c.lock.note}</span>}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <button className="btn continue-btn" onClick={onContinue}>
+            {node.action?.combat ? '⚔ Steel out' : node.action?.aftermath ? 'Close the entry' : 'Continue ›'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
