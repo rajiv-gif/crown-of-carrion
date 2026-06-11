@@ -22,7 +22,7 @@ export const SPEAKERS = {
 export const FACTIONS = {
   ashen_church: {
     name: 'The Ashen Church',
-    desc: 'Worships dead saints. Burns sinners alive to keep the relics warm.',
+    desc: 'Turns fear into doctrine, doctrine into hatred, and hatred into obedient fire.',
   },
   plague_barons: {
     name: 'The Plague Barons',
@@ -35,178 +35,6 @@ export const FACTIONS = {
   hollow_choir: {
     name: 'The Hollow Choir',
     desc: 'A cult that hears voices from under the earth. The voices answer back.',
-  },
-
-  // ───────────────────── THE ASHEN TITHE ─────────────────────
-  ashen_tithe: {
-    start: 'a1',
-    nodes: {
-      a1: {
-        speaker: 'narrator',
-        text:
-          'The Ash Roads are not roads so much as wounds that learned direction. At the first toll shrine, a merchant waits under a black umbrella, counting smoke-stained coins while the dead swing from prayer wheels.',
-        next: 'a2',
-      },
-      a2: {
-        speaker: 'Chan',
-        text:
-          'You are late, under-equipped, overconfident, and carrying crownmetal with the subtlety of a burning tax office. Excellent. I can make money from every part of that.',
-        effects: { flag: { chan_joined: true }, item: 'chan_contract', gold: -35, tension: { lucian_veato: 4, lucian_sjen: 3 } },
-        next: 'a3',
-      },
-      a3: {
-        speaker: 'Veato',
-        text:
-          'He charged us before introducing himself. Lucian, I hate him. Professionally, I am learning.',
-        next: 'a4',
-      },
-      a4: {
-        speaker: 'Chan',
-        text:
-          'My name is Chan. I sell exits, names, indulgence ledgers, and the truth when the lie is overpriced. You need the Cindershrive gate opened. I need armed idiots with unusually durable organs.',
-        next: 'a5',
-      },
-      a5: {
-        speaker: 'Sjen',
-        text:
-          'There is something under the shrine.',
-        next: 'a6',
-      },
-      a6: {
-        speaker: 'Chibi',
-        text:
-          'There is. Me. Try to look less disappointed. Except you, Sjen. You may continue looking correctly suspicious.',
-        effects: { flag: { chibi_joined: true }, tension: { lucian_sjen: 4, sjen_veato: 4 } },
-        next: 'a7',
-      },
-      a7: {
-        speaker: 'narrator',
-        text:
-          'Chibi climbs out of the ash-cache with two knives, three stolen rosaries, and the expression of someone who has already decided most people are furniture with debts.',
-        next: 'a8',
-      },
-      a8: {
-        speaker: 'Chibi',
-        text:
-          'I go with Sjen. He listens when things whisper. The rest of you mostly leak and declare policy.',
-        next: 'a9',
-      },
-      a9: {
-        speaker: 'Lucian',
-        text:
-          'If you slow us down, I leave you in the ash.',
-        next: 'a10',
-      },
-      a10: {
-        speaker: 'Chan',
-        text:
-          'Statistically, Captain, adding two competent people to your company improves your survival odds by almost enough to offset your personality.',
-        next: 'a11',
-      },
-      a11: {
-        speaker: 'narrator',
-        text:
-          'The ditch erupts in white robes. Flagellants, censer-knights, and Church taxmen come screaming from the ash, each one eager to turn profit into penance.',
-        action: { combat: 'ash_road_ambush', then: 'a12' },
-      },
-      a12: {
-        speaker: 'Chan',
-        text:
-          'See? Ambush disclosed before services rendered. That is value. You are welcome.',
-        next: 'a13',
-      },
-      a13: {
-        speaker: 'Chibi',
-        text:
-          'Sjen, the taxmen carried ash-script. The Church knows about the sliver. Someone sold them the shape of Lucian’s shadow.',
-        next: 'a14',
-      },
-      a14: {
-        speaker: 'Sjen',
-        text:
-          'Then we go to Cindershrive and ask the saint which mouth spoke first.',
-        action: { missionDone: 'ashen_tithe' },
-      },
-    },
-  },
-
-  saint_without_face: {
-    start: 's1',
-    nodes: {
-      s1: {
-        speaker: 'narrator',
-        text:
-          'Cindershrive burns without flame. Its streets are gray with kneeling crowds, its windows black with soot, its church doors plated in old confession. No one looks directly at Lucian’s hand.',
-        next: 's2',
-      },
-      s2: {
-        speaker: 'Chan',
-        text:
-          'The Church sells forgiveness by the ounce. Do not buy retail. Also do not confess. None of you can afford itemization.',
-        next: 's3',
-      },
-      s3: {
-        speaker: 'Chibi',
-        text:
-          'Sjen, the walls are listening badly. Amateur work. Loud mouths, no discipline.',
-        next: 's4',
-      },
-      s4: {
-        speaker: 'Sjen',
-        text:
-          'Agreed. We cut through the gate. Quietly, if possible. Horribly, if not.',
-        action: { combat: 'cindershrive_gate', then: 's5' },
-      },
-      s5: {
-        speaker: 'narrator',
-        text:
-          'Beyond the gate is the Reliquary of the Faceless Saint: glass, iron, ash, and a choir of priests whose eyes have been sewn shut so mercy cannot distract them.',
-        next: 's6',
-      },
-      s6: {
-        speaker: 'Lucian',
-        text:
-          'Open it.',
-        next: 's7',
-      },
-      s7: {
-        speaker: 'Chan',
-        text:
-          'That is usually the sort of sentence people say immediately before becoming educational debris.',
-        next: 's8',
-      },
-      s8: {
-        speaker: 'narrator',
-        text:
-          'The reliquary opens. The saint inside has no face. Only a mouth, soft and red and impossibly awake, reciting every sin in the room in alphabetical order.',
-        action: { combat: 'saint_without_face', then: 's9' },
-      },
-      s9: {
-        speaker: 'narrator',
-        text:
-          'When the saint breaks, it does not bleed. It forgives. The word passes through the room like a blade through wet paper. In the ash beneath the glass, Lucian finds another sliver of crownmetal.',
-        effects: { item: 'faceless_reliquary', shard: true, whisper: true, rep: { ashen_church: -35, hollow_choir: 10 }, corruption: 10 },
-        next: 's10',
-      },
-      s10: {
-        speaker: 'Chibi',
-        text:
-          'Good. The saint was smug. I dislike smug things that are not Sjen.',
-        next: 's11',
-      },
-      s11: {
-        speaker: 'Chan',
-        text:
-          'Two slivers, five left, and the Church will now pay handsomely to see us displayed in pieces. Grim, yes. But diversified.',
-        next: 's12',
-      },
-      s12: {
-        speaker: 'Lucian',
-        text:
-          'Let them price the pieces. I am getting more expensive.',
-        action: { missionDone: 'saint_without_face' },
-      },
-    },
   },
 };
 
@@ -400,6 +228,190 @@ export const SCRIPTS = {
         text:
           'Saddle up. Sjen, bring the knives that whisper. Veato — bring the ones that don’t.',
         action: { map: true },
+      },
+    },
+  },
+
+  // ───────────────────── THE ASHEN TITHE ─────────────────────
+  ashen_tithe: {
+    start: 'a1',
+    nodes: {
+      a1: {
+        speaker: 'narrator',
+        text:
+          'The Ash Roads are not roads so much as wounds that learned direction. Every shrine divides the hungry into clean and unclean. Every bell tells one village that the next village deserves less bread. The miracle of the Ashen Church is not faith. It is permission.',
+        next: 'a2',
+      },
+      a2: {
+        speaker: 'narrator',
+        text:
+          'At the first toll shrine, a merchant waits under a black umbrella, counting smoke-stained coins while two families spit at each other across a painted line neither side remembers drawing.',
+        next: 'a3',
+      },
+      a3: {
+        speaker: 'Chan',
+        text:
+          'You are late, under-equipped, overconfident, and carrying crownmetal with the subtlety of a burning tax office. Excellent. I can make money from every part of that.',
+        effects: { flag: { chan_joined: true }, item: 'chan_contract', gold: -35, tension: { lucian_veato: 4, lucian_sjen: 3 } },
+        next: 'a4',
+      },
+      a4: {
+        speaker: 'Veato',
+        text:
+          'He charged us before introducing himself. Lucian, I hate him. Professionally, I am learning.',
+        next: 'a5',
+      },
+      a5: {
+        speaker: 'Chan',
+        text:
+          'My name is Chan. I sell exits, names, indulgence ledgers, and the truth when the lie is overpriced. The Church sells people enemies cheap, then rents them forgiveness at interest. It is disgusting. It is also a market.',
+        next: 'a6',
+      },
+      a6: {
+        speaker: 'Sjen',
+        text:
+          'There is something under the shrine.',
+        next: 'a7',
+      },
+      a7: {
+        speaker: 'Chibi',
+        text:
+          'There is. Me. Try to look less disappointed. Except you, Sjen. You may continue looking correctly suspicious.',
+        effects: { flag: { chibi_joined: true }, tension: { lucian_sjen: 4, sjen_veato: 4 } },
+        next: 'a8',
+      },
+      a8: {
+        speaker: 'narrator',
+        text:
+          'Chibi climbs out of the ash-cache with two knives, three stolen rosaries, and the expression of someone who has already decided most people are furniture with debts.',
+        next: 'a9',
+      },
+      a9: {
+        speaker: 'Chibi',
+        text:
+          'I go with Sjen. He listens when things whisper. The rest of you mostly leak, declare policy, and invent reasons to hate whoever is standing closest.',
+        next: 'a10',
+      },
+      a10: {
+        speaker: 'Lucian',
+        text:
+          'If you slow us down, I leave you in the ash.',
+        next: 'a11',
+      },
+      a11: {
+        speaker: 'Chan',
+        text:
+          'Statistically, Captain, adding two competent people to your company improves your survival odds by almost enough to offset your personality.',
+        next: 'a12',
+      },
+      a12: {
+        speaker: 'narrator',
+        text:
+          'The ditch erupts in white robes. Flagellants, censer-knights, and Church taxmen come screaming from the ash. Half of them were neighbors yesterday. Today a priest renamed them pure and impure, and that was enough.',
+        action: { combat: 'ash_road_ambush', then: 'a13' },
+      },
+      a13: {
+        speaker: 'Chan',
+        text:
+          'See? Hatred with paperwork. Ambush disclosed before services rendered. That is value. You are welcome.',
+        next: 'a14',
+      },
+      a14: {
+        speaker: 'Chibi',
+        text:
+          'Sjen, the taxmen carried ash-script. The Church knows about the sliver. Someone sold them the shape of Lucian’s shadow.',
+        next: 'a15',
+      },
+      a15: {
+        speaker: 'Sjen',
+        text:
+          'Then we go to Cindershrive and ask the saint which mouth taught them to despise each other.',
+        action: { missionDone: 'ashen_tithe' },
+      },
+    },
+  },
+
+  saint_without_face: {
+    start: 's1',
+    nodes: {
+      s1: {
+        speaker: 'narrator',
+        text:
+          'Cindershrive burns without flame. Its streets are gray with kneeling crowds, its windows black with soot, its church doors plated in old confession. No one looks directly at Lucian’s hand. No one looks directly at anyone. The city has learned that suspicion is holiness.',
+        next: 's2',
+      },
+      s2: {
+        speaker: 'Chan',
+        text:
+          'The Church sells forgiveness by the ounce. First it convinces people they are filthy. Then it sells them clean names. Then it points them at someone filthier so they stop asking who owns the washhouse.',
+        next: 's3',
+      },
+      s3: {
+        speaker: 'Chibi',
+        text:
+          'Sjen, the walls are listening badly. Amateur work. Loud mouths, no discipline. They made a whole city into one stupid argument.',
+        next: 's4',
+      },
+      s4: {
+        speaker: 'Sjen',
+        text:
+          'Agreed. We cut through the gate. Quietly, if possible. Horribly, if not.',
+        action: { combat: 'cindershrive_gate', then: 's5' },
+      },
+      s5: {
+        speaker: 'narrator',
+        text:
+          'Beyond the gate is the Reliquary of the Faceless Saint: glass, iron, ash, and a choir of priests whose eyes have been sewn shut so mercy cannot distract them from doctrine.',
+        next: 's6',
+      },
+      s6: {
+        speaker: 'Lucian',
+        text:
+          'Open it.',
+        next: 's7',
+      },
+      s7: {
+        speaker: 'Chan',
+        text:
+          'That is usually the sort of sentence people say immediately before becoming educational debris.',
+        next: 's8',
+      },
+      s8: {
+        speaker: 'narrator',
+        text:
+          'The reliquary opens. The saint inside has no face. Only a mouth, soft and red and impossibly awake, reciting every sin in the room in alphabetical order. Around it, the faithful begin accusing each other before the first command is even finished.',
+        action: { combat: 'saint_without_face', then: 's9' },
+      },
+      s9: {
+        speaker: 'narrator',
+        text:
+          'When the saint breaks, it does not bleed. It forgives. The word passes through the room like poison through a well: everyone drinks, everyone blames the next throat. In the ash beneath the glass, Lucian finds another sliver of crownmetal.',
+        effects: { item: 'faceless_reliquary', shard: true, whisper: true, rep: { ashen_church: -35, hollow_choir: 10 }, corruption: 10 },
+        next: 's10',
+      },
+      s10: {
+        speaker: 'Sjen',
+        text:
+          'There was no revelation here. Only permission. They hated because someone blessed the hatred and gave it a schedule.',
+        next: 's11',
+      },
+      s11: {
+        speaker: 'Chibi',
+        text:
+          'Good. The saint was smug. I dislike smug things that are not Sjen.',
+        next: 's12',
+      },
+      s12: {
+        speaker: 'Chan',
+        text:
+          'Two slivers, five left, and the Church will now pay handsomely to see us displayed in pieces. Grim, yes. But diversified.',
+        next: 's13',
+      },
+      s13: {
+        speaker: 'Lucian',
+        text:
+          'Let them price the pieces. I am getting more expensive.',
+        action: { missionDone: 'saint_without_face' },
       },
     },
   },

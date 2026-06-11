@@ -143,6 +143,7 @@ function effAtk(u) {
   let a = u.atk;
   if (hasStatus(u, 'might')) a *= 1.4;
   if (hasStatus(u, 'focus')) a *= 1.35;
+  if (hasStatus(u, 'zeal')) a *= 1.25;
   if (hasStatus(u, 'cripple')) a *= 0.7;
   if (hasStatus(u, 'fear')) a *= 0.75;
   return a;
@@ -534,8 +535,9 @@ function resolveAbility(s, u, id, targetUid) {
       if (t?.alive) addStatus(s, t, 'bleed', 2, 5 + (s.diff?.afflictionBonus || 0));
       break;
     case 'smoke_censer':
-      log(s, `${u.name} swings a censer until the field tastes like burned saints.`, 'hex');
+      log(s, `${u.name} swings a censer until the field tastes like burned saints. Doctrine thickens into poison.`, 'hex');
       for (const p of alive(s, 'party')) if (Math.random() < 0.6) addStatus(s, p, 'fear', 1);
+      for (const e of alive(s, 'enemy')) addStatus(s, e, 'zeal', 2);
       addStatus(s, u, 'shield', 99, 16);
       break;
     case 'cinder_maul':
@@ -547,6 +549,7 @@ function resolveAbility(s, u, id, targetUid) {
       if (t?.alive) {
         addStatus(s, t, 'marked', 2);
         addStatus(s, t, 'fear', 1);
+        bumpTension(s, t.key === 'sjen' ? 'lucian_sjen' : t.key === 'veato' ? 'lucian_veato' : 'sjen_veato', 1);
       }
       break;
     case 'burning_writ':
@@ -569,11 +572,16 @@ function resolveAbility(s, u, id, targetUid) {
         hit(s, u, p, 0.65, 'Absolve Screaming');
         if (p.alive && Math.random() < 0.45) addStatus(s, p, 'fear', 1);
       }
+      for (const e of alive(s, 'enemy')) addStatus(s, e, 'zeal', 2);
       break;
     case 'martyr_tax':
-      log(s, 'Martyr Tax — every wound becomes doctrine.', 'blood');
+      log(s, 'Martyr Tax — every wound becomes doctrine, and doctrine looks for someone to blame.', 'blood');
       for (const p of alive(s, 'party')) hit(s, u, p, 0.45, 'Martyr Tax');
       addStatus(s, u, 'might', 2);
+      addStatus(s, u, 'zeal', 2);
+      bumpTension(s, 'lucian_sjen', Math.round(2 * (s.diff?.tensionMult || 1)));
+      bumpTension(s, 'lucian_veato', Math.round(2 * (s.diff?.tensionMult || 1)));
+      bumpTension(s, 'sjen_veato', Math.round(2 * (s.diff?.tensionMult || 1)));
       break;
     default:
       break;

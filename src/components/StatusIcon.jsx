@@ -17,6 +17,7 @@ const TITLES = {
   vulnerable: 'Vulnerable — takes harder follow-up blows',
   rotten_guard: 'Rotten Guard — melee attackers risk poison',
   focus: 'Focus — the next strikes hit harder',
+  zeal: 'Zeal — doctrine sharpened into damage',
 };
 
 function glyph(type) {
