@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGame } from '../App.jsx';
 import { COCOLI_LINES, SCARS } from '../data/story.js';
 import Cocoli from '../components/Cocoli.jsx';
+import { speakLine, stopVoice } from '../voice.js';
 
 export default function WhiteSilence() {
   const { g, dispatch } = useGame();
   const line = COCOLI_LINES[Math.min(g.deaths - 1, COCOLI_LINES.length - 1)];
   const scar = SCARS[Math.min(g.deaths - 1, SCARS.length - 1)];
   const already = g.scars.some((sc) => sc.id === scar.id);
+
+  useEffect(() => {
+    const t = setTimeout(() => speakLine('Cocoli', line), 1200);
+    return () => {
+      clearTimeout(t);
+      stopVoice();
+    };
+  }, [line]);
+
+  const revive = (choice) => {
+    stopVoice();
+    dispatch({ type: 'REVIVE', choice });
+  };
 
   return (
     <div className="screen silence-screen">
@@ -36,15 +50,15 @@ export default function WhiteSilence() {
           )}
         </p>
         <div className="silence-choices fade-5">
-          <button className="btn btn-pale" onClick={() => dispatch({ type: 'REVIVE', choice: 'return' })}>
+          <button className="btn btn-pale" onClick={() => revive('return')}>
             Return marked
             <span>Take the scar. Pay the usual corruption.</span>
           </button>
-          <button className="btn btn-pale" onClick={() => dispatch({ type: 'REVIVE', choice: 'forget' })}>
+          <button className="btn btn-pale" onClick={() => revive('forget')}>
             Make them forget
             <span>Ease party tension. Pay extra corruption. See more of what she is.</span>
           </button>
-          <button className="btn btn-pale" onClick={() => dispatch({ type: 'REVIVE', choice: 'vengeance' })}>
+          <button className="btn btn-pale" onClick={() => revive('vengeance')}>
             Return with teeth
             <span>Next attempt starts with Lucian empowered and enemies afraid. Pay dearly.</span>
           </button>

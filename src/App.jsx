@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { reducer, initialState, SAVE_KEY } from './state.js';
 import { playSound } from './audio.js';
+import { stopVoice } from './voice.js';
 import Hud from './components/Hud.jsx';
 import Title from './screens/Title.jsx';
 import Dialogue from './screens/Dialogue.jsx';
@@ -39,6 +40,10 @@ export default function App() {
       }
     }
   }, [g]);
+
+  useEffect(() => {
+    if (!['dialogue', 'silence'].includes(g.screen)) stopVoice();
+  }, [g.screen]);
 
   const Screen = SCREENS[g.screen] || Title;
   const showHud = g.screen !== 'title' && g.screen !== 'silence';

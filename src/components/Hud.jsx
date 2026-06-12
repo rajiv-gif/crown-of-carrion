@@ -2,16 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { useGame } from '../App.jsx';
 import { CHAPTERS } from '../data/chapters.js';
 import { isSoundMuted, toggleSoundMuted } from '../audio.js';
+import { isVoiceMuted, toggleVoiceMuted, voiceSupported } from '../voice.js';
 
 export default function Hud() {
   const { g } = useGame();
   const [muted, setMuted] = useState(isSoundMuted);
+  const [voiceMuted, setVoiceMuted] = useState(isVoiceMuted);
   const ch = CHAPTERS.find((c) => c.id === g.currentChapter) || CHAPTERS[0];
 
   useEffect(() => {
     const onChange = (e) => setMuted(!!e.detail?.muted);
     window.addEventListener('crown-sound-change', onChange);
     return () => window.removeEventListener('crown-sound-change', onChange);
+  }, []);
+
+  useEffect(() => {
+    const onChange = (e) => setVoiceMuted(!!e.detail?.muted);
+    window.addEventListener('crown-voice-change', onChange);
+    return () => window.removeEventListener('crown-voice-change', onChange);
   }, []);
 
   return (
@@ -51,6 +59,17 @@ export default function Hud() {
         >
           {muted ? 'SOUND OFF' : 'SOUND ON'}
         </button>
+        {voiceSupported() && (
+          <button
+            type="button"
+            className={`sound-toggle ${voiceMuted ? 'muted' : ''}`}
+            title={voiceMuted ? 'Voice narration is off' : 'Voice narration is on'}
+            aria-label={voiceMuted ? 'Turn voice narration on' : 'Mute voice narration'}
+            onClick={() => setVoiceMuted(toggleVoiceMuted())}
+          >
+            {voiceMuted ? 'VOICE OFF' : 'VOICE ON'}
+          </button>
+        )}
       </div>
     </header>
   );

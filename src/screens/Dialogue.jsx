@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGame } from '../App.jsx';
 import { SCRIPTS, SPEAKERS } from '../data/story.js';
+import { speakLine, stopVoice } from '../voice.js';
 
 export default function Dialogue() {
   const { g, dispatch } = useGame();
@@ -11,7 +12,13 @@ export default function Dialogue() {
   const sp = SPEAKERS[node.speaker] || { color: 'var(--bone)', sigil: '·' };
   const isNarrator = node.speaker === 'narrator';
 
+  useEffect(() => {
+    speakLine(node.speaker, node.text);
+    return () => stopVoice();
+  }, [g.nodeId, node.speaker, node.text]);
+
   const onContinue = () => {
+    stopVoice();
     if (node.action) {
       if (node.action.combat) {
         dispatch({ type: 'START_COMBAT', encounterId: node.action.combat, then: node.action.then });
@@ -48,7 +55,10 @@ export default function Dialogue() {
                   key={i}
                   className={`choice-btn ${locked ? 'locked' : ''}`}
                   disabled={locked}
-                  onClick={() => dispatch({ type: 'CHOOSE', effects: c.effects, next: c.next })}
+                  onClick={() => {
+                    stopVoice();
+                    dispatch({ type: 'CHOOSE', effects: c.effects, next: c.next });
+                  }}
                 >
                   <span className="choice-num">{['I', 'II', 'III', 'IV', 'V'][i]}.</span> {c.text}
                   {locked && <span className="lock-note">{c.lock.note}</span>}
