@@ -307,7 +307,7 @@ export const SCRIPTS = {
       a12: {
         speaker: 'narrator',
         text:
-          'The ditch erupts in white robes. Flagellants, censer-knights, and Church taxmen come screaming from the ash. Half of them were neighbors yesterday. Today a priest renamed them pure and impure, and that was enough.',
+          'The ditch erupts in white robes. Flagellants, censer-knights, and Church taxmen come screaming from the ash. Behind them shamble reliquary husks: the dead, packed with doctrine until even rot has learned obedience. Half of the living attackers were neighbors yesterday. Today a priest renamed them pure and impure, and that was enough.',
         action: { combat: 'ash_road_ambush', then: 'a13' },
       },
       a13: {
@@ -379,7 +379,7 @@ export const SCRIPTS = {
       s8: {
         speaker: 'narrator',
         text:
-          'The reliquary opens. The saint inside has no face. Only a mouth, soft and red and impossibly awake, reciting every sin in the room in alphabetical order. Around it, the faithful begin accusing each other before the first command is even finished.',
+          'The reliquary opens. The saint inside has no face. Only a mouth, soft and red and impossibly awake, reciting every sin in the room in alphabetical order. Around it, the faithful begin accusing each other before the first command is even finished. Something horned and dead crawls from under the altar, made from all the hatred the Church told people was holy.',
         action: { combat: 'saint_without_face', then: 's9' },
       },
       s9: {

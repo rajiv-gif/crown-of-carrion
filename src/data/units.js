@@ -125,6 +125,24 @@ export const ENEMIES = {
     speed: 8,
     abilities: ['audit_sin', 'burning_writ', 'chain_lash'],
   },
+  reliquary_husk: {
+    name: 'Reliquary Husk',
+    sigil: '✕',
+    sprite: 'husk',
+    hp: 58,
+    atk: 14,
+    speed: 7,
+    abilities: ['grave_bloom', 'bone_clutch', 'claw'],
+  },
+  dogma_demon: {
+    name: 'Dogma Demon',
+    sigil: '✕',
+    sprite: 'demon',
+    hp: 86,
+    atk: 17,
+    speed: 11,
+    abilities: ['sermon_of_teeth', 'faith_eater', 'penitent_flurry'],
+  },
   faceless_saint: {
     name: 'The Saint Without a Face',
     epithet: 'Absolution With Teeth',
@@ -134,7 +152,7 @@ export const ENEMIES = {
     hp: 255,
     atk: 18,
     speed: 9,
-    abilities: ['erase_face', 'absolve_screaming', 'martyr_tax', 'cinder_maul', 'audit_sin'],
+    abilities: ['erase_face', 'absolve_screaming', 'martyr_tax', 'sermon_of_teeth', 'cinder_maul', 'audit_sin'],
   },
 };
 
@@ -159,7 +177,7 @@ export const ENCOUNTERS = {
     name: 'The Ash Road Ambush',
     opener:
       'Chan’s shortcut is real. So is the ambush. White-robed penitents rise from the ditch with hooks, censers, and memorized prices.',
-    enemies: ['ashen_flagellant', 'ashen_flagellant', 'censer_knight', 'choir_taxman'],
+    enemies: ['ashen_flagellant', 'reliquary_husk', 'censer_knight', 'choir_taxman'],
     gold: 42,
     xp: 95,
   },
@@ -167,7 +185,7 @@ export const ENCOUNTERS = {
     name: 'The Cindershrive Gate',
     opener:
       'At the city gate, absolution is sold by weight. The Church taxmen decide the Black Tithe looks heavy.',
-    enemies: ['choir_taxman', 'censer_knight', 'ashen_flagellant', 'choir_taxman'],
+    enemies: ['choir_taxman', 'censer_knight', 'reliquary_husk', 'dogma_demon'],
     gold: 55,
     xp: 120,
   },
@@ -175,7 +193,7 @@ export const ENCOUNTERS = {
     name: 'The Saint Without a Face',
     opener:
       'The reliquary opens. There is no face under the veil. There is only a mouth where mercy should have been.',
-    enemies: ['faceless_saint', 'censer_knight', 'ashen_flagellant'],
+    enemies: ['faceless_saint', 'dogma_demon', 'reliquary_husk'],
     gold: 90,
     xp: 170,
   },

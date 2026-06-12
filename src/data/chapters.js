@@ -44,7 +44,7 @@ export const CHAPTERS = [
     region: 'The Ash Roads / Cindershrive',
     regionId: 'ash_roads',
     danger: 'Dire',
-    omens: 'Execution fields. Relic processions. Neighbors taught to hate on command.',
+    omens: 'Execution fields. Relic processions. Neighbors taught to hate on command. Dead doctrine walking.',
     requires: 'Complete Chapter I',
     unlockedCopy: 'The Ash Roads and Cindershrive are open. The Church has started turning neighbors into enemies.',
     missions: [

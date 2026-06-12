@@ -285,6 +285,51 @@ function Taxman() {
   );
 }
 
+function Husk() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-husk" aria-label="Reliquary Husk">
+      <path d="M40 102 L50 98 L48 140 L36 140 Z" fill={IRON_DARK} />
+      <path d="M58 100 L68 98 L74 140 L62 140 Z" fill={IRON_DARK} />
+      <path d="M34 48 Q56 28 78 50 L72 108 L58 98 L48 112 L36 100 Z" fill="#130f13" />
+      <path d="M44 18 Q58 2 70 18 L68 42 L46 42 Z" fill="#1a1318" />
+      <rect x="42" y="54" width="30" height="26" fill="#1d1409" stroke={BONE} strokeWidth="1.8" />
+      <path d="M48 63 L66 63 M48 70 L66 70" stroke={BONE} strokeWidth="1" opacity="0.7" />
+      <circle cx="54" cy="30" r="1.6" fill={HEX} />
+      <circle cx="63" cy="31" r="1.3" fill={POISON} />
+      <path d="M34 66 L16 92 L24 98 L42 76 Z" fill="#130f13" />
+      <path d="M74 66 L94 88 L88 96 L68 76 Z" fill="#130f13" />
+      <g className="sil-runes" fill={POISON} opacity="0.65">
+        <circle cx="28" cy="46" r="2.8" />
+        <circle cx="84" cy="42" r="2.4" />
+      </g>
+    </svg>
+  );
+}
+
+function Demon() {
+  return (
+    <svg viewBox="0 0 140 165" className="sil sil-demon" aria-label="Dogma Demon">
+      <path d="M46 112 L60 110 L56 156 L42 156 Z" fill={IRON_DARK} />
+      <path d="M78 110 L92 112 L100 156 L84 156 Z" fill={IRON_DARK} />
+      <path d="M34 56 Q70 22 106 56 L98 122 L80 108 L68 130 L54 108 L36 124 Z" fill="#100b12" />
+      <path d="M48 28 L38 4 L62 24 Z" fill="#100b12" />
+      <path d="M90 28 L106 4 L82 24 Z" fill="#100b12" />
+      <ellipse cx="70" cy="48" rx="24" ry="19" fill="#1b111c" />
+      <circle cx="60" cy="45" r="2" fill={BLOOD} />
+      <circle cx="79" cy="45" r="2" fill={BLOOD} />
+      <path d="M54 58 Q70 72 88 58" stroke={BONE} strokeWidth="3.2" fill="none" />
+      <path d="M32 74 L10 104 L20 112 L44 86 Z" fill="#100b12" />
+      <path d="M106 74 L130 104 L120 112 L94 86 Z" fill="#100b12" />
+      <path d="M22 106 L12 124 M24 110 L18 128 M118 110 L126 128 M120 106 L132 124" stroke={BONE} strokeWidth="2.2" />
+      <g className="sil-runes" fill={HEX} opacity="0.6">
+        <rect x="66" y="82" width="8" height="8" transform="rotate(45 70 86)" />
+        <circle cx="36" cy="38" r="3" />
+        <circle cx="104" cy="38" r="3" />
+      </g>
+    </svg>
+  );
+}
+
 function Saint() {
   return (
     <svg viewBox="0 0 150 185" className="sil sil-saint" aria-label="The Saint Without a Face">
@@ -316,6 +361,8 @@ const SPRITES = {
   flagellant: Flagellant,
   censer: Censer,
   taxman: Taxman,
+  husk: Husk,
+  demon: Demon,
   saint: Saint,
 };
 

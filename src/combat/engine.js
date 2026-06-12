@@ -60,6 +60,10 @@ export const ABILITIES = {
   cinder_maul: { name: 'Cinder Maul', cd: 2, target: 'party' },
   audit_sin: { name: 'Audit Sin', cd: 2, target: 'party' },
   burning_writ: { name: 'Burning Writ', cd: 2, target: 'party' },
+  grave_bloom: { name: 'Grave Bloom', cd: 2, target: 'party' },
+  bone_clutch: { name: 'Bone Clutch', cd: 2, target: 'party' },
+  sermon_of_teeth: { name: 'Sermon of Teeth', cd: 3, target: 'none' },
+  faith_eater: { name: 'Faith Eater', cd: 2, target: 'party' },
   erase_face: { name: 'Erase Face', cd: 3, target: 'party' },
   absolve_screaming: { name: 'Absolve Screaming', cd: 4, target: 'none' },
   martyr_tax: { name: 'Martyr Tax', cd: 3, target: 'none' },
@@ -557,6 +561,35 @@ function resolveAbility(s, u, id, targetUid) {
       if (t?.alive) {
         addStatus(s, t, 'curse', 2, 6 + (s.diff?.afflictionBonus || 0));
         addStatus(s, t, 'bleed', 2, 4);
+      }
+      break;
+    case 'grave_bloom':
+      hit(s, u, t, 0.8, 'Grave Bloom');
+      if (t?.alive) {
+        addStatus(s, t, 'poison', 3, 5 + (s.diff?.afflictionBonus || 0));
+        addStatus(s, t, 'curse', 2, 5);
+      }
+      log(s, 'Dead doctrine flowers in the wound.', 'hex');
+      break;
+    case 'bone_clutch':
+      hit(s, u, t, hasStatus(t, 'fear') || hasStatus(t, 'marked') ? 1.65 : 1.0, 'Bone Clutch');
+      if (t?.alive) addStatus(s, t, 'cripple', 2);
+      break;
+    case 'sermon_of_teeth':
+      log(s, `${u.name} preaches with every mouth it has. The sermon bites back.`, 'death');
+      for (const p of alive(s, 'party')) {
+        hit(s, u, p, hasStatus(p, 'fear') ? 0.85 : 0.55, 'Sermon of Teeth');
+        if (p.alive && Math.random() < 0.35) addStatus(s, p, 'fear', 1);
+      }
+      for (const e of alive(s, 'enemy')) addStatus(s, e, 'zeal', 2);
+      break;
+    case 'faith_eater':
+      hit(s, u, t, 1.3, 'Faith Eater');
+      if (t?.alive) {
+        if (hasStatus(t, 'might')) removeStatus(t, 'might');
+        if (hasStatus(t, 'focus')) removeStatus(t, 'focus');
+        addStatus(s, u, 'might', 2);
+        log(s, `${u.name} eats the courage out of ${t.name}.`, 'blood');
       }
       break;
     case 'erase_face':
