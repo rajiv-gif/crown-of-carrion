@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGame } from '../App.jsx';
+import { playCombatEvents, playSound } from '../audio.js';
 import { createCombat, playerAct, autoAct, currentUnit, ABILITIES, usePoultice } from '../combat/engine.js';
 import Battlefield from '../components/Battlefield.jsx';
 import { ITEMS, TENSION_PAIRS } from '../data/story.js';
@@ -12,6 +13,7 @@ export default function CombatScreen() {
   const [sel, setSel] = useState(null); // ability awaiting a target
   const seen = useRef(c.events.length); // skip animating setup events
   const logRef = useRef(null);
+  const endSound = useRef(null);
 
   // Fold a new engine state in and stage its fresh events for animation.
   const apply = (next) => {
@@ -19,6 +21,7 @@ export default function CombatScreen() {
     seen.current = next.events.length;
     setC(next);
     if (fresh.length) {
+      playCombatEvents(fresh);
       setFx((f) => [...f, ...fresh]);
       const ids = new Set(fresh.map((e) => e.id));
       setTimeout(() => setFx((f) => f.filter((x) => !ids.has(x.id))), 1500);
@@ -40,6 +43,16 @@ export default function CombatScreen() {
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [c.log.length]);
+
+  useEffect(() => {
+    if (c.over && endSound.current !== c.over) {
+      endSound.current = c.over;
+      playSound(c.over === 'victory' ? 'victory' : 'defeat');
+      if (c.over === 'victory' && (c.bonusGold > 0 || c.bonusXp > 0 || c.lootItem)) {
+        setTimeout(() => playSound('reward'), 360);
+      }
+    }
+  }, [c.over, c.bonusGold, c.bonusXp, c.lootItem]);
 
   const act = (abilityId, targetUid) => {
     setSel(null);

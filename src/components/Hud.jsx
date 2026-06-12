@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGame } from '../App.jsx';
 import { CHAPTERS } from '../data/chapters.js';
+import { isSoundMuted, toggleSoundMuted } from '../audio.js';
 
 export default function Hud() {
   const { g } = useGame();
+  const [muted, setMuted] = useState(isSoundMuted);
   const ch = CHAPTERS.find((c) => c.id === g.currentChapter) || CHAPTERS[0];
+
+  useEffect(() => {
+    const onChange = (e) => setMuted(!!e.detail?.muted);
+    window.addEventListener('crown-sound-change', onChange);
+    return () => window.removeEventListener('crown-sound-change', onChange);
+  }, []);
+
   return (
     <header className="hud">
       <div className="hud-title">
@@ -33,6 +42,15 @@ export default function Hud() {
             ⚠ knife’s edge
           </span>
         )}
+        <button
+          type="button"
+          className={`sound-toggle ${muted ? 'muted' : ''}`}
+          title={muted ? 'Sound is muted' : 'Sound is on'}
+          aria-label={muted ? 'Turn sound on' : 'Mute sound'}
+          onClick={() => setMuted(toggleSoundMuted())}
+        >
+          {muted ? 'SOUND OFF' : 'SOUND ON'}
+        </button>
       </div>
     </header>
   );

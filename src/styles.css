@@ -136,6 +136,24 @@ button { font-family: inherit; cursor: pointer; }
 }
 .hud-stats { display: flex; gap: 22px; font-size: 14px; color: var(--bone-dim); }
 .hud-stat b { font-family: var(--serif-display); font-size: 15px; }
+.sound-toggle {
+  border: 1px solid rgba(169, 140, 69, 0.36);
+  background: rgba(20, 16, 13, 0.7);
+  color: var(--gold);
+  font-family: var(--serif-display);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  padding: 5px 8px;
+  text-transform: uppercase;
+}
+.sound-toggle:hover {
+  border-color: var(--gold);
+  color: var(--pale);
+}
+.sound-toggle.muted {
+  border-color: var(--iron);
+  color: var(--bone-dim);
+}
 
 /* ── title screen ───────────────────────────────────────────── */
 

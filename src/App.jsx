@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { reducer, initialState, SAVE_KEY } from './state.js';
+import { playSound } from './audio.js';
 import Hud from './components/Hud.jsx';
 import Title from './screens/Title.jsx';
 import Dialogue from './screens/Dialogue.jsx';
@@ -44,7 +45,12 @@ export default function App() {
 
   return (
     <Ctx.Provider value={{ g, dispatch }}>
-      <div className={`app ${g.screen === 'silence' ? 'pale' : ''}`}>
+      <div
+        className={`app ${g.screen === 'silence' ? 'pale' : ''}`}
+        onPointerDownCapture={(e) => {
+          if (e.target.closest('button')) playSound('ui');
+        }}
+      >
         {showHud && <Hud />}
         <Screen key={g.screen + (g.encounterId || '')} />
         {g.mark && g.screen !== 'title' && (
