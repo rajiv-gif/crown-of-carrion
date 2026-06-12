@@ -742,6 +742,13 @@ function checkEnd(s) {
       s.bonusXp += 10;
       log(s, 'Clean ledger — nobody in the company dropped. +10 XP.', 'gold');
     }
+    if (s.hadAscensionThreat && (s.ascensions || 0) > 0) {
+      s.cocoliObjective = true;
+      s.bonusXp += 30;
+      s.corruptionDelta += 3;
+      log(s, 'Cocoli watches the ruined bloom you allowed. Her approval feels like snow in the mouth. +30 XP, +3 corruption.', 'hex');
+      evt(s, { k: 'float', unit: alive(s, 'party')[0]?.uid, text: 'COCOLI SAW', type: 'word' });
+    }
     if (!s.lootItem) {
       if (s.preventedAscensions >= 2) s.lootItem = 'demon_tooth';
       else if (s.hadAscensionThreat && (s.ascensions || 0) === 0) s.lootItem = 'black_indulgence';
@@ -1051,6 +1058,10 @@ export function createCombat(g) {
     ascensions: 0,
     partyLosses: 0,
     hadAscensionThreat: false,
+    cocoliObjective: false,
+    cocoliBargainUsed: false,
+    cocoliBargain: null,
+    cocoliDebtsDelta: 0,
     auto: null,
     betrayed: {},
     tension: { ...g.tension },
@@ -1069,6 +1080,15 @@ export function createCombat(g) {
   log(s, enc.opener || `${enc.name}. The ledger opens.`, 'round');
   if (diff.id === 'merciless') log(s, 'Merciless ledger: skills are scarce, healing is mean, and Cocoli is listening.', 'death');
   if (s.poultices > 0) log(s, `Black Poultice x${s.poultices}: tar, old blood, and something still alive.`, 'dim');
+  if (g.flags?.cocoli_vengeance) {
+    const luc = byKey(s, 'lucian');
+    if (luc) {
+      addStatus(s, luc, 'might', 2);
+      addStatus(s, luc, 'focus', 2);
+      log(s, 'Cocoli returned Lucian with teeth in his shadow. Might and Focus cling to him.', 'hex');
+    }
+    for (const e of s.units.filter((x) => x.side === 'enemy')) addStatus(s, e, 'fear', 1);
+  }
   for (const e of s.units.filter((x) => x.alive && x.side === 'enemy' && x.transformInto)) {
     log(s, `${e.name} carries dead doctrine in its ribs. Kill it before Ascension reaches zero.`, 'hex');
   }
@@ -1107,6 +1127,54 @@ export function usePoultice(state, targetUid) {
   evt(s, { k: 'float', unit: target.uid, text: `+${heal}`, type: 'heal' });
   endTurn(s, u);
   return advance_(s);
+}
+
+export function cocoliBargain(state, kind) {
+  const s = structuredClone(state);
+  if (s.over || s.auto || s.cocoliBargainUsed) return s;
+  const party = alive(s, 'party');
+  const enemies = alive(s, 'enemy');
+  if (!party.length) return s;
+  s.cocoliBargainUsed = true;
+  s.cocoliBargain = kind;
+  s.cocoliDebtsDelta = (s.cocoliDebtsDelta || 0) + 1;
+  const luc = byKey(s, 'lucian') || party[0];
+
+  if (kind === 'mercy') {
+    for (const p of party) {
+      const heal = Math.max(1, Math.round(p.maxHp * 0.28));
+      p.hp = Math.min(p.maxHp, p.hp + heal);
+      evt(s, { k: 'float', unit: p.uid, text: `+${heal}`, type: 'heal' });
+    }
+    s.corruptionDelta += 6;
+    bumpTension(s, 'lucian_sjen', 3);
+    bumpTension(s, 'lucian_veato', 3);
+    log(s, 'Cocoli’s Mercy — every ally is pulled a little farther from death. Nobody believes it was kindness. +6 corruption.', 'hex');
+  } else if (kind === 'teeth') {
+    for (const e of enemies) {
+      const bite = Math.max(8, Math.round(e.maxHp * 0.22));
+      e.hp -= bite;
+      log(s, `Cocoli’s Teeth close inside ${e.name}. ${bite} damage.`, 'blood');
+      evt(s, { k: 'hit', unit: e.uid, amount: bite, vicious: true, ability: 'cocoli_teeth' });
+      if (e.hp <= 0) kill(s, e, luc);
+      else addStatus(s, e, 'fear', 2);
+    }
+    s.corruptionDelta += 8;
+    log(s, 'Cocoli does not strike from above. She strikes from where mercy used to be. +8 corruption.', 'death');
+  } else {
+    for (const p of party) {
+      p.cooldowns = {};
+      addStatus(s, p, 'focus', 2);
+    }
+    s.corruptionDelta += 5;
+    bumpTension(s, 'lucian_sjen', 5);
+    bumpTension(s, 'lucian_veato', 5);
+    log(s, 'Cocoli’s Still Hour — cooldowns vanish and the company moves inside a stolen second. +5 corruption.', 'hex');
+  }
+
+  evt(s, { k: 'summon', unit: luc.uid });
+  checkEnd(s);
+  return s;
 }
 
 export function autoAct(state) {

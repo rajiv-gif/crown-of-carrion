@@ -26,6 +26,7 @@ export function initialState() {
     difficulty: 'merciless',
     crownWhispers: 0,
     cocoliOriginFragments: 0,
+    cocoliDebts: 0,
     reputation: { ashen_church: 0, plague_barons: 0, iron_covenant: 10, hollow_choir: 0 },
     tension: { lucian_sjen: 35, lucian_veato: 30, sjen_veato: 20 },
     // Sin ranks: there are no stats here, only what each of them is becoming.
@@ -161,6 +162,12 @@ export function reducer(g, a) {
         const ambMult = 1 + 0.15 * (g.sins.lucian.ambition || 0);
         const gold = Math.round((enc.gold || 0) * greedMult) + (a.bonusGold || 0) - (a.skim || 0);
         let s = applyEffects(g, { gold, corruption: a.corruptionDelta || 0, item: a.lootItem });
+        s.cocoliDebts = (s.cocoliDebts || 0) + (a.cocoliDebtsDelta || 0) + (a.cocoliObjective ? 1 : 0);
+        s.flags = {
+          ...s.flags,
+          cocoli_vengeance: false,
+          ...(a.cocoliObjective ? { cocoli_ascension_objective: true } : {}),
+        };
         if (a.tensionDelta) s = applyEffects(s, { tension: a.tensionDelta });
         const bossKilled = enc.enemies.some((e) => ENEMIES[e].boss);
         if (bossKilled && !s.defeatedBosses.includes(g.encounterId)) {
@@ -211,13 +218,19 @@ export function reducer(g, a) {
       const scarIdx = Math.min(g.deaths - 1, SCARS.length - 1);
       const scar = SCARS[scarIdx];
       const already = g.scars.some((sc) => sc.id === scar.id);
+      const choice = a.choice || 'return';
+      const baseCorruption = 5 + (already ? 8 : scar.corruption || 0) + (g.difficulty === 'merciless' ? 3 : 0);
+      const choiceCorruption = choice === 'forget' ? 4 : choice === 'vengeance' ? 7 : 0;
+      const baseTension = choice === 'forget' ? -8 : 4;
       let s = applyEffects(g, {
-        corruption: 5 + (already ? 8 : scar.corruption || 0) + (g.difficulty === 'merciless' ? 3 : 0),
-        tension: { lucian_sjen: 4, lucian_veato: 4 },
+        corruption: baseCorruption + choiceCorruption,
+        tension: { lucian_sjen: baseTension, lucian_veato: baseTension },
+        flag: { cocoli_vengeance: choice === 'vengeance' },
       });
+      s.cocoliDebts = (s.cocoliDebts || 0) + 1;
       if (!already) s.scars = [...s.scars, scar];
       // Repeated deaths peel back pieces of what Cocoli is.
-      if (g.deaths >= 3) s.cocoliOriginFragments = Math.min(5, (g.cocoliOriginFragments || 0) + 1);
+      if (g.deaths >= 3 || choice === 'forget') s.cocoliOriginFragments = Math.min(5, (g.cocoliOriginFragments || 0) + 1);
       s.screen = 'combat'; // Back into the same fight, marked.
       return mark(s, 'Returned. The ledger remembers even this.');
     }

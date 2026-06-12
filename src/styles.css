@@ -335,6 +335,15 @@ button { font-family: inherit; cursor: pointer; }
 .mission-name { font-family: var(--serif-display); font-size: 22px; color: var(--pale); margin: 8px 0 2px; }
 .mission-patron { font-size: 13px; color: var(--rust); letter-spacing: 0.08em; margin-bottom: 8px; }
 .mission-desc { color: var(--bone-dim); margin-bottom: 14px; }
+.cocoli-objective {
+  border-left: 2px solid rgba(233, 228, 214, 0.35);
+  color: var(--pale);
+  font-size: 13px;
+  font-style: italic;
+  margin: -4px 0 14px;
+  padding-left: 10px;
+}
+.cocoli-objective.done { color: var(--hex); border-left-color: rgba(142, 123, 181, 0.55); }
 
 .roster-row { display: flex; gap: 12px; margin-bottom: 14px; }
 .roster-sigil { font-size: 22px; line-height: 1.2; }
@@ -443,6 +452,34 @@ button { font-family: inherit; cursor: pointer; }
 .ability-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .ability-btn.poultice { border-color: #3a3050; }
 .ability-btn.poultice:not(:disabled) .ability-name { color: var(--hex); }
+.cocoli-bargain {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: minmax(190px, 1.1fr) repeat(3, minmax(150px, 1fr));
+  gap: 10px;
+  border: 1px solid rgba(233, 228, 214, 0.28);
+  background: linear-gradient(115deg, rgba(233, 228, 214, 0.11), rgba(142, 123, 181, 0.08));
+  padding: 10px;
+}
+.cocoli-bargain-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--bone-dim);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.cocoli-bargain-copy b {
+  color: var(--pale);
+  font-family: var(--serif-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ability-btn.cocoli-offer {
+  border-color: rgba(233, 228, 214, 0.34);
+  background: linear-gradient(180deg, rgba(233, 228, 214, 0.12), rgba(20, 16, 13, 0.9));
+}
+.ability-btn.cocoli-offer .ability-name { color: var(--pale); }
 .ability-name { display: block; font-family: var(--serif-display); font-size: 12.5px; letter-spacing: 0.08em; }
 .ability-meta {
   display: block;
@@ -554,6 +591,30 @@ button { font-family: inherit; cursor: pointer; }
 .silence-consequence { font-size: 15px; color: #6e6757; line-height: 1.7; margin-bottom: 36px; }
 .scar-name { color: #7c1d1d; }
 .silence-consequence .dim-text { color: #8d8572; }
+.silence-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.silence-choices .btn {
+  display: flex;
+  min-height: 108px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  white-space: normal;
+}
+.silence-choices .btn span {
+  display: block;
+  font-family: var(--serif-body);
+  font-size: 13px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #756d5c;
+}
 .btn-pale {
   background: transparent;
   border-color: #a89f88;
@@ -1265,6 +1326,11 @@ button { font-family: inherit; cursor: pointer; }
   background: rgba(130, 24, 24, 0.18);
 }
 .reward-line.rare strong { color: var(--blood-bright); }
+.reward-line.cocoli {
+  border-color: rgba(233, 228, 214, 0.42);
+  background: rgba(233, 228, 214, 0.1);
+}
+.reward-line.cocoli strong { color: var(--pale); }
 .coin-flicker { color: var(--gold); animation: coinFlick 1.2s ease infinite; display: inline-block; }
 @keyframes coinFlick {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -1388,6 +1454,7 @@ button { font-family: inherit; cursor: pointer; }
 
 @media (max-width: 980px) {
   .map-cols, .combat-cols, .combat-bottom { grid-template-columns: 1fr; }
+  .cocoli-bargain, .silence-choices { grid-template-columns: 1fr; }
   .combat-log { max-height: 30vh; }
   .ledger-grid, .ledger-grid.small { grid-template-columns: repeat(2, 1fr); }
   .battlefield-stage { height: 320px; }

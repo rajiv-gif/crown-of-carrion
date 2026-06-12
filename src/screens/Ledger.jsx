@@ -71,6 +71,12 @@ export default function Ledger() {
               Fragments of what she is, glimpsed in dying: {g.cocoliOriginFragments}.
             </p>
           )}
+          {(g.cocoliDebts || 0) > 0 && (
+            <p className="ledger-line pale-text">Cocoli is owed {g.cocoliDebts === 1 ? 'one private debt' : `${g.cocoliDebts} private debts`}.</p>
+          )}
+          {g.flags?.cocoli_ascension_objective && (
+            <p className="ledger-line hex-text">Cocoli’s ash-road request was fulfilled: you let doctrine bloom and lived.</p>
+          )}
           {g.scars.length > 0 && (
             <p className="ledger-line">
               Lucian’s scars: <b className="pale-text">{g.scars.map((s) => s.name).join(', ')}</b>.

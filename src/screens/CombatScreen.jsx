@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGame } from '../App.jsx';
 import { playCombatEvents, playSound } from '../audio.js';
-import { createCombat, playerAct, autoAct, currentUnit, ABILITIES, usePoultice } from '../combat/engine.js';
+import { createCombat, playerAct, autoAct, currentUnit, ABILITIES, usePoultice, cocoliBargain } from '../combat/engine.js';
 import Battlefield from '../components/Battlefield.jsx';
 import { ITEMS, TENSION_PAIRS } from '../data/story.js';
 import { tensionTier } from '../data/sins.js';
@@ -30,6 +30,10 @@ export default function CombatScreen() {
 
   const cur = currentUnit(c);
   const playerTurn = !c.over && !c.auto && cur && cur.side === 'party';
+  const canBargain =
+    playerTurn &&
+    !c.cocoliBargainUsed &&
+    (c.round >= 2 || c.units.some((u) => u.alive && u.side === 'party' && u.hp <= u.maxHp * 0.45));
 
   // Auto turns: enemies, the Wretch, and sabotaging companions. Slightly
   // slower than before so each action's animation can be read.
@@ -57,6 +61,10 @@ export default function CombatScreen() {
   const act = (abilityId, targetUid) => {
     setSel(null);
     apply(abilityId === 'poultice' ? usePoultice(c, targetUid) : playerAct(c, abilityId, targetUid));
+  };
+  const bargain = (kind) => {
+    setSel(null);
+    apply(cocoliBargain(c, kind));
   };
 
   const onAbility = (id) => {
@@ -87,6 +95,8 @@ export default function CombatScreen() {
       bonusGold: c.bonusGold,
       bonusXp: c.bonusXp,
       lootItem: c.lootItem,
+      cocoliDebtsDelta: c.cocoliDebtsDelta,
+      cocoliObjective: c.cocoliObjective,
       tensionDelta: c.tensionDelta,
       corruptionDelta: c.corruptionDelta,
     });
@@ -134,6 +144,26 @@ export default function CombatScreen() {
           </div>
           {playerTurn && (
             <div className="ability-bar">
+              {canBargain && (
+                <div className="cocoli-bargain">
+                  <div className="cocoli-bargain-copy">
+                    <b>Cocoli leans close.</b>
+                    <span>One bargain. One debt. Choose before she gets bored.</span>
+                  </div>
+                  <button className="ability-btn cocoli-offer" title="Heal all allies. +6 corruption, tension rises." onClick={() => bargain('mercy')}>
+                    <span className="ability-name">Mercy</span>
+                    <span className="ability-meta">Heal the company · +6 corruption</span>
+                  </button>
+                  <button className="ability-btn cocoli-offer" title="Damage and frighten all enemies. +8 corruption." onClick={() => bargain('teeth')}>
+                    <span className="ability-name">Teeth</span>
+                    <span className="ability-meta">Bite every enemy · +8 corruption</span>
+                  </button>
+                  <button className="ability-btn cocoli-offer" title="Reset ally cooldowns and grant Focus. +5 corruption, tension rises." onClick={() => bargain('hour')}>
+                    <span className="ability-name">Still Hour</span>
+                    <span className="ability-meta">Reset cooldowns · Focus</span>
+                  </button>
+                </div>
+              )}
               {cur.abilities.map((id) => {
                 const A = ABILITIES[id];
                 const cd = cur.cooldowns[id] || 0;
@@ -219,6 +249,12 @@ export default function CombatScreen() {
                   <div className="reward-line rare">
                     <span>Rare relic</span>
                     <strong>{ITEMS[c.lootItem].name}</strong>
+                  </div>
+                )}
+                {c.cocoliObjective && (
+                  <div className="reward-line cocoli">
+                    <span>Cocoli’s private objective</span>
+                    <strong>fulfilled</strong>
                   </div>
                 )}
               </div>

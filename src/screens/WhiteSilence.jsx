@@ -35,9 +35,20 @@ export default function WhiteSilence() {
             </>
           )}
         </p>
-        <button className="btn btn-pale fade-5" onClick={() => dispatch({ type: 'REVIVE' })}>
-          Return to the meat
-        </button>
+        <div className="silence-choices fade-5">
+          <button className="btn btn-pale" onClick={() => dispatch({ type: 'REVIVE', choice: 'return' })}>
+            Return marked
+            <span>Take the scar. Pay the usual corruption.</span>
+          </button>
+          <button className="btn btn-pale" onClick={() => dispatch({ type: 'REVIVE', choice: 'forget' })}>
+            Make them forget
+            <span>Ease party tension. Pay extra corruption. See more of what she is.</span>
+          </button>
+          <button className="btn btn-pale" onClick={() => dispatch({ type: 'REVIVE', choice: 'vengeance' })}>
+            Return with teeth
+            <span>Next attempt starts with Lucian empowered and enemies afraid. Pay dearly.</span>
+          </button>
+        </div>
       </div>
     </div>
   );

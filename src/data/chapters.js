@@ -54,6 +54,7 @@ export const CHAPTERS = [
         name: 'The Ashen Tithe',
         patron: 'Chan, Merchant of Necessary Evils',
         desc: 'A cynical merchant offers the route to Cindershrive, a ledger of Church indulgences, and proof that hatred can be itemized. Some faithful must be killed before they ascend.',
+        cocoliObjective: 'Cocoli’s request: allow one faithful corpse to ascend, then survive what blooms.',
       },
       {
         id: 'saint_without_face',
@@ -61,6 +62,7 @@ export const CHAPTERS = [
         name: 'The Saint Without a Face',
         patron: 'No one living',
         desc: 'The Ashen Church keeps a faceless saint under glass. It teaches people to call cruelty clean.',
+        cocoliObjective: 'Cocoli’s request: let doctrine show its true body before you destroy it.',
         requiresMission: 'ashen_tithe',
         requiresText: 'Complete The Ashen Tithe',
       },

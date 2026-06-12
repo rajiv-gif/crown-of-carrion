@@ -84,6 +84,12 @@ function ChapterCard({ ch, g, dispatch }) {
                 {m.name} <span className="dim-text">— {m.patron}</span>
               </div>
               <p className="mission-desc">{m.desc}</p>
+              {m.cocoliObjective && !g.flags?.cocoli_ascension_objective && (
+                <p className="cocoli-objective">◌ {m.cocoliObjective}</p>
+              )}
+              {m.cocoliObjective && g.flags?.cocoli_ascension_objective && (
+                <p className="cocoli-objective done">◌ Cocoli’s private objective is fulfilled. She is not done watching.</p>
+              )}
               {missionLocked && <p className="lock-note">{m.requiresText || 'Another debt must be paid first.'}</p>}
               <button
                 className="btn btn-blood"
