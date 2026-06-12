@@ -124,6 +124,8 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
         ))}
       </div>
       <div className="sprite-wrap">
+        <div className="unit-aura" style={{ '--unit-color': u.color }} />
+        <div className="unit-base" />
         <div className="turn-ring" />
         <div className="target-ring" />
         <Silhouette name={u.sprite} />
