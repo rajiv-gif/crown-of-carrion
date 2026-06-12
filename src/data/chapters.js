@@ -44,7 +44,7 @@ export const CHAPTERS = [
     region: 'The Ash Roads / Cindershrive',
     regionId: 'ash_roads',
     danger: 'Dire',
-    omens: 'Execution fields. Relic processions. Neighbors taught to hate on command. Dead doctrine walking.',
+    omens: 'Execution fields. Relic processions. Neighbors taught to hate on command. Dead doctrine waiting to ascend.',
     requires: 'Complete Chapter I',
     unlockedCopy: 'The Ash Roads and Cindershrive are open. The Church has started turning neighbors into enemies.',
     missions: [
@@ -53,7 +53,7 @@ export const CHAPTERS = [
         script: 'ashen_tithe',
         name: 'The Ashen Tithe',
         patron: 'Chan, Merchant of Necessary Evils',
-        desc: 'A cynical merchant offers the route to Cindershrive, a ledger of Church indulgences, and proof that hatred can be itemized.',
+        desc: 'A cynical merchant offers the route to Cindershrive, a ledger of Church indulgences, and proof that hatred can be itemized. Some faithful must be killed before they ascend.',
       },
       {
         id: 'saint_without_face',

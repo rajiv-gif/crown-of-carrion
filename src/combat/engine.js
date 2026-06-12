@@ -140,6 +140,16 @@ function addStatus(s, u, type, turns, power = 0) {
   }
   evt(s, { k: 'status', unit: u.uid, status: type });
 }
+function syncTransformStatus(s, u) {
+  if (!u.transformInto || !u.alive) return;
+  const ex = getStatus(u, 'ascension');
+  if (ex) {
+    ex.power = u.transformTimer;
+    ex.turns = 99;
+  } else {
+    addStatus(s, u, 'ascension', 99, u.transformTimer);
+  }
+}
 function removeStatus(u, t) {
   u.statuses = u.statuses.filter((x) => x.type !== t);
 }
@@ -169,7 +179,7 @@ function tryFear(s, target, turns) {
 }
 
 function mkUnit(tpl, side, key, mods) {
-  return {
+  const u = {
     uid: `${key}_${uidCounter++}`,
     key,
     side,
@@ -189,7 +199,49 @@ function mkUnit(tpl, side, key, mods) {
     alive: true,
     fled: false,
     mods: mods || deriveMods({}),
+    transformInto: tpl.transform?.into || null,
+    transformTimer: tpl.transform?.rounds || null,
   };
+  if (u.transformInto) u.statuses.push({ type: 'ascension', turns: 99, power: u.transformTimer });
+  return u;
+}
+
+function scaleEnemyTemplate(tpl, diff) {
+  return {
+    maxHp: Math.max(1, Math.round(tpl.hp * (diff?.enemyHp || 1))),
+    atk: Math.max(2, Math.round(tpl.atk * (diff?.enemyAtk || 1))),
+  };
+}
+
+function transformEnemy(s, u) {
+  if (!u.alive || !u.transformInto) return;
+  const tpl = ENEMIES[u.transformInto];
+  if (!tpl) return;
+  const oldName = u.name;
+  const hpRatio = Math.max(0.45, u.hp / Math.max(1, u.maxHp));
+  const scaled = scaleEnemyTemplate(tpl, s.diff);
+  u.key = u.transformInto;
+  u.name = tpl.name;
+  u.epithet = tpl.epithet || '';
+  u.sigil = tpl.sigil || u.sigil;
+  u.sprite = tpl.sprite || u.sprite;
+  u.color = tpl.color || u.color;
+  u.boss = !!tpl.boss;
+  u.maxHp = Math.round(scaled.maxHp * 1.12);
+  u.hp = Math.max(1, Math.round(u.maxHp * hpRatio));
+  u.atk = Math.round(scaled.atk * 1.12);
+  u.speed = Math.max(u.speed, tpl.speed + 1);
+  u.abilities = [...tpl.abilities];
+  u.cooldowns = {};
+  u.transformInto = tpl.transform?.into || null;
+  u.transformTimer = tpl.transform?.rounds || null;
+  u.statuses = u.statuses.filter((st) => st.type !== 'ascension');
+  addStatus(s, u, 'zeal', 3);
+  addStatus(s, u, 'might', 1);
+  if (u.transformInto) syncTransformStatus(s, u);
+  log(s, `${oldName} is not killed quickly enough. Doctrine splits the corpse open: ${u.name} rises stronger.`, 'death');
+  evt(s, { k: 'summon', unit: u.uid });
+  evt(s, { k: 'float', unit: u.uid, text: 'ASCENDED', type: 'blood-word' });
 }
 
 function kill(s, u, attacker) {
@@ -712,6 +764,18 @@ function advance_(s) {
     s.turnIdx++;
     if (s.turnIdx >= s.queue.length) {
       s.round++;
+      for (const enemy of alive(s, 'enemy')) {
+        if (enemy.transformInto && enemy.transformTimer > 0) {
+          enemy.transformTimer -= 1;
+          syncTransformStatus(s, enemy);
+          if (enemy.transformTimer > 0) {
+            log(s, `${enemy.name} convulses. Ascension in ${enemy.transformTimer}.`, enemy.transformTimer === 1 ? 'death' : 'hex');
+            evt(s, { k: 'float', unit: enemy.uid, text: `${enemy.transformTimer}`, type: enemy.transformTimer === 1 ? 'blood-word' : 'word' });
+          } else {
+            transformEnemy(s, enemy);
+          }
+        }
+      }
       s.queue = s.units
         .filter((u) => u.alive)
         .sort((a, b) => b.speed - a.speed)
@@ -924,8 +988,9 @@ export function createCombat(g) {
   }
   for (const ek of enc.enemies) {
     const e = mkUnit(ENEMIES[ek], 'enemy', ek);
-    e.atk = Math.max(2, Math.round(e.atk * diff.enemyAtk));
-    e.maxHp = Math.max(1, Math.round(e.maxHp * diff.enemyHp));
+    const scaled = scaleEnemyTemplate(ENEMIES[ek], diff);
+    e.atk = scaled.atk;
+    e.maxHp = scaled.maxHp;
     e.hp = e.maxHp;
     units.push(e);
   }
@@ -960,6 +1025,9 @@ export function createCombat(g) {
   log(s, enc.opener || `${enc.name}. The ledger opens.`, 'round');
   if (diff.id === 'merciless') log(s, 'Merciless ledger: skills are scarce, healing is mean, and Cocoli is listening.', 'death');
   if (s.poultices > 0) log(s, `Black Poultice x${s.poultices}: tar, old blood, and something still alive.`, 'dim');
+  for (const e of s.units.filter((x) => x.alive && x.side === 'enemy' && x.transformInto)) {
+    log(s, `${e.name} carries dead doctrine in its ribs. Kill it before Ascension reaches zero.`, 'hex');
+  }
   if (g.scars.some((x) => x.id === 'grave_light')) {
     for (const e of s.units.filter((x) => x.side === 'enemy')) addStatus(s, e, 'fear', 2);
     log(s, 'Grave-Light Eyes — the enemy flinch from something behind Lucian’s gaze.', 'hex');

@@ -106,6 +106,7 @@ export const ENEMIES = {
     atk: 13,
     speed: 10,
     abilities: ['penitent_flurry', 'rusted_blade', 'claw'],
+    transform: { into: 'reliquary_husk', rounds: 3 },
   },
   censer_knight: {
     name: 'Censer Knight',
@@ -115,6 +116,7 @@ export const ENEMIES = {
     atk: 15,
     speed: 6,
     abilities: ['smoke_censer', 'cinder_maul', 'heavy_blow'],
+    transform: { into: 'dogma_demon', rounds: 4 },
   },
   choir_taxman: {
     name: 'Choir Taxman',
@@ -124,6 +126,7 @@ export const ENEMIES = {
     atk: 12,
     speed: 8,
     abilities: ['audit_sin', 'burning_writ', 'chain_lash'],
+    transform: { into: 'dogma_demon', rounds: 3 },
   },
   reliquary_husk: {
     name: 'Reliquary Husk',
@@ -142,6 +145,15 @@ export const ENEMIES = {
     atk: 17,
     speed: 11,
     abilities: ['sermon_of_teeth', 'faith_eater', 'penitent_flurry'],
+  },
+  ascended_dogma_demon: {
+    name: 'Ascended Dogma Demon',
+    sigil: '✥',
+    sprite: 'demon',
+    hp: 118,
+    atk: 22,
+    speed: 12,
+    abilities: ['sermon_of_teeth', 'faith_eater', 'martyr_tax', 'bone_clutch'],
   },
   faceless_saint: {
     name: 'The Saint Without a Face',
@@ -177,7 +189,7 @@ export const ENCOUNTERS = {
     name: 'The Ash Road Ambush',
     opener:
       'Chan’s shortcut is real. So is the ambush. White-robed penitents rise from the ditch with hooks, censers, and memorized prices.',
-    enemies: ['ashen_flagellant', 'reliquary_husk', 'censer_knight', 'choir_taxman'],
+    enemies: ['ashen_flagellant', 'ashen_flagellant', 'censer_knight', 'choir_taxman'],
     gold: 42,
     xp: 95,
   },
@@ -185,7 +197,7 @@ export const ENCOUNTERS = {
     name: 'The Cindershrive Gate',
     opener:
       'At the city gate, absolution is sold by weight. The Church taxmen decide the Black Tithe looks heavy.',
-    enemies: ['choir_taxman', 'censer_knight', 'reliquary_husk', 'dogma_demon'],
+    enemies: ['choir_taxman', 'censer_knight', 'reliquary_husk', 'choir_taxman'],
     gold: 55,
     xp: 120,
   },

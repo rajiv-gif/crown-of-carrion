@@ -46,6 +46,7 @@ const ANIM = {
   erase_face: 'act-heavy',
   absolve_screaming: 'act-cast',
   martyr_tax: 'act-shout',
+  ascension: 'act-shout',
   gnaw: 'act-slash',
 };
 

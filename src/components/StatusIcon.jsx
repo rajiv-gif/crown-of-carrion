@@ -18,6 +18,7 @@ const TITLES = {
   rotten_guard: 'Rotten Guard — melee attackers risk poison',
   focus: 'Focus — the next strikes hit harder',
   zeal: 'Zeal — doctrine sharpened into damage',
+  ascension: 'Ascension — kill this enemy before the count reaches zero',
 };
 
 function glyph(type) {
@@ -70,7 +71,7 @@ export default function StatusIcon({ st }) {
   return (
     <span className={`sticon sticon-${st.type}`} title={TITLES[st.type] || st.type}>
       <svg viewBox="0 0 14 14" width="13" height="13">{glyph(st.type)}</svg>
-      {st.type === 'shield' && <i className="sticon-val">{st.power}</i>}
+      {(st.type === 'shield' || st.type === 'ascension') && <i className="sticon-val">{st.power}</i>}
     </span>
   );
 }
