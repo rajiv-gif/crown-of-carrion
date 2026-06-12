@@ -73,6 +73,11 @@ export const ABILITIES = {
 const DOTS = { bleed: 'bleeding', poison: 'poison', curse: 'rot' };
 const DEBUFFS = ['bleed', 'poison', 'curse', 'stun', 'fear', 'cripple'];
 const BASE_PARTY = ['lucian', 'sjen', 'veato'];
+const LOOT_NAMES = {
+  demon_tooth: 'Dogma Demon Tooth',
+  black_indulgence: 'Black Indulgence Seal',
+  ash_crown_splinter: 'Ash-Crown Splinter',
+};
 
 // Banter escalates with the hottest pair's tension tier. Low costs nothing;
 // critical is a warning the player is meant to read. `who`/`bubble` mark
@@ -217,6 +222,7 @@ function transformEnemy(s, u) {
   if (!u.alive || !u.transformInto) return;
   const tpl = ENEMIES[u.transformInto];
   if (!tpl) return;
+  s.ascensions = (s.ascensions || 0) + 1;
   const oldName = u.name;
   const hpRatio = Math.max(0.45, u.hp / Math.max(1, u.maxHp));
   const scaled = scaleEnemyTemplate(tpl, s.diff);
@@ -245,6 +251,14 @@ function transformEnemy(s, u) {
 }
 
 function kill(s, u, attacker) {
+  if (u.side === 'enemy' && u.transformInto && u.transformTimer > 0) {
+    s.preventedAscensions = (s.preventedAscensions || 0) + 1;
+    s.bonusGold = (s.bonusGold || 0) + 10;
+    s.bonusXp = (s.bonusXp || 0) + 8;
+    log(s, `Doctrine denied — ${u.name} is cut down before it can become worse. +10 gold, +8 XP.`, 'gold');
+    evt(s, { k: 'float', unit: u.uid, text: 'DENIED', type: 'word' });
+  }
+  if (u.side === 'party') s.partyLosses = (s.partyLosses || 0) + 1;
   u.hp = 0;
   u.alive = false;
   u.statuses = [];
@@ -705,13 +719,36 @@ function checkEnd(s) {
     // Greed: Veato finds what the others miss.
     const v = s.units.find((u) => u.key === 'veato');
     if (v && v.alive && v.mods.lootChance && Math.random() < v.mods.lootChance) {
-      s.bonusGold = 10 + Math.round(20 * Math.random());
-      log(s, `Greed — Veato finds pockets the others missed. +${s.bonusGold} gold.`, 'gold');
+      const foundGold = 10 + Math.round(20 * Math.random());
+      s.bonusGold += foundGold;
+      log(s, `Greed — Veato finds pockets the others missed. +${foundGold} gold.`, 'gold');
     }
     // High tension: the take comes up light.
     if (s.tension.lucian_veato >= 65 && Math.random() < 0.4) {
       s.skim = 15;
       log(s, 'Counting the spoils later, the purse is lighter than the corpses say it should be.', 'dim');
+    }
+    if (s.hadAscensionThreat && (s.ascensions || 0) === 0) {
+      s.bonusGold += 18;
+      s.bonusXp += 15;
+      log(s, 'Mastery — no corpse was allowed to bloom. +18 gold, +15 XP.', 'gold');
+    }
+    if (s.round <= 4) {
+      s.bonusGold += 12;
+      s.bonusXp += 12;
+      log(s, `Fast contract — finished by round ${s.round}. +12 gold, +12 XP.`, 'gold');
+    }
+    if ((s.partyLosses || 0) === 0) {
+      s.bonusXp += 10;
+      log(s, 'Clean ledger — nobody in the company dropped. +10 XP.', 'gold');
+    }
+    if (!s.lootItem) {
+      if (s.preventedAscensions >= 2) s.lootItem = 'demon_tooth';
+      else if (s.hadAscensionThreat && (s.ascensions || 0) === 0) s.lootItem = 'black_indulgence';
+      else if (s.round <= 3) s.lootItem = 'ash_crown_splinter';
+    }
+    if (s.lootItem) {
+      log(s, `Rare find — ${LOOT_NAMES[s.lootItem] || s.lootItem.replaceAll('_', ' ')} is pulled from the ruin.`, 'gold');
     }
     return true;
   }
@@ -1008,6 +1045,12 @@ export function createCombat(g) {
     over: null,
     skim: 0,
     bonusGold: 0,
+    bonusXp: 0,
+    lootItem: null,
+    preventedAscensions: 0,
+    ascensions: 0,
+    partyLosses: 0,
+    hadAscensionThreat: false,
     auto: null,
     betrayed: {},
     tension: { ...g.tension },
@@ -1022,6 +1065,7 @@ export function createCombat(g) {
     finalLedgerTarget: null,
     enemyFury: 0,
   };
+  s.hadAscensionThreat = s.units.some((x) => x.side === 'enemy' && x.transformInto);
   log(s, enc.opener || `${enc.name}. The ledger opens.`, 'round');
   if (diff.id === 'merciless') log(s, 'Merciless ledger: skills are scarce, healing is mean, and Cocoli is listening.', 'death');
   if (s.poultices > 0) log(s, `Black Poultice x${s.poultices}: tar, old blood, and something still alive.`, 'dim');

@@ -1216,6 +1216,37 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--bone-dim);
   margin: -12px 0 24px;
 }
+.overlay-rewards {
+  display: grid;
+  gap: 8px;
+  margin: -8px 0 24px;
+  text-align: left;
+}
+.reward-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(194, 154, 86, 0.22);
+  background: rgba(194, 154, 86, 0.08);
+  padding: 9px 12px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.reward-line span { color: var(--bone-dim); }
+.reward-line strong {
+  color: var(--gold);
+  font-family: var(--serif-display);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-align: right;
+}
+.reward-line.rare {
+  border-color: rgba(210, 57, 57, 0.42);
+  background: rgba(130, 24, 24, 0.18);
+}
+.reward-line.rare strong { color: var(--blood-bright); }
 .coin-flicker { color: var(--gold); animation: coinFlick 1.2s ease infinite; display: inline-block; }
 @keyframes coinFlick {
   0%, 100% { opacity: 1; transform: scale(1); }

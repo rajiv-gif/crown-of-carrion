@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useGame } from '../App.jsx';
 import { createCombat, playerAct, autoAct, currentUnit, ABILITIES, usePoultice } from '../combat/engine.js';
 import Battlefield from '../components/Battlefield.jsx';
-import { TENSION_PAIRS } from '../data/story.js';
+import { ITEMS, TENSION_PAIRS } from '../data/story.js';
 import { tensionTier } from '../data/sins.js';
 
 export default function CombatScreen() {
@@ -72,6 +72,8 @@ export default function CombatScreen() {
       result: c.over,
       skim: c.skim,
       bonusGold: c.bonusGold,
+      bonusXp: c.bonusXp,
+      lootItem: c.lootItem,
       tensionDelta: c.tensionDelta,
       corruptionDelta: c.corruptionDelta,
     });
@@ -179,6 +181,34 @@ export default function CombatScreen() {
                 <span className="coin-flicker">⟡</span> The take is lighter than it should be. Sjen, watching Veato:
                 “Your hands move faster near corpses than enemies.”
               </p>
+            )}
+            {c.over === 'victory' && (c.bonusGold > 0 || c.bonusXp > 0 || c.lootItem || c.preventedAscensions > 0) && (
+              <div className="overlay-rewards">
+                {c.preventedAscensions > 0 && (
+                  <div className="reward-line">
+                    <span>Ascensions denied</span>
+                    <strong>{c.preventedAscensions}</strong>
+                  </div>
+                )}
+                {c.bonusGold > 0 && (
+                  <div className="reward-line">
+                    <span>Bonus gold</span>
+                    <strong>+{c.bonusGold}</strong>
+                  </div>
+                )}
+                {c.bonusXp > 0 && (
+                  <div className="reward-line">
+                    <span>Bonus XP</span>
+                    <strong>+{c.bonusXp}</strong>
+                  </div>
+                )}
+                {c.lootItem && ITEMS[c.lootItem] && (
+                  <div className="reward-line rare">
+                    <span>Rare relic</span>
+                    <strong>{ITEMS[c.lootItem].name}</strong>
+                  </div>
+                )}
+              </div>
             )}
             <button className="btn btn-blood" onClick={finish}>
               {c.over === 'victory' ? 'Strip the dead' : 'Go where the dead go'}

@@ -160,13 +160,13 @@ export function reducer(g, a) {
         const greedMult = 1 + 0.15 * (g.sins.veato.greed || 0);
         const ambMult = 1 + 0.15 * (g.sins.lucian.ambition || 0);
         const gold = Math.round((enc.gold || 0) * greedMult) + (a.bonusGold || 0) - (a.skim || 0);
-        let s = applyEffects(g, { gold, corruption: a.corruptionDelta || 0 });
+        let s = applyEffects(g, { gold, corruption: a.corruptionDelta || 0, item: a.lootItem });
         if (a.tensionDelta) s = applyEffects(s, { tension: a.tensionDelta });
         const bossKilled = enc.enemies.some((e) => ENEMIES[e].boss);
         if (bossKilled && !s.defeatedBosses.includes(g.encounterId)) {
           s.defeatedBosses = [...s.defeatedBosses, g.encounterId];
         }
-        s.xp = s.xp + Math.round((enc.xp || 0) * ambMult);
+        s.xp = s.xp + Math.round((enc.xp || 0) * ambMult) + (a.bonusXp || 0);
         let leveled = false;
         while (s.xp >= s.level * 100) {
           s.xp -= s.level * 100;

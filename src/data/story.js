@@ -69,6 +69,25 @@ export const ITEMS = {
     desc: 'A locked glass mouth full of ash. It whispers absolutions that sound like threats. +8 max HP.',
     hp: 8,
   },
+  demon_tooth: {
+    id: 'demon_tooth',
+    name: 'Dogma Demon Tooth',
+    desc: 'Still hot from the jaw. Proof that doctrine can be made to bleed. +2 ATK.',
+    atk: 2,
+  },
+  black_indulgence: {
+    id: 'black_indulgence',
+    name: 'Black Indulgence Seal',
+    desc: 'Chan insists it is worthless, then locks it in the strongest box. +12 max HP.',
+    hp: 12,
+  },
+  ash_crown_splinter: {
+    id: 'ash_crown_splinter',
+    name: 'Ash-Crown Splinter',
+    desc: 'A holy trinket that gave up pretending. It bites the hand that keeps it. +1 ATK, +6 max HP.',
+    atk: 1,
+    hp: 6,
+  },
 };
 
 // Revival consequences, applied in order of death count. Stats apply to Lucian.
