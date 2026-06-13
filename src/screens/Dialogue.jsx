@@ -4,6 +4,7 @@ import { SCRIPTS, SPEAKERS } from '../data/story.js';
 import Cocoli from '../components/Cocoli.jsx';
 import Silhouette from '../components/Silhouettes.jsx';
 import { speakLine, stopVoice } from '../voice.js';
+import sjenPortrait from '../assets/portrait-sjen.jpg';
 
 const SCENE_BY_SCRIPT = {
   intro: 'chapel',
@@ -23,6 +24,10 @@ const PORTRAITS = {
   'The Debt-Bound Knight': 'knight',
 };
 
+const IMAGE_PORTRAITS = {
+  Sjen: sjenPortrait,
+};
+
 export default function Dialogue() {
   const { g, dispatch } = useGame();
   const script = SCRIPTS[g.scriptId];
@@ -33,7 +38,8 @@ export default function Dialogue() {
   const isNarrator = node.speaker === 'narrator';
   const scene = SCENE_BY_SCRIPT[g.scriptId] || 'ashroad';
   const portrait = PORTRAITS[node.speaker];
-  const showPortrait = !isNarrator && (portrait || node.speaker === 'Cocoli');
+  const imagePortrait = IMAGE_PORTRAITS[node.speaker];
+  const showPortrait = !isNarrator && (imagePortrait || portrait || node.speaker === 'Cocoli');
 
   useEffect(() => {
     speakLine(node.speaker, node.text);
@@ -63,7 +69,13 @@ export default function Dialogue() {
         {showPortrait && (
           <aside className="dialogue-portrait" style={{ '--portrait-color': sp.color }}>
             <div className="portrait-glow" />
-            {node.speaker === 'Cocoli' ? <Cocoli /> : <Silhouette name={portrait} />}
+            {imagePortrait ? (
+              <img className="dialogue-portrait-img" src={imagePortrait} alt={`${node.speaker} portrait`} />
+            ) : node.speaker === 'Cocoli' ? (
+              <Cocoli />
+            ) : (
+              <Silhouette name={portrait} />
+            )}
             <div className="portrait-name">{node.speaker}</div>
           </aside>
         )}

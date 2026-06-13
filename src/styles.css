@@ -356,6 +356,19 @@ button { font-family: inherit; cursor: pointer; }
   max-width: 95%;
   margin: 0 auto -4px;
 }
+.dialogue-portrait-img {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 196px);
+  height: 245px;
+  object-fit: cover;
+  object-position: center top;
+  border: 1px solid rgba(233, 228, 214, 0.16);
+  box-shadow:
+    0 20px 28px rgba(0, 0, 0, 0.62),
+    0 0 24px color-mix(in srgb, var(--portrait-color), transparent 72%);
+  filter: saturate(0.95) contrast(1.06) brightness(0.94);
+}
 .portrait-name {
   position: relative;
   z-index: 2;
@@ -1638,6 +1651,7 @@ button { font-family: inherit; cursor: pointer; }
   .dialogue-portrait { min-height: 190px; }
   .dialogue-portrait .sil { height: 145px; }
   .dialogue-portrait .cocoli-figure { height: 165px; }
+  .dialogue-portrait-img { width: 140px; height: 165px; }
   .cocoli-bargain, .silence-choices { grid-template-columns: 1fr; }
   .combat-log { max-height: 30vh; }
   .ledger-grid, .ledger-grid.small { grid-template-columns: repeat(2, 1fr); }
