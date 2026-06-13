@@ -21,7 +21,7 @@ export const PARTY = {
     hp: 62,
     atk: 10,
     speed: 6,
-    abilities: ['basic_attack', 'rot_hex', 'bone_ward', 'debt_of_flesh', 'summon_wretch', 'whispering_pact'],
+    abilities: ['basic_attack', 'rot_hex', 'bone_ward', 'debt_of_flesh', 'summon_wretch', 'whispering_pact', 'mo_bos_ie_eye'],
     passive: 'Keeps what he learns. Resents who he serves.',
   },
   veato: {

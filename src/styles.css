@@ -551,6 +551,7 @@ button { font-family: inherit; cursor: pointer; }
 .st-poison { color: var(--poison); border-color: #3c4422; }
 .st-curse { color: var(--hex); border-color: #3a3050; }
 .st-stun { color: var(--gold); border-color: #4a3d1e; }
+.st-psychosis { color: var(--blood-bright); border-color: #5a0d22; background: rgba(98, 7, 32, 0.22); }
 .st-might { color: var(--blood-bright); border-color: #4a1414; }
 .st-shield, .st-dodge { color: var(--pale); border-color: #4a4438; }
 
@@ -1418,6 +1419,7 @@ button { font-family: inherit; cursor: pointer; }
 .ft-st-bleed { color: #d8847a; }
 .ft-st-stun { color: var(--gold); }
 .ft-st-fear { color: var(--pale); }
+.ft-st-psychosis { color: var(--blood-bright); }
 .ft-st-might { color: var(--blood-bright); }
 
 /* ── speech bubbles ─────────────────────────────────────────── */

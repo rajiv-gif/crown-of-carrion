@@ -6,7 +6,7 @@ import BattleUnit from './BattleUnit.jsx';
 // a dead skyline, and screen-level effects (quake, occult surge).
 
 const PARTY_ORDER = { chibi: 0, sjen: 1, chan: 2, veato: 3, lucian: 4, wretch: 5 };
-const HEAVY_HITS = ['cleave', 'execute', 'heavy_blow', 'chain_lash', 'collect_the_debt', 'debt_of_flesh', 'cinder_maul', 'erase_face'];
+const HEAVY_HITS = ['cleave', 'execute', 'heavy_blow', 'chain_lash', 'collect_the_debt', 'debt_of_flesh', 'mo_bos_ie_eye', 'cinder_maul', 'erase_face'];
 
 export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
   const party = c.units

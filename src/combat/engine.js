@@ -29,6 +29,7 @@ export const ABILITIES = {
   debt_of_flesh: { name: 'Debt of Flesh', cd: 3, target: 'enemy', desc: 'Drain 12 HP from the healthiest ally — without asking — to deal 240% damage.' },
   summon_wretch: { name: 'Summon Wretch', cd: 5, target: 'none', desc: 'Drag a small horror up through the floor to soak blades.' },
   whispering_pact: { name: 'Whispering Pact', cd: 3, target: 'none', desc: 'Ask the things below for help. They may answer wrong.' },
+  mo_bos_ie_eye: { name: 'Mo bos ie EYE!', cd: 6, target: 'enemy', desc: 'Ultimate: Sjenke turns his fist into titanium demon fire and crushes eyes and skull. If the target dies, all other enemies enter Psychosis and lose 1 turn.' },
   // Veato
   backstab: { name: 'Backstab', cd: 2, target: 'enemy', desc: '260% damage to afflicted prey; 130% otherwise. Deceit cuts deeper.' },
   poison_blade: { name: 'Poison Blade', cd: 0, target: 'enemy', desc: '90% damage plus poison each turn. Cunning brews it stronger.' },
@@ -71,7 +72,7 @@ export const ABILITIES = {
 };
 
 const DOTS = { bleed: 'bleeding', poison: 'poison', curse: 'rot' };
-const DEBUFFS = ['bleed', 'poison', 'curse', 'stun', 'fear', 'cripple'];
+const DEBUFFS = ['bleed', 'poison', 'curse', 'stun', 'fear', 'cripple', 'psychosis'];
 const BASE_PARTY = ['lucian', 'sjen', 'veato'];
 const LOOT_NAMES = {
   demon_tooth: 'Dogma Demon Tooth',
@@ -472,6 +473,26 @@ function resolveAbility(s, u, id, targetUid) {
       }
       break;
     }
+    case 'mo_bos_ie_eye': {
+      const wasAlive = t?.alive;
+      log(s, 'Sjenke: “Mo bos ie EYE!” His fist becomes titanium demon fire. The air forgets how to be air.', 'death');
+      evt(s, { k: 'bubble', unit: u.uid, text: '“Mo bos ie EYE!”' });
+      hit(s, u, t, 4.2 + (m.hexPower || 0) * 0.04, 'Mo bos ie EYE!');
+      if (wasAlive && t && !t.alive) {
+        const witnesses = alive(s, 'enemy');
+        if (witnesses.length) {
+          log(s, `The skull gives way. The eye does not. Every surviving enemy sees it anyway. Psychosis takes them.`, 'hex');
+          for (const e of witnesses) {
+            addStatus(s, e, 'psychosis', 1);
+            evt(s, { k: 'float', unit: e.uid, text: 'Psychosis', type: 'blood-word' });
+          }
+        }
+      } else if (t?.alive) {
+        addStatus(s, t, 'fear', 1);
+        log(s, `${t.name} survives, but not with its thoughts arranged correctly.`, 'hex');
+      }
+      break;
+    }
     case 'backstab': {
       const weakened = t.statuses.some((x) => DEBUFFS.includes(x.type));
       hit(s, u, t, weakened ? 2.6 + (m.backstabBonus || 0) : 1.3, weakened ? 'Backstab' : 'Backstab (unweakened prey)');
@@ -852,6 +873,12 @@ function advance_(s) {
     if (hasStatus(u, 'stun')) {
       log(s, `${u.name} is stunned — the turn is lost.`, 'dim');
       evt(s, { k: 'float', unit: u.uid, text: 'Stunned', type: 'word' });
+      endTurn(s, u);
+      continue;
+    }
+    if (hasStatus(u, 'psychosis')) {
+      log(s, `${u.name} claws at its own eyes, trapped in psychosis. The turn is lost.`, 'death');
+      evt(s, { k: 'float', unit: u.uid, text: 'Psychosis', type: 'blood-word' });
       endTurn(s, u);
       continue;
     }
