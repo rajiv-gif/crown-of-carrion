@@ -6,6 +6,7 @@ import Silhouette from '../components/Silhouettes.jsx';
 import { speakLine, stopVoice } from '../voice.js';
 import sjenPortrait from '../assets/portrait-sjen.jpg';
 import veatoPortrait from '../assets/portrait-veato.jpg';
+import chibiPortrait from '../assets/portrait-chibi.jpg';
 
 const SCENE_BY_SCRIPT = {
   intro: 'chapel',
@@ -28,6 +29,7 @@ const PORTRAITS = {
 const IMAGE_PORTRAITS = {
   Sjen: sjenPortrait,
   Veato: veatoPortrait,
+  Chibi: chibiPortrait,
 };
 
 export default function Dialogue() {
