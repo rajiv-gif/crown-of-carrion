@@ -5,6 +5,7 @@ import Cocoli from '../components/Cocoli.jsx';
 import Silhouette from '../components/Silhouettes.jsx';
 import { speakLine, stopVoice } from '../voice.js';
 import sjenPortrait from '../assets/portrait-sjen.jpg';
+import veatoPortrait from '../assets/portrait-veato.jpg';
 
 const SCENE_BY_SCRIPT = {
   intro: 'chapel',
@@ -26,6 +27,7 @@ const PORTRAITS = {
 
 const IMAGE_PORTRAITS = {
   Sjen: sjenPortrait,
+  Veato: veatoPortrait,
 };
 
 export default function Dialogue() {
