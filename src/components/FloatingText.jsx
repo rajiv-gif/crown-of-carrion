@@ -13,6 +13,7 @@ const STATUS_WORD = {
   cripple: 'Crippled',
   dodge: 'Smoke',
   shield: 'Warded',
+  psychosis: 'Psychosis',
 };
 
 export default function FloatingText({ e, idx }) {

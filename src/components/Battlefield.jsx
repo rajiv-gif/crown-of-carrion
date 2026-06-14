@@ -18,10 +18,16 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
     (e) => (e.k === 'hit' && HEAVY_HITS.includes(e.ability)) || (e.k === 'death' && e.boss)
   );
   const occult = fx.some((e) => e.k === 'cast' && e.ability === 'whispering_pact');
+  const ultimate = fx.some((e) => e.k === 'cast' && e.ability === 'mo_bos_ie_eye');
+  const psychosis = fx.some((e) => e.k === 'status' && e.status === 'psychosis') || c.units.some((u) => u.alive && u.statuses.some((st) => st.type === 'psychosis'));
   const bossDeath = fx.some((e) => e.k === 'death' && e.boss);
 
   return (
-    <div className={`battlefield-stage ${quake ? 'quake' : ''} ${occult ? 'occult-surge' : ''} ${bossDeath ? 'boss-death' : ''}`}>
+    <div
+      className={`battlefield-stage ${quake ? 'quake' : ''} ${occult ? 'occult-surge' : ''} ${
+        ultimate ? 'ultimate-surge' : ''
+      } ${psychosis ? 'psychosis-field' : ''} ${bossDeath ? 'boss-death' : ''}`}
+    >
       <div className="bf-skyline" />
       <div className="bf-fog far" />
       <div className="bf-fog near" />

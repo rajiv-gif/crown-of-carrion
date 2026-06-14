@@ -19,6 +19,7 @@ const ANIM = {
   debt_of_flesh: 'act-cast',
   summon_wretch: 'act-cast',
   whispering_pact: 'act-cast',
+  mo_bos_ie_eye: 'act-ultimate',
   backstab: 'act-dash',
   hidden_knife: 'act-dash',
   smoke_step: 'act-vanish',
@@ -64,6 +65,7 @@ const VFX = {
   rot_hex: 'vfx-burst vfx-purple',
   whispering_pact: 'vfx-burst vfx-purple',
   debt_of_flesh: 'vfx-burst vfx-purple',
+  mo_bos_ie_eye: 'vfx-eyecrush',
   ledgers_cut: 'vfx-slash vfx-red',
   spite_hex: 'vfx-burst vfx-purple',
   needlework: 'vfx-slash vfx-green',
@@ -88,6 +90,7 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
   const hexed = fx.some((e) => e.k === 'cast' && e.target === u.uid && e.ability === 'rot_hex');
   const warded = fx.some((e) => e.k === 'cast' && e.target === u.uid && e.ability === 'bone_ward');
   const smoked = fx.some((e) => e.k === 'cast' && e.actor === u.uid && e.ability === 'smoke_step');
+  const ultimateTarget = fx.some((e) => e.k === 'cast' && e.target === u.uid && e.ability === 'mo_bos_ie_eye');
   const summoned = fx.some((e) => e.k === 'summon' && e.unit === u.uid);
   const dominated =
     u.side === 'party' && u.key !== 'lucian' && fx.some((e) => e.k === 'cast' && e.ability === 'blood_command');
@@ -111,6 +114,8 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
     has('dodge') ? 'st-smoked' : '',
     has('fear') ? 'st-trembling' : '',
     has('stun') ? 'st-stunned' : '',
+    has('psychosis') ? 'st-madness' : '',
+    ultimateTarget ? 'is-ultimate-target' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -134,6 +139,7 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
         {(hexed || summoned) && <div className="vfx vfx-sigil" />}
         {warded && <div className="vfx vfx-ward" />}
         {smoked && <div className="vfx vfx-smoke" />}
+        {ultimateTarget && <div className="vfx vfx-eye-flash" />}
       </div>
       <div className="bunit-plate">
         <div className="bunit-name" style={{ color: u.color }}>

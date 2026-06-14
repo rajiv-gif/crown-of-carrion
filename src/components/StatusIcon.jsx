@@ -13,6 +13,7 @@ const TITLES = {
   cripple: 'Crippled — −30% damage',
   dodge: 'Smoke — the next blow misses',
   shield: 'Bone Ward — absorbs damage',
+  psychosis: 'Psychosis — the next turn is lost',
   marked: 'Debt Mark — the next collection will hurt',
   vulnerable: 'Vulnerable — takes harder follow-up blows',
   rotten_guard: 'Rotten Guard — melee attackers risk poison',
@@ -62,6 +63,14 @@ function glyph(type) {
       );
     case 'shield':
       return <path d="M7 1 L12.5 3.2 L12.5 7 Q12.5 11.6 7 13 Q1.5 11.6 1.5 7 L1.5 3.2 Z" fill="none" stroke="#cfc3a9" strokeWidth="1.6" />;
+    case 'psychosis':
+      return (
+        <g>
+          <path d="M1.4 7 Q7 2.4 12.6 7 Q7 11.6 1.4 7 Z" fill="none" stroke="#c0392b" strokeWidth="1.35" />
+          <circle cx="7" cy="7" r="1.7" fill="#c0392b" />
+          <path d="M3.2 3.1 L10.8 10.9 M10.8 3.1 L3.2 10.9" stroke="#e8d9c8" strokeWidth="1.1" />
+        </g>
+      );
     default:
       return <circle cx="7" cy="7" r="3" fill="#8d8270" />;
   }

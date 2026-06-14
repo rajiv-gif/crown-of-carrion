@@ -990,9 +990,37 @@ button { font-family: inherit; cursor: pointer; }
   transition: opacity 0.4s ease;
 }
 .battlefield-stage.occult-surge::after { opacity: 1; }
+.battlefield-stage.ultimate-surge::after {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 52% 44%, rgba(233, 228, 214, 0.32), transparent 22%),
+    radial-gradient(ellipse at 58% 50%, rgba(192, 57, 43, 0.32), transparent 42%),
+    radial-gradient(ellipse at 50% 48%, rgba(142, 123, 181, 0.28), rgba(5, 3, 8, 0.72) 78%);
+  animation: ultimateFieldFlash 0.9s ease-out forwards;
+}
+.battlefield-stage.psychosis-field::before {
+  opacity: 0.52;
+  background:
+    linear-gradient(90deg, rgba(192, 57, 43, 0.1) 1px, transparent 1px) 0 0 / 16px 100%,
+    radial-gradient(ellipse at 72% 45%, rgba(192, 57, 43, 0.18), transparent 45%),
+    linear-gradient(180deg, rgba(10, 8, 7, 0.08), rgba(10, 8, 7, 0.62)),
+    url('./assets/battlefield-ash-road.jpg') center / cover;
+  mix-blend-mode: screen;
+  animation: psychosisScan 0.9s steps(5, end) infinite;
+}
 .battlefield-stage.boss-death::after {
   opacity: 1;
   background: radial-gradient(ellipse at 65% 60%, rgba(192, 57, 43, 0.25), rgba(5, 3, 3, 0.5) 75%);
+}
+@keyframes ultimateFieldFlash {
+  0% { filter: brightness(2.2) contrast(1.5); transform: scale(1.02); }
+  35% { filter: brightness(1.2) contrast(1.25); }
+  100% { filter: brightness(1) contrast(1); transform: scale(1); }
+}
+@keyframes psychosisScan {
+  0%, 100% { transform: translateX(0); opacity: 0.36; }
+  40% { transform: translateX(-7px); opacity: 0.62; }
+  75% { transform: translateX(5px); opacity: 0.5; }
 }
 
 /* ── battle units ───────────────────────────────────────────── */
@@ -1206,6 +1234,29 @@ button { font-family: inherit; cursor: pointer; }
   0%, 100% { opacity: 1; filter: blur(0); }
   45% { opacity: 0.15; filter: blur(4px); }
 }
+.bunit.act-ultimate { animation: actUltimate 1.05s cubic-bezier(0.2, 0.9, 0.16, 1); }
+.bunit.act-ultimate .unit-aura {
+  opacity: 0.9;
+  filter: blur(9px);
+  background:
+    radial-gradient(ellipse, rgba(233, 228, 214, 0.38), transparent 34%),
+    radial-gradient(ellipse, rgba(142, 123, 181, 0.58), transparent 72%);
+}
+.bunit.act-ultimate .sil {
+  filter:
+    drop-shadow(0 14px 18px rgba(0, 0, 0, 0.92))
+    drop-shadow(0 0 18px rgba(233, 228, 214, 0.78))
+    drop-shadow(0 0 28px rgba(142, 123, 181, 0.78))
+    brightness(1.4)
+    contrast(1.22);
+}
+@keyframes actUltimate {
+  0% { transform: translateX(0) scale(1); filter: brightness(1); }
+  20% { transform: translateX(calc(var(--dir) * -10px)) translateY(-6px) scale(1.04); filter: brightness(1.8); }
+  46% { transform: translateX(calc(var(--dir) * 58px)) translateY(-10px) scale(1.12); filter: brightness(2.3) contrast(1.4); }
+  62% { transform: translateX(calc(var(--dir) * 36px)) translateY(2px) scale(1.03); filter: brightness(1.2) contrast(1.1); }
+  100% { transform: translateX(0) scale(1); filter: brightness(1); }
+}
 .bunit.is-hit { animation: hitShake 0.5s ease; }
 @keyframes hitShake {
   0%, 100% { transform: translateX(0); }
@@ -1252,6 +1303,37 @@ button { font-family: inherit; cursor: pointer; }
   75% { transform: scaleX(-1) translateX(1.4px) rotate(0.6deg); }
 }
 .st-stunned .sil { filter: grayscale(0.85) brightness(0.7) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.7)); }
+.st-madness .sprite-wrap {
+  animation: psychosisTwitch 0.72s steps(3, end) infinite;
+}
+.st-madness .sil {
+  filter:
+    drop-shadow(0 8px 9px rgba(0, 0, 0, 0.86))
+    drop-shadow(0 0 12px rgba(192, 57, 43, 0.7))
+    saturate(0.45)
+    contrast(1.35);
+}
+.st-madness .unit-aura {
+  opacity: 0.72;
+  background: radial-gradient(ellipse, rgba(192, 57, 43, 0.42), transparent 68%);
+  animation: madnessAura 0.7s ease-in-out infinite;
+}
+.st-madness .unit-base {
+  background: radial-gradient(ellipse, rgba(92, 8, 22, 0.84) 0%, rgba(0, 0, 0, 0.44) 48%, transparent 74%);
+}
+@keyframes psychosisTwitch {
+  0%, 100% { transform: translate(0, 0) skewX(0deg); }
+  25% { transform: translate(-2px, 1px) skewX(-2deg); }
+  50% { transform: translate(2px, -1px) skewX(2deg); }
+  75% { transform: translate(-1px, -1px) skewX(1deg); }
+}
+@keyframes madnessAura {
+  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.4; }
+  50% { transform: translateX(-50%) scaleX(1.18); opacity: 0.9; }
+}
+.is-ultimate-target .sprite-wrap {
+  filter: brightness(1.4) contrast(1.35);
+}
 
 /* ── ability VFX (overlaid on the target's sprite) ──────────── */
 
@@ -1298,6 +1380,55 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 50%;
   background: radial-gradient(circle, rgba(232, 217, 200, 0.9) 0%, rgba(232, 217, 200, 0.25) 40%, transparent 70%);
   animation: burstOut 0.4s ease-out forwards;
+}
+.vfx-eyecrush {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 42%, rgba(233, 228, 214, 0.96) 0 5px, rgba(192, 57, 43, 0.95) 6px 8px, transparent 9px),
+    radial-gradient(circle at 65% 42%, rgba(233, 228, 214, 0.96) 0 5px, rgba(192, 57, 43, 0.95) 6px 8px, transparent 9px),
+    linear-gradient(45deg, transparent 39%, rgba(214, 67, 49, 0.95) 45%, #f2f0e7 49%, rgba(214, 67, 49, 0.95) 54%, transparent 61%),
+    radial-gradient(circle, rgba(233, 228, 214, 0.86) 0%, rgba(192, 57, 43, 0.54) 32%, rgba(34, 4, 8, 0.18) 58%, transparent 72%);
+  box-shadow:
+    0 0 22px rgba(233, 228, 214, 0.72),
+    0 0 38px rgba(192, 57, 43, 0.72),
+    inset 0 0 24px rgba(10, 8, 7, 0.55);
+  animation: eyeCrush 0.72s ease-out forwards;
+}
+.vfx-eyecrush::before,
+.vfx-eyecrush::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88px;
+  height: 10px;
+  background: linear-gradient(90deg, transparent, #f2f0e7 18%, rgba(192, 57, 43, 0.95) 48%, #f2f0e7 80%, transparent);
+  transform: translate(-50%, -50%) rotate(24deg);
+  filter: drop-shadow(0 0 8px rgba(192, 57, 43, 0.9));
+}
+.vfx-eyecrush::after {
+  transform: translate(-50%, -50%) rotate(-24deg);
+}
+@keyframes eyeCrush {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.18) rotate(-10deg); filter: blur(0) brightness(2.4); }
+  18% { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(2deg); }
+  46% { opacity: 1; transform: translate(-50%, -50%) scale(1.18) rotate(-2deg); filter: blur(0) brightness(1.35); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.55) rotate(8deg); filter: blur(3px) brightness(0.7); }
+}
+.vfx-eye-flash {
+  width: 156px;
+  height: 156px;
+  border-radius: 50%;
+  border: 1px solid rgba(233, 228, 214, 0.52);
+  box-shadow: 0 0 34px rgba(233, 228, 214, 0.36), inset 0 0 30px rgba(192, 57, 43, 0.36);
+  animation: eyeFlashRing 0.72s ease-out forwards;
+}
+@keyframes eyeFlashRing {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.35); }
+  28% { opacity: 1; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.42); }
 }
 .vfx-grip {
   width: 80px;
