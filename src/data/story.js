@@ -289,59 +289,109 @@ export const SCRIPTS = {
       a6: {
         speaker: 'Sjen',
         text:
-          'There is something under the shrine.',
+          'There is something under the shrine. No — someone. And something else behind him.',
         next: 'a7',
       },
       a7: {
         speaker: 'Chibi',
         text:
-          'There is. Me. Try to look less disappointed. Except you, Sjen. You may continue looking correctly suspicious.',
-        effects: { flag: { chibi_joined: true }, tension: { lucian_sjen: 4, sjen_veato: 4 } },
+          'You kept the door phrase, Sjen. Good. I was starting to think you had become sentimental, which would have been disgusting.',
         next: 'a8',
       },
       a8: {
         speaker: 'narrator',
         text:
-          'Chibi climbs out of the ash-cache with two knives, three stolen rosaries, and the expression of someone who has already decided most people are furniture with debts.',
+          'Chibi does not climb out like a rescued man. He returns like a knife returned to its owner. Two blades, three stolen rosaries, and a sealed thing under his coat that he does not name. Sjen sees it and goes very still.',
         next: 'a9',
       },
       a9: {
         speaker: 'Chibi',
         text:
-          'I go with Sjen. He listens when things whisper. The rest of you mostly leak, declare policy, and invent reasons to hate whoever is standing closest.',
+          'I found what you sent me for. Do not ask what followed me back. It is important. It is not for them.',
         next: 'a10',
       },
       a10: {
-        speaker: 'Lucian',
+        speaker: 'Sjen',
         text:
-          'If you slow us down, I leave you in the ash.',
+          'You should not have been able to carry that. You should not have survived touching it.',
         next: 'a11',
       },
       a11: {
-        speaker: 'Chan',
+        speaker: 'Chibi',
         text:
-          'Statistically, Captain, adding two competent people to your company improves your survival odds by almost enough to offset your personality.',
+          'I am small. Important things forget to forbid me.',
         next: 'a12',
       },
       a12: {
         speaker: 'narrator',
         text:
-          'The ditch erupts in white robes. Flagellants, censer-knights, and Church taxmen come screaming from the ash. Behind them shamble reliquary husks: the dead, packed with doctrine until even rot has learned obedience. Half of the living attackers were neighbors yesterday. Today a priest renamed them pure and impure, and that was enough.',
-        action: { combat: 'ash_road_ambush', then: 'a13' },
+          'The sealed thing opens without opening. Sjen inhales once. Every candle at the toll shrine bends toward him, and something under his skin answers like a chained animal recognizing its name.',
+        choices: [
+          {
+            text: 'Make Sjen a Hex Master — deeper curses, spreading rot, control through ruin.',
+            effects: {
+              flag: { chibi_joined: true, sjen_specialization: 'hex_master', chibi_hidden_recruit: true },
+              tension: { lucian_sjen: 6, sjen_veato: 4 },
+              corruption: 4,
+              whisper: true,
+            },
+            next: 'a13',
+          },
+          {
+            text: 'Make Sjen an Invoker — partial demon change, brutal strength, elemental violence.',
+            effects: {
+              flag: { chibi_joined: true, sjen_specialization: 'invoker', chibi_hidden_recruit: true },
+              tension: { lucian_sjen: 8, sjen_veato: 5 },
+              corruption: 7,
+              whisper: true,
+            },
+            next: 'a14',
+          },
+        ],
       },
       a13: {
-        speaker: 'Chan',
+        speaker: 'Sjen',
         text:
-          'See? Hatred with paperwork. Ambush disclosed before services rendered. That is value. You are welcome.',
-        next: 'a14',
+          'Hex, then. Names rot first. Bodies follow because they lack imagination.',
+        next: 'a15',
       },
       a14: {
-        speaker: 'Chibi',
+        speaker: 'Sjen',
         text:
-          'Sjen, the taxmen carried ash-script. The Church knows about the sliver. Someone sold them the shape of Lucian’s shadow.',
+          'Invocation, then. Only partial. If it finishes becoming me, kill everyone else first.',
         next: 'a15',
       },
       a15: {
+        speaker: 'Lucian',
+        text:
+          'If you slow us down, I leave you in the ash.',
+        next: 'a16',
+      },
+      a16: {
+        speaker: 'Chan',
+        text:
+          'Statistically, Captain, adding two competent people to your company improves your survival odds by almost enough to offset your personality.',
+        next: 'a17',
+      },
+      a17: {
+        speaker: 'narrator',
+        text:
+          'The ditch erupts in white robes. Flagellants, censer-knights, and Church taxmen come screaming from the ash. Behind them shamble reliquary husks: the dead, packed with doctrine until even rot has learned obedience. Half of the living attackers were neighbors yesterday. Today a priest renamed them pure and impure, and that was enough.',
+        action: { combat: 'ash_road_ambush', then: 'a18' },
+      },
+      a18: {
+        speaker: 'Chan',
+        text:
+          'See? Hatred with paperwork. Ambush disclosed before services rendered. That is value. You are welcome.',
+        next: 'a19',
+      },
+      a19: {
+        speaker: 'Chibi',
+        text:
+          'Sjen, the taxmen carried ash-script. The Church knows about the sliver. Someone sold them the shape of Lucian’s shadow. Also, the thing I brought you is hungry.',
+        next: 'a20',
+      },
+      a20: {
         speaker: 'Sjen',
         text:
           'Then we go to Cindershrive and ask the saint which mouth taught them to despise each other.',

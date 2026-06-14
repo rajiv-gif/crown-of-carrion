@@ -30,6 +30,8 @@ export const ABILITIES = {
   summon_wretch: { name: 'Summon Wretch', cd: 5, target: 'none', desc: 'Drag a small horror up through the floor to soak blades.' },
   whispering_pact: { name: 'Whispering Pact', cd: 3, target: 'none', desc: 'Ask the things below for help. They may answer wrong.' },
   mo_bos_ie_eye: { name: 'Mo bos ie EYE!', cd: 6, target: 'enemy', desc: 'Ultimate: Sjenke turns his fist into titanium demon fire and crushes the target’s eyes and skull. If the target dies, all other enemies enter Psychosis and lose 1 turn.' },
+  crown_hex: { name: 'Crown Hex', cd: 2, target: 'enemy', desc: 'Hex Master: a deeper curse that bites hard and spreads panic from already-rotting prey.' },
+  demon_invocation: { name: 'Demon Invocation', cd: 4, target: 'none', desc: 'Invoker: Sjen partially changes into a demon, gains brutal power, and tears the elements through every enemy.' },
   // Veato
   backstab: { name: 'Backstab', cd: 2, target: 'enemy', desc: '260% damage to afflicted prey; 130% otherwise. Deceit cuts deeper.' },
   poison_blade: { name: 'Poison Blade', cd: 0, target: 'enemy', desc: '90% damage plus poison each turn. Cunning brews it stronger.' },
@@ -491,6 +493,37 @@ function resolveAbility(s, u, id, targetUid) {
         addStatus(s, t, 'fear', 1);
         log(s, `${t.name} survives, but not with its thoughts arranged correctly.`, 'hex');
       }
+      break;
+    }
+    case 'crown_hex': {
+      const alreadyRotting = hasStatus(t, 'curse');
+      hit(s, u, t, alreadyRotting ? 1.75 : 1.25, alreadyRotting ? 'Crown Hex (the wound remembers)' : 'Crown Hex');
+      if (t?.alive) {
+        addStatus(s, t, 'curse', 4, 11 + (m.hexPower || 0));
+        log(s, `Sjen writes a hex where ${t.name}'s future used to be.`, 'hex');
+      }
+      if (alreadyRotting) {
+        for (const e of alive(s, 'enemy').filter((x) => x.uid !== t.uid)) {
+          addStatus(s, e, 'curse', 2, 6 + (m.hexPower || 0));
+          if (Math.random() < 0.45) addStatus(s, e, 'fear', 1);
+        }
+        log(s, 'Hex Mastery — the curse learns to travel without walking.', 'hex');
+      }
+      break;
+    }
+    case 'demon_invocation': {
+      addStatus(s, u, 'might', 2);
+      addStatus(s, u, 'focus', 2);
+      log(s, 'Sjen lets the borrowed thing unfold under his skin. One arm becomes too strong. The air around him remembers fire, salt, and storm.', 'death');
+      evt(s, { k: 'bubble', unit: u.uid, text: '“Only partly. For now.”' });
+      for (const e of alive(s, 'enemy')) {
+        hit(s, u, e, 1.35, 'Demon Invocation');
+        if (e.alive) {
+          addStatus(s, e, 'curse', 2, 7 + (m.hexPower || 0));
+          if (Math.random() < 0.5) addStatus(s, e, Math.random() < 0.5 ? 'bleed' : 'poison', 2, 5 + (m.hexPower || 0));
+        }
+      }
+      s.corruptionDelta += 2;
       break;
     }
     case 'backstab': {
@@ -1038,6 +1071,19 @@ export function createCombat(g) {
     const mods = deriveMods(g.sins?.[key]);
     const u = mkUnit(b, 'party', key, mods);
     u.abilities = u.abilities.filter((id) => abilityUnlocked(id, g.sins));
+    if (key === 'sjen' && g.flags?.sjen_specialization === 'hex_master') {
+      u.epithet = 'Hex Master';
+      u.atk += 2;
+      u.mods.hexPower = (u.mods.hexPower || 0) + 3;
+      u.abilities.push('crown_hex');
+    }
+    if (key === 'sjen' && g.flags?.sjen_specialization === 'invoker') {
+      u.epithet = 'Partial Demon Invoker';
+      u.atk += 5;
+      u.maxHp += 10;
+      u.mods.hexPower = (u.mods.hexPower || 0) + 1;
+      u.abilities.push('demon_invocation');
+    }
     u.atk += mods.atk + Math.floor((g.corruption || 0) / 25) * mods.corrAtk;
     u.maxHp += mods.maxHp;
     if (key === 'lucian') {

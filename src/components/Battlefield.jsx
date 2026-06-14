@@ -6,7 +6,18 @@ import BattleUnit from './BattleUnit.jsx';
 // a dead skyline, and screen-level effects (quake, occult surge).
 
 const PARTY_ORDER = { chibi: 0, sjen: 1, chan: 2, veato: 3, lucian: 4, wretch: 5 };
-const HEAVY_HITS = ['cleave', 'execute', 'heavy_blow', 'chain_lash', 'collect_the_debt', 'debt_of_flesh', 'mo_bos_ie_eye', 'cinder_maul', 'erase_face'];
+const HEAVY_HITS = [
+  'cleave',
+  'execute',
+  'heavy_blow',
+  'chain_lash',
+  'collect_the_debt',
+  'debt_of_flesh',
+  'mo_bos_ie_eye',
+  'demon_invocation',
+  'cinder_maul',
+  'erase_face',
+];
 
 export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
   const party = c.units
@@ -18,7 +29,7 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
     (e) => (e.k === 'hit' && HEAVY_HITS.includes(e.ability)) || (e.k === 'death' && e.boss)
   );
   const occult = fx.some((e) => e.k === 'cast' && e.ability === 'whispering_pact');
-  const ultimate = fx.some((e) => e.k === 'cast' && e.ability === 'mo_bos_ie_eye');
+  const ultimate = fx.some((e) => e.k === 'cast' && (e.ability === 'mo_bos_ie_eye' || e.ability === 'demon_invocation'));
   const psychosis = fx.some((e) => e.k === 'status' && e.status === 'psychosis') || c.units.some((u) => u.alive && u.statuses.some((st) => st.type === 'psychosis'));
   const bossDeath = fx.some((e) => e.k === 'death' && e.boss);
 
