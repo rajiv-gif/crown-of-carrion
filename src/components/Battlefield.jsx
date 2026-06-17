@@ -17,7 +17,7 @@ const HEAVY_HITS = [
   'erase_face',
 ];
 
-export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
+export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTiles = [], onMove }) {
   const field = c.field || { columns: 8, rows: 5, tiles: [], rules: [] };
   const cols = field.columns || 8;
   const rows = field.rows || 5;
@@ -29,6 +29,7 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
     return { x, y, type, info: TERRAIN[type] || TERRAIN.ash };
   });
   const presentTerrain = new Set((field.tiles || []).map((t) => t.type));
+  const moveSet = new Set((moveTiles || []).map((t) => `${t.x},${t.y}`));
   const units = [...c.units].sort((a, b) => (a.tile?.y || 0) - (b.tile?.y || 0) || (a.side === 'enemy' ? 1 : -1));
   const spotlight = new Set(
     fx.flatMap((e) => [
@@ -61,16 +62,20 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
         <small>{field.rules?.join(' ')}</small>
       </div>
       <div className="bf-tactical-board" style={{ '--cols': cols, '--rows': rows }}>
-        {tiles.map((tile) => (
-          <div
-            key={`${tile.x}-${tile.y}`}
-            className={`bf-tile terrain-${tile.type}`}
-            title={`${tile.info.name}: ${tile.info.short}`}
-            style={{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }}
-          >
-            {tile.type !== 'ash' && <span>{tile.info.name}</span>}
-          </div>
-        ))}
+        {tiles.map((tile) => {
+          const movable = moveSet.has(`${tile.x},${tile.y}`);
+          return (
+            <div
+              key={`${tile.x}-${tile.y}`}
+              className={`bf-tile terrain-${tile.type} ${movable ? 'is-movable' : ''}`}
+              title={movable ? `Move here · ${tile.info.name}` : `${tile.info.name}: ${tile.info.short}`}
+              style={{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }}
+              onClick={movable && onMove ? () => onMove(tile.x, tile.y) : undefined}
+            >
+              {tile.type !== 'ash' && <span>{tile.info.name}</span>}
+            </div>
+          );
+        })}
         <div className="bf-grid-lines" />
         {units.map((u) => (
           <div

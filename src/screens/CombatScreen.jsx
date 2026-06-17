@@ -1,7 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGame } from '../App.jsx';
 import { playCombatEvents, playSound } from '../audio.js';
-import { createCombat, playerAct, autoAct, currentUnit, ABILITIES, usePoultice, cocoliBargain } from '../combat/engine.js';
+import {
+  createCombat,
+  playerAct,
+  autoAct,
+  currentUnit,
+  ABILITIES,
+  usePoultice,
+  cocoliBargain,
+  reachableFor,
+  playerMove,
+  attackReachable,
+} from '../combat/engine.js';
 import Battlefield from '../components/Battlefield.jsx';
 import { ITEMS, TENSION_PAIRS } from '../data/story.js';
 import { tensionTier } from '../data/sins.js';
@@ -58,6 +69,13 @@ export default function CombatScreen() {
     }
   }, [c.over, c.bonusGold, c.bonusXp, c.lootItem]);
 
+  // Tiles the active unit may step to (only when not mid-targeting).
+  const moveTiles = playerTurn && !sel ? reachableFor(c) : [];
+  const onMove = (x, y) => {
+    setSel(null);
+    apply(playerMove(c, x, y));
+  };
+
   const act = (abilityId, targetUid) => {
     setSel(null);
     apply(abilityId === 'poultice' ? usePoultice(c, targetUid) : playerAct(c, abilityId, targetUid));
@@ -79,13 +97,14 @@ export default function CombatScreen() {
   };
 
   const selTarget = sel === 'poultice' ? 'ally' : sel ? ABILITIES[sel].target : null;
-  const isTargetable = (u) =>
-    !!(
-      playerTurn &&
-      sel &&
-      u.alive &&
-      ((selTarget === 'enemy' && u.side === 'enemy') || (selTarget === 'ally' && u.side === 'party'))
-    );
+  const isTargetable = (u) => {
+    if (!playerTurn || !sel || !u.alive) return false;
+    const sideOk =
+      (selTarget === 'enemy' && u.side === 'enemy') || (selTarget === 'ally' && u.side === 'party');
+    if (!sideOk) return false;
+    // Poultice and ally buffs reach anywhere; offensive abilities need range.
+    return sel === 'poultice' ? true : attackReachable(c, sel, u);
+  };
 
   const finish = () =>
     dispatch({
@@ -120,19 +139,27 @@ export default function CombatScreen() {
         <span className="combat-round">Round {c.round}</span>
       </div>
 
-      <Battlefield c={c} fx={fx} cur={cur} isTargetable={isTargetable} onTarget={(uid) => act(sel, uid)} />
+      <Battlefield
+        c={c}
+        fx={fx}
+        cur={cur}
+        isTargetable={isTargetable}
+        onTarget={(uid) => act(sel, uid)}
+        moveTiles={moveTiles}
+        onMove={onMove}
+      />
 
       <div className="combat-bottom">
         <div className="control-zone">
           <div className="rank-divider">
             {playerTurn && !sel && cur && (
               <span className="turn-banner" style={{ color: cur.color }}>
-                {cur.name} acts — choose an ability
+                {cur.name} — {moveTiles.length ? 'step to a marked tile, or ' : ''}choose an ability
               </span>
             )}
             {playerTurn && sel && (
               <span className="turn-banner targeting">
-                {sel === 'poultice' ? 'Black Poultice' : ABILITIES[sel].name}: choose a {selTarget === 'enemy' ? 'victim' : 'recipient'}
+                {sel === 'poultice' ? 'Black Poultice' : ABILITIES[sel].name}: choose a {selTarget === 'enemy' ? 'victim' : 'recipient'} in range
               </span>
             )}
             {!c.over && c.auto === 'enemy' && <span className="turn-banner dim-text">{cur?.name} moves…</span>}

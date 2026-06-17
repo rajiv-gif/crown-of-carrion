@@ -126,6 +126,100 @@ function unitTerrain(s, u) {
   return terrainAt(s.field, u?.tile);
 }
 
+// ── Tactics: movement & attack range ────────────────────────
+// Chebyshev distance — range 1 means "in an adjacent cell" (incl. diagonal).
+const tdist = (a, b) =>
+  !a?.tile || !b?.tile ? 99 : Math.max(Math.abs(a.tile.x - b.tile.x), Math.abs(a.tile.y - b.tile.y));
+
+// Per-ability reach. Positional attacks (target enemy/party) default to
+// melee (1); self/none/ally abilities are unbounded. Tune here freely.
+const ABILITY_RANGE = {
+  // short reach
+  poison_blade: 2,
+  tyrants_grip: 2,
+  debt_mark: 2,
+  kneel_debtor: 2,
+  bitter_appraisal: 3,
+  collection_swing: 2,
+  // ranged occult / chains / fire
+  rot_hex: 3,
+  spite_hex: 3,
+  crown_hex: 3,
+  debt_of_flesh: 3,
+  mo_bos_ie_eye: 4,
+  chain_lash: 3,
+  audit_sin: 3,
+  burning_writ: 3,
+  grave_bloom: 3,
+  faith_eater: 3,
+  erase_face: 3,
+  plague_bite: 1,
+  // the boss's telegraphed killshot lands wherever the debtor stands
+  final_ledger: 99,
+};
+function abilityReach(id) {
+  const A = ABILITIES[id];
+  if (!A) return 1;
+  if (A.target === 'self' || A.target === 'none' || A.target === 'ally') return 99;
+  return ABILITY_RANGE[id] ?? 1;
+}
+function inReach(s, actor, target, id) {
+  if (abilityReach(id) >= 99) return true;
+  return tdist(actor, target) <= abilityReach(id);
+}
+
+// Movement budget from Speed (1–4 tiles): Veato darts, Lucian lumbers.
+function moveBudget(u) {
+  return Math.max(1, Math.min(4, Math.round((u.speed || 6) / 4)));
+}
+
+// BFS the free orthogonal tiles a unit can step to this turn (bodies block).
+function reachableTiles(s, u) {
+  const cols = s.field?.columns || 8;
+  const rows = s.field?.rows || 5;
+  const occupied = new Set(
+    s.units.filter((x) => x.alive && x.uid !== u.uid).map((x) => `${x.tile?.x},${x.tile?.y}`)
+  );
+  const start = u.tile || { x: 0, y: 0 };
+  const seen = new Set([`${start.x},${start.y}`]);
+  const out = [];
+  let frontier = [start];
+  for (let step = 1; step <= moveBudget(u); step++) {
+    const next = [];
+    for (const t of frontier) {
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = t.x + dx;
+        const ny = t.y + dy;
+        const key = `${nx},${ny}`;
+        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+        if (occupied.has(key) || seen.has(key)) continue;
+        seen.add(key);
+        next.push({ x: nx, y: ny });
+        out.push({ x: nx, y: ny, cost: step });
+      }
+    }
+    frontier = next;
+  }
+  return out;
+}
+
+// One step from `from` toward `goal` along free tiles (greedy, bodies block).
+function stepToward(s, u, goal, budget) {
+  const reach = reachableTiles(s, u);
+  if (!reach.length || !goal) return null;
+  let best = null;
+  let bestD = tdist({ tile: u.tile }, { tile: goal });
+  for (const t of reach) {
+    if (t.cost > budget) continue;
+    const d = Math.max(Math.abs(t.x - goal.x), Math.abs(t.y - goal.y));
+    if (d < bestD) {
+      bestD = d;
+      best = { x: t.x, y: t.y };
+    }
+  }
+  return best;
+}
+
 function assignBattlefield(s, enc) {
   const field = battlefieldFor(s.encounterId);
   const enemyStarts = field.placements?.enemies || [];
@@ -837,6 +931,7 @@ function endTurn(s, u) {
     for (const k in u.cooldowns) if (u.cooldowns[k] > 0) u.cooldowns[k]--;
   }
   s.auto = null;
+  s.moved = false; // the next unit starts with its full move available
 }
 
 function checkEnd(s) {
@@ -1102,6 +1197,30 @@ function enemyAI(s, u) {
     .sort((a, b) => b.score - a.score);
   let target = scored[0]?.p || wretch || pick(party);
 
+  // Regular enemies maneuver; the boss is an immovable wall whose chains and
+  // ledger already reach the whole field. Close in if nothing ready can hit.
+  if (!u.boss && target.tile && u.tile) {
+    const FREE_AOE = ['sermon_of_teeth', 'smoke_censer', 'absolve_screaming', 'martyr_tax', 'whispering_pact', 'demon_invocation', 'duo_rite', 'chain_tax'];
+    const readyReach = u.abilities.filter(
+      (id) =>
+        (u.cooldowns[id] || 0) <= 0 &&
+        (ABILITIES[id].target === 'enemy' || ABILITIES[id].target === 'party') &&
+        abilityReach(id) < 99
+    );
+    const hasFreeAoe = u.abilities.some(
+      (id) => (u.cooldowns[id] || 0) <= 0 && ABILITIES[id].target === 'none' && FREE_AOE.includes(id)
+    );
+    if (!hasFreeAoe && !readyReach.some((id) => inReach(s, u, target, id))) {
+      const dest = stepToward(s, u, target.tile, moveBudget(u));
+      if (dest && (dest.x !== u.tile.x || dest.y !== u.tile.y)) {
+        evt(s, { k: 'move', unit: u.uid, from: { ...u.tile }, to: dest });
+        u.tile = dest;
+        log(s, `${u.name} closes the distance.`, 'dim');
+      }
+      if (!readyReach.some((id) => inReach(s, u, target, id))) return; // turn spent advancing
+    }
+  }
+
   if (u.boss) {
     const hpRatio = u.hp / u.maxHp;
     if (hpRatio <= 0.5 && !s.bossPhase2) {
@@ -1145,10 +1264,14 @@ function enemyAI(s, u) {
     if (id === 'collection_swing' && !party.some((p) => hasStatus(p, 'marked'))) continue;
     if (id === 'debt_mark' && party.some((p) => hasStatus(p, 'marked'))) continue;
     if (id === 'chain_tax' && !u.boss && party.length < 2) continue;
+    if (!u.boss && (A.target === 'enemy' || A.target === 'party') && !inReach(s, u, target, id)) continue;
     resolveAbility(s, u, id, A.target === 'self' ? u.uid : A.target === 'none' ? null : target.uid);
     return;
   }
-  resolveAbility(s, u, u.abilities[u.abilities.length - 1], target.uid);
+  const lastId = u.abilities[u.abilities.length - 1];
+  const lastA = ABILITIES[lastId];
+  if (!u.boss && lastA && (lastA.target === 'enemy' || lastA.target === 'party') && !inReach(s, u, target, lastId)) return;
+  resolveAbility(s, u, lastId, lastA && lastA.target === 'self' ? u.uid : lastA && lastA.target === 'none' ? null : target.uid);
 }
 
 // ── Public API ──────────────────────────────────────────────
@@ -1232,6 +1355,7 @@ export function createCombat(g) {
     cocoliBargain: null,
     cocoliDebtsDelta: 0,
     auto: null,
+    moved: false,
     betrayed: {},
     tension: { ...g.tension },
     tensionDelta: {},
@@ -1279,9 +1403,43 @@ export function playerAct(state, abilityId, targetUid) {
   const s = structuredClone(state);
   const u = getUnit(s, s.queue[s.turnIdx]);
   if (!u || !u.alive || s.over) return s;
+  // Range gate: positional abilities require their target within reach.
+  const A = ABILITIES[abilityId];
+  if (A && (A.target === 'enemy' || A.target === 'party')) {
+    const t = getUnit(s, targetUid);
+    if (!t || !t.alive || !inReach(s, u, t, abilityId)) return s;
+  }
   resolveAbility(s, u, abilityId, targetUid);
   endTurn(s, u);
   return advance_(s);
+}
+
+// Tiles the current player unit may still step to this turn ([] if none).
+export function reachableFor(state) {
+  const u = currentUnit(state);
+  if (!u || state.over || state.auto || u.side !== 'party' || state.moved) return [];
+  return reachableTiles(state, u);
+}
+
+// Move the current player unit onto (x, y) if legal. Does NOT end the turn —
+// the unit may still act afterward.
+export function playerMove(state, x, y) {
+  const s = structuredClone(state);
+  const u = currentUnit(s);
+  if (!u || s.over || s.auto || u.side !== 'party' || s.moved) return s;
+  if (!reachableTiles(s, u).some((t) => t.x === x && t.y === y)) return s;
+  evt(s, { k: 'move', unit: u.uid, from: { ...u.tile }, to: { x, y } });
+  u.tile = { x, y };
+  s.moved = true;
+  return s;
+}
+
+// UI helper: can the current actor hit `target` with `abilityId` from where
+// it stands right now?
+export function attackReachable(state, abilityId, target) {
+  const u = currentUnit(state);
+  if (!u || !target) return false;
+  return inReach(state, u, target, abilityId);
 }
 
 export function usePoultice(state, targetUid) {
@@ -1360,8 +1518,18 @@ export function autoAct(state) {
       enemyAI(s, u);
     }
   } else if (s.auto === 'wretch') {
-    const t = pick(alive(s, 'enemy'));
-    if (t) resolveAbility(s, u, 'gnaw', t.uid);
+    const foes = alive(s, 'enemy');
+    const t = foes.sort((a, b) => tdist(u, a) - tdist(u, b))[0];
+    if (t) {
+      if (!inReach(s, u, t, 'gnaw') && t.tile && u.tile) {
+        const dest = stepToward(s, u, t.tile, moveBudget(u));
+        if (dest) {
+          evt(s, { k: 'move', unit: u.uid, from: { ...u.tile }, to: dest });
+          u.tile = dest;
+        }
+      }
+      if (inReach(s, u, t, 'gnaw')) resolveAbility(s, u, 'gnaw', t.uid);
+    }
   } else {
     // Sabotage: they lash out on their own terms — and at high tension,
     // "accidents" happen to whoever stands too close.

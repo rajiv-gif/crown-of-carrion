@@ -1067,6 +1067,26 @@ button { font-family: inherit; cursor: pointer; }
   color: rgba(233, 228, 214, 0.36);
   text-shadow: 0 1px 4px #000;
 }
+.bf-tile.is-movable {
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px rgba(169, 140, 69, 0.55), inset 0 0 20px rgba(169, 140, 69, 0.16);
+  animation: moveTilePulse 1.5s ease-in-out infinite;
+}
+.bf-tile.is-movable::after {
+  content: '';
+  position: absolute;
+  inset: 38% 42%;
+  border-radius: 50%;
+  background: rgba(207, 195, 169, 0.5);
+  box-shadow: 0 0 10px rgba(207, 195, 169, 0.45);
+}
+.bf-tile.is-movable:hover {
+  box-shadow: inset 0 0 0 2px rgba(207, 195, 169, 0.95), inset 0 0 26px rgba(207, 195, 169, 0.3);
+}
+@keyframes moveTilePulse {
+  0%, 100% { box-shadow: inset 0 0 0 2px rgba(169, 140, 69, 0.55), inset 0 0 20px rgba(169, 140, 69, 0.16); }
+  50% { box-shadow: inset 0 0 0 2px rgba(169, 140, 69, 0.28), inset 0 0 14px rgba(169, 140, 69, 0.08); }
+}
 .terrain-cover {
   background:
     linear-gradient(135deg, rgba(92, 77, 59, 0.5), rgba(12, 9, 7, 0.78)),
