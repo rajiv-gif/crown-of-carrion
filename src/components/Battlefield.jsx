@@ -1,11 +1,9 @@
 import React from 'react';
 import BattleUnit from './BattleUnit.jsx';
+import { TERRAIN } from '../data/battlefields.js';
 
-// Side-view battlefield: party left (Lucian fronting, Sjen at the rear,
-// the Wretch ahead of everyone), enemies right and mirrored. Layered fog,
-// a dead skyline, and screen-level effects (quake, occult surge).
-
-const PARTY_ORDER = { chibi: 0, sjen: 1, chan: 2, veato: 3, lucian: 4, wretch: 5 };
+// Tactical battlefield: units live as small map figures until an action
+// makes the actor and victim flare up for a readable combat animation.
 const HEAVY_HITS = [
   'cleave',
   'execute',
@@ -20,10 +18,25 @@ const HEAVY_HITS = [
 ];
 
 export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
-  const party = c.units
-    .filter((u) => u.side === 'party')
-    .sort((a, b) => (PARTY_ORDER[a.key] ?? 9) - (PARTY_ORDER[b.key] ?? 9));
-  const enemies = c.units.filter((u) => u.side === 'enemy');
+  const field = c.field || { columns: 8, rows: 5, tiles: [], rules: [] };
+  const cols = field.columns || 8;
+  const rows = field.rows || 5;
+  const tileAt = (x, y) => field.tiles?.find((t) => t.x === x && t.y === y)?.type || 'ash';
+  const tiles = Array.from({ length: cols * rows }, (_, i) => {
+    const x = i % cols;
+    const y = Math.floor(i / cols);
+    const type = tileAt(x, y);
+    return { x, y, type, info: TERRAIN[type] || TERRAIN.ash };
+  });
+  const presentTerrain = new Set((field.tiles || []).map((t) => t.type));
+  const units = [...c.units].sort((a, b) => (a.tile?.y || 0) - (b.tile?.y || 0) || (a.side === 'enemy' ? 1 : -1));
+  const spotlight = new Set(
+    fx.flatMap((e) => [
+      e.k === 'cast' ? e.actor : null,
+      ['hit', 'dot', 'status', 'death'].includes(e.k) ? e.unit : null,
+      e.target || null,
+    ]).filter(Boolean)
+  );
 
   const quake = fx.some(
     (e) => (e.k === 'hit' && HEAVY_HITS.includes(e.ability)) || (e.k === 'death' && e.boss)
@@ -43,31 +56,50 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget }) {
       <div className="bf-fog far" />
       <div className="bf-fog near" />
       <div className="bf-ground" />
-      <div className="bf-ranks">
-        <div className="bf-side party-side">
-          {party.map((u) => (
+      <div className="bf-terrain-title">
+        <span>{field.name || c.name}</span>
+        <small>{field.rules?.join(' ')}</small>
+      </div>
+      <div className="bf-tactical-board" style={{ '--cols': cols, '--rows': rows }}>
+        {tiles.map((tile) => (
+          <div
+            key={`${tile.x}-${tile.y}`}
+            className={`bf-tile terrain-${tile.type}`}
+            title={`${tile.info.name}: ${tile.info.short}`}
+            style={{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }}
+          >
+            {tile.type !== 'ash' && <span>{tile.info.name}</span>}
+          </div>
+        ))}
+        <div className="bf-grid-lines" />
+        {units.map((u) => (
+          <div
+            key={u.uid}
+            className={`bf-tactical-unit ${u.side}-tile tile-${u.key} ${spotlight.has(u.uid) ? 'is-spotlight' : ''}`}
+            style={{
+              gridColumn: (u.tile?.x || 0) + 1,
+              gridRow: (u.tile?.y || 0) + 1,
+              zIndex: 20 + (u.tile?.y || 0) * 3 + (u.boss ? 2 : 0),
+            }}
+          >
             <BattleUnit
-              key={u.uid}
               u={u}
               fx={fx}
               isCurrent={cur?.uid === u.uid}
               targetable={isTargetable(u)}
               onClick={() => onTarget(u.uid)}
             />
+          </div>
+        ))}
+      </div>
+      <div className="bf-terrain-legend">
+        {Object.entries(TERRAIN)
+          .filter(([type]) => type !== 'ash' && presentTerrain.has(type))
+          .map(([type, info]) => (
+            <span key={type} className={`legend-chip terrain-${type}`}>
+              {info.name}
+            </span>
           ))}
-        </div>
-        <div className="bf-side enemy-side">
-          {enemies.map((u) => (
-            <BattleUnit
-              key={u.uid}
-              u={u}
-              fx={fx}
-              isCurrent={cur?.uid === u.uid}
-              targetable={isTargetable(u)}
-              onClick={() => onTarget(u.uid)}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

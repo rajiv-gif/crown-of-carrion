@@ -967,6 +967,249 @@ button { font-family: inherit; cursor: pointer; }
 }
 .bf-side { display: flex; align-items: flex-end; gap: 4px; }
 
+.bf-terrain-title {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 14px;
+  z-index: 7;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  pointer-events: none;
+}
+.bf-terrain-title span {
+  font-family: var(--serif-display);
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pale);
+  text-shadow: 0 2px 8px #000;
+  background: rgba(7, 5, 5, 0.6);
+  padding: 4px 9px;
+}
+.bf-terrain-title small {
+  max-width: 360px;
+  color: var(--bone);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: right;
+  text-shadow: 0 2px 8px #000;
+  background: rgba(7, 5, 5, 0.6);
+  padding: 4px 9px;
+}
+.bf-tactical-board {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: 50px;
+  bottom: 40px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  gap: 0;
+  padding: 10px;
+  border: 1px solid rgba(207, 195, 169, 0.12);
+  background:
+    radial-gradient(ellipse at 14% 22%, rgba(207, 195, 169, 0.08), transparent 28%),
+    radial-gradient(ellipse at 72% 44%, rgba(192, 57, 43, 0.1), transparent 34%),
+    radial-gradient(ellipse at 48% 72%, rgba(79, 104, 70, 0.09), transparent 32%),
+    linear-gradient(145deg, rgba(42, 33, 24, 0.42), rgba(12, 9, 8, 0.18));
+  box-shadow: inset 0 0 64px rgba(0, 0, 0, 0.62), 0 20px 60px rgba(0, 0, 0, 0.42);
+  transform: perspective(900px) rotateX(3deg);
+  transform-origin: 50% 100%;
+}
+.bf-grid-lines {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  pointer-events: none;
+  z-index: 5;
+  background:
+    linear-gradient(90deg, rgba(207, 195, 169, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(207, 195, 169, 0.055) 1px, transparent 1px);
+  background-size: calc(100% / var(--cols)) calc(100% / var(--rows));
+  mix-blend-mode: soft-light;
+}
+.bf-tile {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid rgba(58, 51, 44, 0.2);
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(233, 228, 214, 0.03), transparent 68%),
+    rgba(20, 15, 12, 0.42);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+}
+.bf-tile::before {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(233, 228, 214, 0.42);
+  font-family: var(--serif-display);
+  font-size: 24px;
+  line-height: 1;
+  text-shadow: 0 2px 8px #000;
+  pointer-events: none;
+}
+.bf-tile span {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  right: 4px;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: rgba(233, 228, 214, 0.36);
+  text-shadow: 0 1px 4px #000;
+}
+.terrain-cover {
+  background:
+    linear-gradient(135deg, rgba(92, 77, 59, 0.5), rgba(12, 9, 7, 0.78)),
+    repeating-linear-gradient(45deg, rgba(207, 195, 169, 0.08) 0 6px, transparent 6px 12px);
+}
+.bf-tile.terrain-cover::before { content: '▰'; color: rgba(207, 195, 169, 0.22); }
+.terrain-high_ground {
+  background:
+    radial-gradient(ellipse at 50% 25%, rgba(169, 140, 69, 0.24), transparent 68%),
+    linear-gradient(180deg, rgba(84, 69, 43, 0.72), rgba(24, 18, 13, 0.82));
+  border-color: rgba(169, 140, 69, 0.42);
+}
+.bf-tile.terrain-high_ground::before { content: '▲'; color: rgba(169, 140, 69, 0.45); }
+.terrain-holy_ground {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(207, 195, 169, 0.22), transparent 64%),
+    linear-gradient(180deg, rgba(42, 39, 32, 0.72), rgba(15, 13, 10, 0.82));
+  border-color: rgba(207, 195, 169, 0.42);
+}
+.bf-tile.terrain-holy_ground::before { content: '✚'; color: rgba(207, 195, 169, 0.42); }
+.terrain-desecrated_altar {
+  background:
+    radial-gradient(ellipse at 50% 44%, rgba(142, 123, 181, 0.34), transparent 60%),
+    linear-gradient(180deg, rgba(42, 22, 58, 0.65), rgba(12, 8, 14, 0.86));
+  border-color: rgba(142, 123, 181, 0.45);
+}
+.bf-tile.terrain-desecrated_altar::before { content: '☽'; color: rgba(142, 123, 181, 0.5); }
+.terrain-corpse_pile {
+  background:
+    radial-gradient(ellipse at 48% 55%, rgba(79, 104, 70, 0.28), transparent 64%),
+    linear-gradient(180deg, rgba(38, 45, 32, 0.7), rgba(11, 10, 8, 0.86));
+  border-color: rgba(83, 111, 75, 0.42);
+}
+.bf-tile.terrain-corpse_pile::before { content: '✣'; color: rgba(112, 139, 99, 0.46); }
+.terrain-blood_slick {
+  background:
+    radial-gradient(ellipse at 50% 56%, rgba(192, 57, 43, 0.34), transparent 62%),
+    linear-gradient(180deg, rgba(57, 14, 15, 0.74), rgba(12, 7, 7, 0.88));
+  border-color: rgba(192, 57, 43, 0.44);
+}
+.bf-tile.terrain-blood_slick::before { content: '●'; color: rgba(192, 57, 43, 0.46); }
+.terrain-demon_rift {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(192, 57, 43, 0.22), transparent 32%),
+    radial-gradient(ellipse at 50% 50%, rgba(142, 123, 181, 0.3), transparent 68%),
+    linear-gradient(180deg, rgba(31, 12, 39, 0.72), rgba(7, 5, 8, 0.92));
+  border-color: rgba(192, 57, 43, 0.5);
+}
+.bf-tile.terrain-demon_rift::before { content: '✹'; color: rgba(192, 57, 43, 0.5); }
+.bf-tactical-unit {
+  align-self: end;
+  justify-self: center;
+  z-index: 20;
+  margin-bottom: 2px;
+  transform: translateZ(0);
+  transition: transform 0.22s ease, filter 0.22s ease;
+}
+.bf-tactical-unit .bunit {
+  width: 42px;
+  transform-origin: 50% 100%;
+}
+.bf-tactical-unit .bunit.boss { width: 56px; }
+.bf-tactical-unit .sprite-wrap { min-height: 50px; }
+.bf-tactical-unit .sil { height: 45px; }
+.bf-tactical-unit .boss .sil { height: 62px; }
+.bf-tactical-unit .wretch .sil { height: 30px; }
+.bf-tactical-unit .unit-base {
+  width: 42px;
+  height: 10px;
+  bottom: -2px;
+}
+.bf-tactical-unit .unit-aura {
+  width: 42px;
+  height: 52px;
+  bottom: 0;
+  opacity: 0.24;
+  filter: blur(8px);
+}
+.bf-tactical-unit .bunit-plate {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 92px;
+  transform: translateX(-50%) scale(0.72);
+  transform-origin: top center;
+  margin-top: -2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+.bf-tactical-unit .bunit.is-current .bunit-plate,
+.bf-tactical-unit .bunit.is-targetable .bunit-plate,
+.bf-tactical-unit:hover .bunit-plate,
+.bf-tactical-unit.is-spotlight .bunit-plate {
+  opacity: 1;
+}
+.bf-tactical-unit.is-spotlight {
+  transform: scale(1.82) translateY(-12px);
+  z-index: 90 !important;
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.68));
+}
+.bf-tactical-unit.is-spotlight .bunit {
+  width: 76px;
+}
+.bf-tactical-unit.is-spotlight .bunit.boss { width: 110px; }
+.bf-tactical-unit.is-spotlight .sprite-wrap { min-height: 90px; }
+.bf-tactical-unit.is-spotlight .sil { height: 82px; }
+.bf-tactical-unit.is-spotlight .boss .sil { height: 120px; }
+.bf-tactical-unit.is-spotlight .wretch .sil { height: 48px; }
+.bf-tactical-unit.is-spotlight .unit-base {
+  width: 74px;
+  height: 18px;
+}
+.bf-tactical-unit.is-spotlight .unit-aura {
+  width: 74px;
+  height: 96px;
+  opacity: 0.44;
+}
+.bf-tactical-unit.enemy-tile .bunit { --dir: -1; }
+.bf-tactical-unit.enemy-tile .sil { transform: scaleX(-1); }
+.bf-terrain-legend {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 12px;
+  z-index: 7;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+.legend-chip {
+  padding: 4px 7px;
+  border: 1px solid rgba(207, 195, 169, 0.18);
+  background: rgba(10, 8, 7, 0.62);
+  color: var(--bone-dim);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
 /* screen-level effects */
 .battlefield-stage.quake { animation: quake 0.5s ease; }
 .battlefield-stage.boss-death { animation: quake 0.9s ease; }

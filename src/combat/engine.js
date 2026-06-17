@@ -14,6 +14,7 @@
 import { PARTY, ENEMIES, ENCOUNTERS } from '../data/units.js';
 import { DIFFICULTIES } from '../data/difficulty.js';
 import { abilityUnlocked, deriveMods, tensionTier } from '../data/sins.js';
+import { battlefieldFor, terrainAt } from '../data/battlefields.js';
 
 export const ABILITIES = {
   basic_attack: { name: 'Basic Attack', cd: 0, target: 'enemy', desc: 'A plain, ugly strike. Reliable. Unimpressive.' },
@@ -116,6 +117,59 @@ let uidCounter = 0;
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const roll = (base) => Math.max(1, Math.round(base * (0.9 + Math.random() * 0.2)));
+const isHexAbility = (id) => ['rot_hex', 'spite_hex', 'duo_rite', 'crown_hex', 'debt_of_flesh', 'whispering_pact'].includes(id);
+const isUnholy = (u) =>
+  ['demon', 'husk', 'saint', 'wretch'].includes(u.sprite) ||
+  /demon|husk|saint|reliquary|wretch/i.test(`${u.key} ${u.name}`);
+
+function unitTerrain(s, u) {
+  return terrainAt(s.field, u?.tile);
+}
+
+function assignBattlefield(s, enc) {
+  const field = battlefieldFor(s.encounterId);
+  const enemyStarts = field.placements?.enemies || [];
+  const cols = field.columns || 8;
+  const rows = field.rows || 5;
+  s.field = { ...field, rules: enc.terrainRules || field.rules || [] };
+  // No two units may share a tile. Claim the requested cell, or spiral out
+  // to the nearest free one — robust no matter how many enemies an
+  // encounter fields versus how many placement slots a battlefield defines.
+  const taken = new Set();
+  const claim = (cx, cy) => {
+    const x0 = Math.max(0, Math.min(cols - 1, cx | 0));
+    const y0 = Math.max(0, Math.min(rows - 1, cy | 0));
+    for (let r = 0; r <= cols + rows; r++) {
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const nx = x0 + dx;
+          const ny = y0 + dy;
+          if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+          const key = `${nx},${ny}`;
+          if (!taken.has(key)) {
+            taken.add(key);
+            return { x: nx, y: ny };
+          }
+        }
+      }
+    }
+    return { x: x0, y: y0 };
+  };
+  // Party first (fixed posts), then enemies walk the placement list in order
+  // with a single running index — different enemy types no longer collide.
+  let ei = 0;
+  for (const u of s.units) {
+    if (u.side === 'party') {
+      const p = field.placements?.party?.[u.key] || [1, 2];
+      u.tile = claim(p[0], p[1]);
+    } else {
+      const p = enemyStarts[ei] || [cols - 1, ei % rows];
+      u.tile = claim(p[0], p[1]);
+      ei += 1;
+    }
+  }
+  s.takenTiles = taken; // later summons (the Wretch) can avoid stacking
+}
 
 function log(s, text, kind = 'info') {
   s.log.push({ id: s.log.length + Math.random(), text, kind });
@@ -300,6 +354,14 @@ function hit(s, attacker, target, mult, label) {
     return 0;
   }
   let base = effAtk(attacker) * mult;
+  const attackerTerrain = unitTerrain(s, attacker);
+  const targetTerrain = unitTerrain(s, target);
+  if (attackerTerrain.type === 'high_ground') base *= 1.12;
+  if (targetTerrain.type === 'cover') base *= 0.85;
+  if (attackerTerrain.type === 'desecrated_altar' && ['sjen', 'chibi'].includes(attacker.key) && isHexAbility(s.castAbility)) {
+    base *= 1.18;
+  }
+  if (attackerTerrain.type === 'demon_rift' && isUnholy(attacker)) base *= 1.15;
   if (target.boss && am.bossMult > 1) base *= am.bossMult;
   let vicious = false;
   if (am.crit && Math.random() < am.crit) {
@@ -447,6 +509,27 @@ function resolveAbility(s, u, id, targetUid) {
         'party',
         'wretch'
       );
+      const sjen = byKey(s, 'sjen');
+      const cols = s.field?.columns || 8;
+      const rows = s.field?.rows || 5;
+      const occupied = new Set(s.units.filter((x) => x.alive).map((x) => `${x.tile?.x},${x.tile?.y}`));
+      const want = sjen?.tile ? { x: Math.min(cols - 1, sjen.tile.x + 1), y: sjen.tile.y } : { x: 2, y: 2 };
+      // Rise on a free tile — never on top of an ally or enemy.
+      let placed = want;
+      outer: for (let r = 0; r <= cols + rows; r++) {
+        for (let dy = -r; dy <= r; dy++) {
+          for (let dx = -r; dx <= r; dx++) {
+            const nx = want.x + dx;
+            const ny = want.y + dy;
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+            if (!occupied.has(`${nx},${ny}`)) {
+              placed = { x: nx, y: ny };
+              break outer;
+            }
+          }
+        }
+      }
+      w.tile = placed;
       s.units.push(w);
       evt(s, { k: 'summon', unit: w.uid });
       log(s, 'Something small and wrong claws up through the floorboards and stands in front of the blades.', 'hex');
@@ -864,7 +947,7 @@ function advance_(s) {
       s.round++;
       for (const enemy of alive(s, 'enemy')) {
         if (enemy.transformInto && enemy.transformTimer > 0) {
-          enemy.transformTimer -= 1;
+          enemy.transformTimer -= unitTerrain(s, enemy).type === 'corpse_pile' ? 2 : 1;
           syncTransformStatus(s, enemy);
           if (enemy.transformTimer > 0) {
             log(s, `${enemy.name} convulses. Ascension in ${enemy.transformTimer}.`, enemy.transformTimer === 1 ? 'death' : 'hex');
@@ -885,11 +968,24 @@ function advance_(s) {
     const u = getUnit(s, s.queue[s.turnIdx]);
     if (!u || !u.alive) continue;
 
+    const terrain = unitTerrain(s, u);
+    if (terrain.type === 'holy_ground' && isUnholy(u)) {
+      const dmg = u.boss ? 4 : 7;
+      u.hp -= dmg;
+      log(s, `${u.name} burns on holy ground.`, 'hurt');
+      evt(s, { k: 'dot', unit: u.uid, type: 'holy', amount: dmg });
+      if (u.hp <= 0) {
+        kill(s, u, null);
+        continue;
+      }
+    }
+
     // Damage over time ticks at the start of the unit's turn.
     let died = false;
     for (const st of u.statuses) {
       if (DOTS[st.type]) {
         let dmg = st.power;
+        if (st.type === 'bleed' && terrain.type === 'blood_slick') dmg += 2;
         if (st.type !== 'bleed') dmg = Math.max(1, dmg - (u.mods?.dotResist || 0));
         u.hp -= dmg;
         log(s, `${u.name} suffers ${dmg} ${DOTS[st.type]}.`, 'hurt');
@@ -1149,8 +1245,10 @@ export function createCombat(g) {
     finalLedgerTarget: null,
     enemyFury: 0,
   };
+  assignBattlefield(s, enc);
   s.hadAscensionThreat = s.units.some((x) => x.side === 'enemy' && x.transformInto);
   log(s, enc.opener || `${enc.name}. The ledger opens.`, 'round');
+  if (s.field?.rules?.length) log(s, `Terrain: ${s.field.rules.join(' ')}`, 'dim');
   if (diff.id === 'merciless') log(s, 'Merciless ledger: skills are scarce, healing is mean, and Cocoli is listening.', 'death');
   if (s.poultices > 0) log(s, `Black Poultice x${s.poultices}: tar, old blood, and something still alive.`, 'dim');
   if (g.flags?.cocoli_vengeance) {
