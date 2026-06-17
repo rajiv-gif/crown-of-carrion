@@ -38,6 +38,7 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
       e.target || null,
     ]).filter(Boolean)
   );
+  const moving = new Map(fx.filter((e) => e.k === 'move' && e.from && e.to).map((e) => [e.unit, e]));
 
   const quake = fx.some(
     (e) => (e.k === 'hit' && HEAVY_HITS.includes(e.ability)) || (e.k === 'death' && e.boss)
@@ -77,25 +78,43 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
           );
         })}
         <div className="bf-grid-lines" />
-        {units.map((u) => (
-          <div
-            key={u.uid}
-            className={`bf-tactical-unit ${u.side}-tile tile-${u.key} ${spotlight.has(u.uid) ? 'is-spotlight' : ''}`}
-            style={{
-              gridColumn: (u.tile?.x || 0) + 1,
-              gridRow: (u.tile?.y || 0) + 1,
-              zIndex: 20 + (u.tile?.y || 0) * 3 + (u.boss ? 2 : 0),
-            }}
-          >
-            <BattleUnit
-              u={u}
-              fx={fx}
-              isCurrent={cur?.uid === u.uid}
-              targetable={isTargetable(u)}
-              onClick={() => onTarget(u.uid)}
+        {fx
+          .filter((e) => e.k === 'move' && e.from)
+          .map((e) => (
+            <div
+              key={`ghost-${e.id}`}
+              className="bf-move-ghost"
+              style={{ gridColumn: e.from.x + 1, gridRow: e.from.y + 1 }}
             />
-          </div>
-        ))}
+          ))}
+        {units.map((u) => {
+          const mv = moving.get(u.uid);
+          const sp = spotlight.has(u.uid);
+          return (
+            <div
+              key={u.uid}
+              className={`bf-tactical-unit ${u.side}-tile tile-${u.key} ${sp ? 'is-spotlight' : ''} ${
+                mv && !sp ? 'just-moved' : ''
+              }`}
+              style={{
+                gridColumn: (u.tile?.x || 0) + 1,
+                gridRow: (u.tile?.y || 0) + 1,
+                zIndex: 20 + (u.tile?.y || 0) * 3 + (u.boss ? 2 : 0),
+                ...(mv && !sp
+                  ? { '--mvdx': Math.sign(mv.from.x - mv.to.x), '--mvdy': Math.sign(mv.from.y - mv.to.y) }
+                  : null),
+              }}
+            >
+              <BattleUnit
+                u={u}
+                fx={fx}
+                isCurrent={cur?.uid === u.uid}
+                targetable={isTargetable(u)}
+                onClick={() => onTarget(u.uid)}
+              />
+            </div>
+          );
+        })}
       </div>
       <div className="bf-terrain-legend">
         {Object.entries(TERRAIN)
