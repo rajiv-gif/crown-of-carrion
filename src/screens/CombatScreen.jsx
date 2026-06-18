@@ -158,6 +158,9 @@ export default function CombatScreen() {
             {playerTurn && !sel && cur && (
               <span className="turn-banner" style={{ color: cur.color }}>
                 {cur.name} — {moveTiles.length ? 'step to a marked tile, or ' : ''}choose an ability
+                {moveTiles.some((t) => t.provokes) && (
+                  <em className="provoke-hint"> — red tiles draw an opportunity attack</em>
+                )}
               </span>
             )}
             {playerTurn && sel && (

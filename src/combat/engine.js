@@ -1517,7 +1517,25 @@ export function playerAct(state, abilityId, targetUid) {
 export function reachableFor(state) {
   const u = currentUnit(state);
   if (!u || state.over || state.auto || u.side !== 'party' || state.moved) return [];
-  return reachableTiles(state, u);
+  const tiles = reachableTiles(state, u);
+  if (!u.tile) return tiles;
+  // Annotate each tile with whether stepping there draws an opportunity attack
+  // — same rule moveUnit enforces, so the warning can never drift from reality.
+  const cheb = (ax, ay, bx, by) => Math.max(Math.abs(ax - bx), Math.abs(ay - by));
+  const threats = state.units.filter(
+    (x) =>
+      x.alive &&
+      x.side !== u.side &&
+      x.tile &&
+      meleeThreat(x) &&
+      !hasStatus(x, 'stun') &&
+      !hasStatus(x, 'psychosis') &&
+      cheb(x.tile.x, x.tile.y, u.tile.x, u.tile.y) === 1
+  );
+  return tiles.map((t) => ({
+    ...t,
+    provokes: threats.some((x) => cheb(x.tile.x, x.tile.y, t.x, t.y) > 1),
+  }));
 }
 
 // Move the current player unit onto (x, y) if legal. Does NOT end the turn —

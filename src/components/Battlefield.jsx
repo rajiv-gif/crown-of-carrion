@@ -30,6 +30,7 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
   });
   const presentTerrain = new Set((field.tiles || []).map((t) => t.type));
   const moveSet = new Set((moveTiles || []).map((t) => `${t.x},${t.y}`));
+  const provokeSet = new Set((moveTiles || []).filter((t) => t.provokes).map((t) => `${t.x},${t.y}`));
   const units = [...c.units].sort((a, b) => (a.tile?.y || 0) - (b.tile?.y || 0) || (a.side === 'enemy' ? 1 : -1));
   const spotlight = new Set(
     fx.flatMap((e) => [
@@ -65,11 +66,18 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
       <div className="bf-tactical-board" style={{ '--cols': cols, '--rows': rows }}>
         {tiles.map((tile) => {
           const movable = moveSet.has(`${tile.x},${tile.y}`);
+          const provokes = provokeSet.has(`${tile.x},${tile.y}`);
           return (
             <div
               key={`${tile.x}-${tile.y}`}
-              className={`bf-tile terrain-${tile.type} ${movable ? 'is-movable' : ''}`}
-              title={movable ? `Move here · ${tile.info.name}` : `${tile.info.name}: ${tile.info.short}`}
+              className={`bf-tile terrain-${tile.type} ${movable ? 'is-movable' : ''} ${provokes ? 'provokes' : ''}`}
+              title={
+                provokes
+                  ? `Move here — draws an opportunity attack · ${tile.info.name}`
+                  : movable
+                    ? `Move here · ${tile.info.name}`
+                    : `${tile.info.name}: ${tile.info.short}`
+              }
               style={{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }}
               onClick={movable && onMove ? () => onMove(tile.x, tile.y) : undefined}
             >
