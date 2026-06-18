@@ -22,6 +22,7 @@ export default function CombatScreen() {
   const [c, setC] = useState(() => createCombat(g));
   const [fx, setFx] = useState([]); // engine events currently animating
   const [sel, setSel] = useState(null); // ability awaiting a target
+  const [engagedTurn, setEngagedTurn] = useState(null); // turn-key once an action is chosen; locks movement
   const seen = useRef(c.events.length); // skip animating setup events
   const logRef = useRef(null);
   const endSound = useRef(null);
@@ -69,10 +70,13 @@ export default function CombatScreen() {
     }
   }, [c.over, c.bonusGold, c.bonusXp, c.lootItem]);
 
-  // Tiles the active unit may step to (only when not mid-targeting).
-  const moveTiles = playerTurn && !sel ? reachableFor(c) : [];
+  // Move-then-attack: a unit may reposition freely, but the moment it commits
+  // to an action that choice is final — movement locks for the rest of the
+  // turn (deselecting the ability does NOT bring it back).
+  const turnKey = cur ? `${c.round}:${c.turnIdx}:${cur.uid}` : null;
+  const moveLocked = engagedTurn === turnKey;
+  const moveTiles = playerTurn && !moveLocked ? reachableFor(c) : [];
   const onMove = (x, y) => {
-    setSel(null);
     apply(playerMove(c, x, y));
   };
 
@@ -86,6 +90,7 @@ export default function CombatScreen() {
   };
 
   const onAbility = (id) => {
+    setEngagedTurn(turnKey); // choosing an action ends the move phase for this turn
     if (id === 'poultice') {
       setSel(sel === id ? null : id);
       return;
@@ -105,6 +110,7 @@ export default function CombatScreen() {
     // Poultice and ally buffs reach anywhere; offensive abilities need range.
     return sel === 'poultice' ? true : attackReachable(c, sel, u);
   };
+  const anyTarget = !!sel && c.units.some((u) => isTargetable(u));
 
   const finish = () =>
     dispatch({
@@ -159,7 +165,10 @@ export default function CombatScreen() {
             )}
             {playerTurn && sel && (
               <span className="turn-banner targeting">
-                {sel === 'poultice' ? 'Black Poultice' : ABILITIES[sel].name}: choose a {selTarget === 'enemy' ? 'victim' : 'recipient'} in range
+                {sel === 'poultice' ? 'Black Poultice' : ABILITIES[sel].name}:{' '}
+                {anyTarget
+                  ? `choose a ${selTarget === 'enemy' ? 'victim' : 'recipient'} in range`
+                  : 'no target in range — pick the ability again to cancel'}
               </span>
             )}
             {!c.over && c.auto === 'enemy' && <span className="turn-banner dim-text">{cur?.name} moves…</span>}
