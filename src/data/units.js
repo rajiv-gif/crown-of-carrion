@@ -78,6 +78,15 @@ export const ENEMIES = {
     speed: 6,
     abilities: ['rotten_guard', 'plague_bite', 'rusted_blade'],
   },
+  pox_slinger: {
+    name: 'Pox-Slinger',
+    sigil: '✕',
+    sprite: 'slinger',
+    hp: 24,
+    atk: 9,
+    speed: 8,
+    abilities: ['pox_lob', 'claw'],
+  },
   chained_thrall: {
     name: 'Chained Thrall',
     sigil: '✕',
@@ -173,7 +182,7 @@ export const ENCOUNTERS = {
     name: 'The Starving of Marrowfen',
     opener:
       'Scythes, fence-stakes, and the slow courage of people who have already buried everything. The ledger opens.',
-    enemies: ['starved_villager', 'starved_villager', 'infected_guard', 'infected_guard'],
+    enemies: ['starved_villager', 'pox_slinger', 'infected_guard', 'infected_guard'],
     gold: 18,
     xp: 60,
   },

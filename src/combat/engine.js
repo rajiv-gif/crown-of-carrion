@@ -51,6 +51,7 @@ export const ABILITIES = {
   rusted_blade: { name: 'Rusted Blade', cd: 0, target: 'party' },
   desperate_rush: { name: 'Desperate Rush', cd: 3, target: 'party' },
   plague_bite: { name: 'Plague Bite', cd: 2, target: 'party' },
+  pox_lob: { name: 'Pox Lob', cd: 0, target: 'party' },
   rotten_guard: { name: 'Rotten Guard', cd: 3, target: 'self' },
   heavy_blow: { name: 'Heavy Blow', cd: 0, target: 'party' },
   chain_lash: { name: 'Chain Lash', cd: 2, target: 'party' },
@@ -153,6 +154,7 @@ const ABILITY_RANGE = {
   grave_bloom: 3,
   faith_eater: 3,
   erase_face: 3,
+  pox_lob: 3,
   plague_bite: 1,
   // the boss's telegraphed killshot lands wherever the debtor stands
   final_ledger: 99,
@@ -797,6 +799,10 @@ function resolveAbility(s, u, id, targetUid) {
     case 'plague_bite':
       hit(s, u, t, 0.7, 'Plague Bite');
       if (t && t.alive) addStatus(s, t, 'poison', 3, 6 + (s.diff?.afflictionBonus || 0));
+      break;
+    case 'pox_lob':
+      hit(s, u, t, 0.8, 'Pox Lob');
+      if (t && t.alive) addStatus(s, t, 'poison', 2, 4 + (s.diff?.afflictionBonus || 0));
       break;
     case 'rotten_guard':
       addStatus(s, u, 'rotten_guard', 3);

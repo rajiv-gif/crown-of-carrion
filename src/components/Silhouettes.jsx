@@ -179,6 +179,28 @@ function Villager() {
   );
 }
 
+function Slinger() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-slinger" aria-label="Pox-Slinger">
+      {/* thin legs, braced to throw */}
+      <path d="M44 104 L50 104 L44 140 L38 140 Z" fill={RAG} />
+      <path d="M56 104 L62 104 L64 140 L58 140 Z" fill={RAG} />
+      {/* hunched ragged tunic, leaning into the throw */}
+      <path d="M40 50 L64 46 L70 106 L62 100 L56 108 L48 100 L40 108 L36 102 Z" fill={RAG} />
+      <path d="M46 60 L60 57 L59 65 L48 67 Z" fill={IRON_DARK} opacity="0.85" />
+      {/* gaunt head, hooded rag */}
+      <path d="M46 20 Q55 12 62 20 L61 34 Q54 39 47 33 Z" fill="#2a2018" />
+      <circle cx="57" cy="26" r="1" fill={POISON} opacity="0.7" />
+      {/* cocked throwing arm, raised behind the head */}
+      <path d="M58 52 L40 36 L34 42 L52 60 Z" fill={RAG} />
+      {/* hurled glob of plague-filth, leaving the hand */}
+      <circle cx="30" cy="34" r="6" fill="#3a4422" />
+      <circle cx="30" cy="34" r="3" fill={POISON} opacity="0.85" />
+      <path d="M30 34 L20 30 M30 34 L22 40" stroke={POISON} strokeWidth="1.6" opacity="0.5" />
+    </svg>
+  );
+}
+
 function Guard() {
   return (
     <svg viewBox="0 0 110 150" className="sil sil-guard" aria-label="Infected Guard">
@@ -356,6 +378,7 @@ const SPRITES = {
   chibi: Chibi,
   wretch: Wretch,
   villager: Villager,
+  slinger: Slinger,
   guard: Guard,
   knight: Knight,
   flagellant: Flagellant,
