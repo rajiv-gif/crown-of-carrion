@@ -1188,24 +1188,24 @@ button { font-family: inherit; cursor: pointer; }
   transition: transform 0.22s ease, filter 0.22s ease;
 }
 .bf-tactical-unit .bunit {
-  width: 42px;
+  width: 56px;
   transform-origin: 50% 100%;
 }
-.bf-tactical-unit .bunit.boss { width: 56px; }
-.bf-tactical-unit .sprite-wrap { min-height: 50px; }
-.bf-tactical-unit .sil { height: 45px; }
-.bf-tactical-unit .boss .sil { height: 62px; }
-.bf-tactical-unit .wretch .sil { height: 30px; }
+.bf-tactical-unit .bunit.boss { width: 72px; }
+.bf-tactical-unit .sprite-wrap { min-height: 66px; }
+.bf-tactical-unit .sil { height: 60px; }
+.bf-tactical-unit .boss .sil { height: 80px; }
+.bf-tactical-unit .wretch .sil { height: 40px; }
 .bf-tactical-unit .unit-base {
-  width: 42px;
-  height: 10px;
+  width: 54px;
+  height: 12px;
   bottom: -2px;
 }
 .bf-tactical-unit .unit-aura {
-  width: 42px;
-  height: 52px;
+  width: 54px;
+  height: 66px;
   bottom: 0;
-  opacity: 0.24;
+  opacity: 0.26;
   filter: blur(8px);
 }
 .bf-tactical-unit .bunit-plate {
@@ -1262,9 +1262,9 @@ button { font-family: inherit; cursor: pointer; }
   -webkit-mask-image: radial-gradient(ellipse 60% 80% at 50% 45%, #000 54%, rgba(0, 0, 0, 0.4) 80%, transparent 100%);
   mask-image: radial-gradient(ellipse 60% 80% at 50% 45%, #000 54%, rgba(0, 0, 0, 0.4) 80%, transparent 100%);
 }
-.bf-tactical-unit .unit-photo { height: 52px; }
-.bf-tactical-unit .boss .unit-photo { height: 72px; }
-.bf-tactical-unit .wretch .unit-photo { height: 36px; }
+.bf-tactical-unit .unit-photo { height: 70px; }
+.bf-tactical-unit .boss .unit-photo { height: 94px; }
+.bf-tactical-unit .wretch .unit-photo { height: 48px; }
 .bf-tactical-unit.is-spotlight .unit-photo { height: 98px; }
 .bf-tactical-unit.is-spotlight .boss .unit-photo { height: 136px; }
 .bf-tactical-unit.is-spotlight .wretch .unit-photo { height: 56px; }
