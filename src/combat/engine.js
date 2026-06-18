@@ -1388,6 +1388,8 @@ export function createCombat(g) {
     const b = PARTY[key];
     const mods = deriveMods(g.sins?.[key]);
     const u = mkUnit(b, 'party', key, mods);
+    // Show a character's upgraded/ascended art once it has fed 3+ sin ranks.
+    u.ascended = Object.values(g.sins?.[key] || {}).reduce((a, n) => a + n, 0) >= 3;
     u.abilities = u.abilities.filter((id) => abilityUnlocked(id, g.sins));
     if (key === 'sjen' && g.flags?.sjen_specialization === 'hex_master') {
       u.epithet = 'Hex Master';

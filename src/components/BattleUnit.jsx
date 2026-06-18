@@ -2,6 +2,7 @@ import React from 'react';
 import Silhouette from './Silhouettes.jsx';
 import StatusIcon from './StatusIcon.jsx';
 import FloatingText from './FloatingText.jsx';
+import { unitArt } from '../data/unitArt.js';
 
 // Maps ability ids → actor animation class. (Audio hook: if sound is added
 // later, trigger impact/cast SFX from these same event diffs.)
@@ -101,6 +102,7 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
   const vfxHit = incoming.find((e) => VFX[e.ability]) || incoming[0];
 
   const has = (t) => u.statuses.some((x) => x.type === t);
+  const art = unitArt(u.sprite, u.ascended); // painted figure, or null → SVG
 
   const cls = [
     'bunit',
@@ -137,7 +139,11 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
         <div className="unit-base" />
         <div className="turn-ring" />
         <div className="target-ring" />
-        <Silhouette name={u.sprite} />
+        {art ? (
+          <img className="unit-photo" src={art} alt={u.name} draggable={false} />
+        ) : (
+          <Silhouette name={u.sprite} />
+        )}
         {vfxHit && u.alive !== undefined && <div className={`vfx ${VFX[vfxHit.ability] || 'vfx-impact'}`} />}
         {gripped && <div className="vfx vfx-grip" />}
         {(hexed || summoned) && <div className="vfx vfx-sigil" />}

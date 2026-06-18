@@ -1250,6 +1250,29 @@ button { font-family: inherit; cursor: pointer; }
 }
 .bf-tactical-unit.enemy-tile .bunit { --dir: -1; }
 .bf-tactical-unit.enemy-tile .sil { transform: scaleX(-1); }
+
+/* painted battle art — sized to the silhouette slots, with an elliptical
+   edge-mask so a dark-backdrop figure emerges from shadow, not a card. */
+.unit-photo {
+  display: block;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 9px rgba(0, 0, 0, 0.72));
+  -webkit-mask-image: radial-gradient(ellipse 60% 80% at 50% 45%, #000 54%, rgba(0, 0, 0, 0.4) 80%, transparent 100%);
+  mask-image: radial-gradient(ellipse 60% 80% at 50% 45%, #000 54%, rgba(0, 0, 0, 0.4) 80%, transparent 100%);
+}
+.bf-tactical-unit .unit-photo { height: 52px; }
+.bf-tactical-unit .boss .unit-photo { height: 72px; }
+.bf-tactical-unit .wretch .unit-photo { height: 36px; }
+.bf-tactical-unit.is-spotlight .unit-photo { height: 98px; }
+.bf-tactical-unit.is-spotlight .boss .unit-photo { height: 136px; }
+.bf-tactical-unit.is-spotlight .wretch .unit-photo { height: 56px; }
+.bf-tactical-unit.enemy-tile .unit-photo { transform: scaleX(-1); }
+.st-stunned .unit-photo { filter: grayscale(0.85) brightness(0.7) drop-shadow(0 6px 9px rgba(0, 0, 0, 0.72)); }
+.st-smoked .unit-photo { opacity: 0.5; }
+.st-warded .unit-photo { filter: drop-shadow(0 0 9px rgba(207, 195, 169, 0.5)) drop-shadow(0 6px 9px rgba(0, 0, 0, 0.7)); }
+
 .bf-terrain-legend {
   position: absolute;
   left: 24px;
