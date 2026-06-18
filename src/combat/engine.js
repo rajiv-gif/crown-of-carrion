@@ -222,6 +222,66 @@ function stepToward(s, u, goal, budget) {
   return best;
 }
 
+// A unit "threatens" the tiles around it if it carries any melee (reach-1)
+// attack — those are the foes that punish a retreat.
+function meleeThreat(u) {
+  return u.abilities.some((id) => {
+    const A = ABILITIES[id];
+    return A && (A.target === 'enemy' || A.target === 'party') && abilityReach(id) === 1;
+  });
+}
+
+// Best bounded attack reach a unit can use right now (for kiting decisions).
+function maxReadyReach(u) {
+  let r = 0;
+  for (const id of u.abilities) {
+    if ((u.cooldowns[id] || 0) > 0) continue;
+    const A = ABILITIES[id];
+    if (!A || !(A.target === 'enemy' || A.target === 'party')) continue;
+    const reach = abilityReach(id);
+    if (reach < 99) r = Math.max(r, reach);
+  }
+  return r;
+}
+
+// A free reaction strike when prey turns its back and leaves melee.
+function opportunityStrike(s, attacker, target) {
+  if (!attacker.alive || !target.alive || hasStatus(attacker, 'stun') || hasStatus(attacker, 'psychosis')) return;
+  const prev = s.castAbility;
+  s.castAbility = 'opportunity';
+  evt(s, { k: 'cast', actor: attacker.uid, ability: 'opportunity', target: target.uid });
+  log(s, `${target.name} turns to flee — ${attacker.name} seizes the opening.`, 'blood');
+  hit(s, attacker, target, 0.85, 'Opportunity');
+  s.castAbility = prev;
+}
+
+// All in-combat movement routes through here: leaving the reach of an adjacent
+// melee threat provokes an opportunity attack — for either side.
+function moveUnit(s, u, dest) {
+  const from = u.tile ? { ...u.tile } : null;
+  const cheb = (ax, ay, bx, by) => Math.max(Math.abs(ax - bx), Math.abs(ay - by));
+  const provokers = from
+    ? s.units.filter(
+        (x) =>
+          x.alive &&
+          x.side !== u.side &&
+          x.tile &&
+          meleeThreat(x) &&
+          !hasStatus(x, 'stun') &&
+          !hasStatus(x, 'psychosis') &&
+          cheb(x.tile.x, x.tile.y, from.x, from.y) === 1 &&
+          cheb(x.tile.x, x.tile.y, dest.x, dest.y) > 1
+      )
+    : [];
+  evt(s, { k: 'move', unit: u.uid, from, to: { x: dest.x, y: dest.y } });
+  u.tile = { x: dest.x, y: dest.y };
+  for (const p of provokers) {
+    if (!u.alive) break;
+    opportunityStrike(s, p, u);
+  }
+  if (provokers.length) checkEnd(s);
+}
+
 function assignBattlefield(s, enc) {
   const field = battlefieldFor(s.encounterId);
   const enemyStarts = field.placements?.enemies || [];
@@ -1203,9 +1263,42 @@ function enemyAI(s, u) {
     .sort((a, b) => b.score - a.score);
   let target = scored[0]?.p || wretch || pick(party);
 
+  // Ranged enemies kite: with a melee attacker breathing down their neck, they
+  // give ground to a tile that keeps them shooting — paying for it with the
+  // opening they hand over by turning away (an opportunity attack).
+  let retreated = false;
+  if (!u.boss && u.tile) {
+    const reach = maxReadyReach(u);
+    const threats = s.units.filter((x) => x.alive && x.side !== u.side && x.tile && meleeThreat(x));
+    const adjacent = threats.some((x) => tdist(x, u) === 1);
+    if (reach >= 2 && adjacent) {
+      const cheb = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+      let best = null;
+      let bestScore = -Infinity;
+      for (const sp of reachableTiles(s, u)) {
+        const minThreat = threats.length ? Math.min(...threats.map((t) => cheb(sp, t.tile))) : 9;
+        if (minThreat < 2) continue; // must actually break contact
+        const canShoot = party.some((p) => p.alive && p.tile && cheb(sp, p.tile) <= reach);
+        const score = minThreat * 3 + (canShoot ? 6 : 0) - sp.cost * 0.1;
+        if (score > bestScore) {
+          bestScore = score;
+          best = sp;
+        }
+      }
+      if (best) {
+        log(s, `${u.name} gives ground, keeping its distance.`, 'dim');
+        moveUnit(s, u, best);
+        if (s.over || !u.alive) return;
+        retreated = true;
+        const inRange = party.filter((p) => p.alive && p.tile && tdist({ tile: best }, p) <= reach);
+        if (inRange.length) target = inRange.sort((a, b) => a.hp - b.hp)[0];
+      }
+    }
+  }
+
   // Regular enemies maneuver; the boss is an immovable wall whose chains and
   // ledger already reach the whole field. Close in if nothing ready can hit.
-  if (!u.boss && target.tile && u.tile) {
+  if (!retreated && !u.boss && target.tile && u.tile) {
     const FREE_AOE = ['sermon_of_teeth', 'smoke_censer', 'absolve_screaming', 'martyr_tax', 'whispering_pact', 'demon_invocation', 'duo_rite', 'chain_tax'];
     const readyReach = u.abilities.filter(
       (id) =>
@@ -1219,9 +1312,9 @@ function enemyAI(s, u) {
     if (!hasFreeAoe && !readyReach.some((id) => inReach(s, u, target, id))) {
       const dest = stepToward(s, u, target.tile, moveBudget(u));
       if (dest && (dest.x !== u.tile.x || dest.y !== u.tile.y)) {
-        evt(s, { k: 'move', unit: u.uid, from: { ...u.tile }, to: dest });
-        u.tile = dest;
         log(s, `${u.name} closes the distance.`, 'dim');
+        moveUnit(s, u, dest);
+        if (s.over || !u.alive) return;
       }
       if (!readyReach.some((id) => inReach(s, u, target, id))) return; // turn spent advancing
     }
@@ -1434,9 +1527,8 @@ export function playerMove(state, x, y) {
   const u = currentUnit(s);
   if (!u || s.over || s.auto || u.side !== 'party' || s.moved) return s;
   if (!reachableTiles(s, u).some((t) => t.x === x && t.y === y)) return s;
-  evt(s, { k: 'move', unit: u.uid, from: { ...u.tile }, to: { x, y } });
-  u.tile = { x, y };
   s.moved = true;
+  moveUnit(s, u, { x, y }); // may provoke opportunity attacks from adjacent enemies
   return s;
 }
 
@@ -1529,10 +1621,7 @@ export function autoAct(state) {
     if (t) {
       if (!inReach(s, u, t, 'gnaw') && t.tile && u.tile) {
         const dest = stepToward(s, u, t.tile, moveBudget(u));
-        if (dest) {
-          evt(s, { k: 'move', unit: u.uid, from: { ...u.tile }, to: dest });
-          u.tile = dest;
-        }
+        if (dest) moveUnit(s, u, dest);
       }
       if (inReach(s, u, t, 'gnaw')) resolveAbility(s, u, 'gnaw', t.uid);
     }
