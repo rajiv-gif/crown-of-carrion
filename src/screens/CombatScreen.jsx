@@ -22,7 +22,6 @@ export default function CombatScreen() {
   const [c, setC] = useState(() => createCombat(g));
   const [fx, setFx] = useState([]); // engine events currently animating
   const [sel, setSel] = useState(null); // ability awaiting a target
-  const [engagedTurn, setEngagedTurn] = useState(null); // turn-key once an action is chosen; locks movement
   const seen = useRef(c.events.length); // skip animating setup events
   const logRef = useRef(null);
   const endSound = useRef(null);
@@ -70,12 +69,11 @@ export default function CombatScreen() {
     }
   }, [c.over, c.bonusGold, c.bonusXp, c.lootItem]);
 
-  // Move-then-attack: a unit may reposition freely, but the moment it commits
-  // to an action that choice is final — movement locks for the rest of the
-  // turn (deselecting the ability does NOT bring it back).
-  const turnKey = cur ? `${c.round}:${c.turnIdx}:${cur.uid}` : null;
-  const moveLocked = engagedTurn === turnKey;
-  const moveTiles = playerTurn && !moveLocked ? reachableFor(c) : [];
+  // Move-then-act, but forgiving: reachable tiles show while no ability is
+  // selected. Selecting one hides them to show targets; cancelling
+  // (deselecting) before you strike brings movement back. Committing a strike
+  // ends the turn, so you still can never move after acting.
+  const moveTiles = playerTurn && !sel ? reachableFor(c) : [];
   const onMove = (x, y) => {
     apply(playerMove(c, x, y));
   };
@@ -90,7 +88,6 @@ export default function CombatScreen() {
   };
 
   const onAbility = (id) => {
-    setEngagedTurn(turnKey); // choosing an action ends the move phase for this turn
     if (id === 'poultice') {
       setSel(sel === id ? null : id);
       return;
@@ -168,7 +165,7 @@ export default function CombatScreen() {
                 {sel === 'poultice' ? 'Black Poultice' : ABILITIES[sel].name}:{' '}
                 {anyTarget
                   ? `choose a ${selTarget === 'enemy' ? 'victim' : 'recipient'} in range`
-                  : 'no target in range — pick the ability again to cancel'}
+                  : 'no target in range — cancel (pick the ability again) to move or choose another action'}
               </span>
             )}
             {!c.over && c.auto === 'enemy' && <span className="turn-banner dim-text">{cur?.name} moves…</span>}
