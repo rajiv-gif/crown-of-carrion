@@ -380,6 +380,7 @@ const SPRITES = {
   villager: Villager,
   slinger: Slinger,
   guard: Guard,
+  hollow_guard: Guard,
   knight: Knight,
   flagellant: Flagellant,
   censer: Censer,

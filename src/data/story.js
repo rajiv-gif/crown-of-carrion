@@ -301,31 +301,31 @@ export const SCRIPTS = {
       a8: {
         speaker: 'narrator',
         text:
-          'Chibi does not climb out like a rescued man. He returns like a knife returned to its owner. Two blades, three stolen rosaries, and a sealed thing under his coat that he does not name. Sjen sees it and goes very still.',
+          'Chibi does not climb out like a rescued man. He returns like a knife returned to its owner. Two blades, three stolen rosaries, and a red-and-gold reliquary wrapped under his coat. Inside it sit three bone-white stones shaped almost like butchered wings, sweating holy oil and old heat: K.F.G., the Kul Fra Gem. Sjen sees it and goes very still.',
         next: 'a9',
       },
       a9: {
         speaker: 'Chibi',
         text:
-          'I found what you sent me for. Do not ask what followed me back. It is important. It is not for them.',
+          'Ai Sjen... mi fen eng... I found it, Sjen. K.F.G. Kul Fra Gem. Do not ask what followed me back. It is important. It is not for them.',
         next: 'a10',
       },
       a10: {
         speaker: 'Sjen',
         text:
-          'You should not have been able to carry that. You should not have survived touching it.',
+          'Hm.. Sang? You should not have been able to carry that. You should not have survived touching it.',
         next: 'a11',
       },
       a11: {
         speaker: 'Chibi',
         text:
-          'I am small. Important things forget to forbid me.',
+          'I am small. Dangerous entities forget to lock doors for people like me. Besides, it smelled like dinner in a church basement. I trusted it immediately, which means I did not trust it at all.',
         next: 'a12',
       },
       a12: {
         speaker: 'narrator',
         text:
-          'The sealed thing opens without opening. Sjen inhales once. Every candle at the toll shrine bends toward him, and something under his skin answers like a chained animal recognizing its name.',
+          'The Kul Fra Gem opens without opening. The three stones turn in their oil, wing, thigh, heart, each one a missing lock in Sjen’s blood. He inhales once. Every candle at the toll shrine bends toward him, and something under his skin answers like a chained animal recognizing its name.',
         choices: [
           {
             text: 'Make Sjen a Hex Master — deeper curses, spreading rot, control through ruin.',

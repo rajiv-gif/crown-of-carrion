@@ -12,10 +12,19 @@ The `<sprite>` key is the unit's `sprite` field in `src/data/units.js`:
 
 | Party | Enemies |
 |-------|---------|
-| `lucian`, `sjen`, `veato`, `chan`, `chibi` | `villager`, `slinger`, `guard`, `knight`, `flagellant`, `censer`, `taxman`, `husk`, `demon`, `saint` |
+| `lucian`, `sjen`, `veato`, `chan`, `chibi` | `villager`, `slinger`, `guard`, `hollow_guard`, `knight`, `flagellant`, `censer`, `taxman`, `husk`, `demon`, `saint` |
 
 Example: `lucian.jpg` (starter) and `lucian-ascended.jpg` (upgraded). A party
 member shows its `-ascended` art once it has fed enough sins (3+ ranks total).
+
+## Current art slots
+
+- `sjen.png`: approved transparent full-body Sjen.
+- `veato.png`: reserved for Veato's starting outfit with the dirty mercenary bow.
+- `veato-ascended.png`: reserved for the Bow from the Nether upgrade.
+- `guard.png`: weaker Plague Guard, still partly human.
+- `hollow_guard.png`: soulless transformed guard.
+- `knight.png`: oversized Debt-Bound Knight boss.
 
 ## Image guidance
 

@@ -36,6 +36,7 @@ export const ABILITIES = {
   // Veato
   backstab: { name: 'Backstab', cd: 2, target: 'enemy', desc: '260% damage to afflicted prey; 130% otherwise. Deceit cuts deeper.' },
   poison_blade: { name: 'Poison Blade', cd: 0, target: 'enemy', desc: '90% damage plus poison each turn. Cunning brews it stronger.' },
+  nether_bow: { name: 'Bow from the Nether', cd: 1, target: 'enemy', desc: 'Range 5. Loose a poisoned shadow-arrow. Afflicted prey suffers 145% damage; others suffer 110%.' },
   smoke_step: { name: 'Smoke Step', cd: 3, target: 'self', desc: 'The next blow aimed at Veato finds only smoke.' },
   crippling_cut: { name: 'Crippling Cut', cd: 2, target: 'enemy', desc: '80% damage; the target bleeds and deals 30% less. Wrath opens the wound wider.' },
   // Chan
@@ -137,6 +138,7 @@ const tdist = (a, b) =>
 const ABILITY_RANGE = {
   // short reach
   poison_blade: 2,
+  nether_bow: 5,
   tyrants_grip: 2,
   debt_mark: 2,
   kneel_debtor: 2,
@@ -777,6 +779,16 @@ function resolveAbility(s, u, id, targetUid) {
         log(s, `The poison settles into ${t.name}’s blood.`, 'hex');
       }
       break;
+    case 'nether_bow': {
+      const afflicted = t.statuses.some((x) => DEBUFFS.includes(x.type));
+      hit(s, u, t, afflicted ? 1.45 : 1.1, afflicted ? 'Nether Bow — Hunted Soul' : 'Nether Bow');
+      if (t.alive) {
+        addStatus(s, t, 'poison', 2, 5 + (m.hexPower || 0));
+        if (afflicted && Math.random() < 0.4) addStatus(s, t, 'fear', 1);
+      }
+      log(s, 'Veato draws a bow that exists only between debts. Its string sounds like a door closing underground.', 'hex');
+      break;
+    }
     case 'smoke_step':
       addStatus(s, u, 'dodge', 99);
       log(s, 'Veato folds himself into the smoke.', 'dim');

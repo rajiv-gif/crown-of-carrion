@@ -10,3 +10,6 @@ pnpm-debug.log*
 
 # Local Netlify folder
 .netlify
+
+# Godot-generated editor/import cache
+godot/.godot/

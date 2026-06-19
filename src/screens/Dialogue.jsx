@@ -32,6 +32,11 @@ const IMAGE_PORTRAITS = {
   Chibi: chibiPortrait,
 };
 
+function formatDialogueLine(speaker, text) {
+  if (speaker !== 'Sjen') return text;
+  return /^Hm\.{2,3}/i.test(text) ? text : `Hm... ${text}`;
+}
+
 export default function Dialogue() {
   const { g, dispatch } = useGame();
   const script = SCRIPTS[g.scriptId];
@@ -44,11 +49,12 @@ export default function Dialogue() {
   const portrait = PORTRAITS[node.speaker];
   const imagePortrait = IMAGE_PORTRAITS[node.speaker];
   const showPortrait = !isNarrator && (imagePortrait || portrait || node.speaker === 'Cocoli');
+  const dialogueText = formatDialogueLine(node.speaker, node.text);
 
   useEffect(() => {
-    speakLine(node.speaker, node.text);
+    speakLine(node.speaker, dialogueText);
     return () => stopVoice();
-  }, [g.nodeId, node.speaker, node.text]);
+  }, [g.nodeId, node.speaker, dialogueText]);
 
   const onContinue = () => {
     stopVoice();
@@ -89,7 +95,7 @@ export default function Dialogue() {
               <span className="speaker-sigil">{sp.sigil}</span> {node.speaker}
             </div>
           )}
-          <p className={`dialogue-text ${isNarrator ? 'narration' : ''}`}>{node.text}</p>
+          <p className={`dialogue-text ${isNarrator ? 'narration' : ''}`}>{dialogueText}</p>
 
           {node.choices ? (
             <div className="choices">
