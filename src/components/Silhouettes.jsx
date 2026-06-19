@@ -228,6 +228,41 @@ function Guard() {
   );
 }
 
+function HollowGuard() {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-hollow-guard" aria-label="Hollow Guard">
+      {/* legs — stiff, unnaturally straight */}
+      <path d="M44 98 L52 98 L51 142 L43 142 Z" fill="#120d10" />
+      <path d="M58 98 L66 98 L67 142 L59 142 Z" fill="#120d10" />
+      {/* corrupted mail torso, drained of color */}
+      <path d="M38 44 L70 44 L67 100 L41 100 Z" fill="#1a141a" />
+      <path d="M42 58 L66 58 L65 64 L43 64 Z" fill="#0c080c" />
+      <path d="M42 72 L66 72 L65 78 L43 78 Z" fill="#0c080c" />
+      {/* bone growths erupting through the armor */}
+      <path d="M40 55 L33 49 L41 51 Z" fill={BONE} opacity="0.7" />
+      <path d="M68 66 L76 62 L69 64 Z" fill={BONE} opacity="0.7" />
+      <path d="M45 88 L40 95 L47 92 Z" fill={BONE} opacity="0.55" />
+      {/* same kettle helm shape, blackened */}
+      <path d="M40 20 Q54 6 68 20 L68 24 L40 24 Z" fill="#0c080c" />
+      <path d="M34 24 L74 24 L70 30 L38 30 Z" fill="#1a141a" />
+      {/* hollow void where the face was, glowing cold */}
+      <path d="M48 30 L62 30 L60 40 L50 40 Z" fill="#040308" />
+      <rect x="48" y="30" width="14" height="10" fill={HEX} opacity="0.12" />
+      <circle cx="52.5" cy="35" r="1.9" fill={HEX} opacity="0.95" />
+      <circle cx="59.5" cy="35" r="1.9" fill={HEX} opacity="0.95" />
+      {/* black ichor weeping from the seams */}
+      <path d="M52 40 Q50 49 53 57" stroke="#0a0610" strokeWidth="2" fill="none" />
+      <circle cx="44" cy="70" r="1.6" fill="#0a0610" />
+      {/* corrupted shield, sigil-marked */}
+      <circle cx="80" cy="74" r="15" fill="#0c080c" stroke="#2a2230" strokeWidth="2.5" />
+      <path d="M80 66 L80 82 M73 74 L87 74" stroke={HEX} strokeWidth="1.6" opacity="0.7" />
+      {/* blade raised and ready, not lowered */}
+      <path d="M34 60 L26 40 L33 38 L40 58 Z" fill={STEEL} />
+      <path d="M30 44 L34 43 L33 40 Z" fill={HEX} opacity="0.5" />
+    </svg>
+  );
+}
+
 function Knight() {
   return (
     <svg viewBox="0 0 150 185" className="sil sil-knight" aria-label="The Debt-Bound Knight">
@@ -380,7 +415,7 @@ const SPRITES = {
   villager: Villager,
   slinger: Slinger,
   guard: Guard,
-  hollow_guard: Guard,
+  hollow_guard: HollowGuard,
   knight: Knight,
   flagellant: Flagellant,
   censer: Censer,
