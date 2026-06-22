@@ -560,7 +560,7 @@ function kill(s, u, attacker) {
       : `${u.name} dies.`,
     'death'
   );
-  evt(s, { k: 'death', unit: u.uid, boss: u.boss });
+  evt(s, { k: 'death', unit: u.uid, boss: u.boss, sprite: u.sprite });
   if (u.side === 'enemy') {
     if (liened) {
       s.bonusGold = (s.bonusGold || 0) + 12;

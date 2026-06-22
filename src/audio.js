@@ -111,6 +111,47 @@ const SOUNDS = {
     noise(0.18, 0.14, 0, 360);
     tone(160, 0.32, 'sawtooth', 0.11, 0, 45);
   },
+  // Frail human (starved villager / thrall): a wet gurgle and a cut-off cry.
+  deathFrail() {
+    tone(300, 0.18, 'sawtooth', 0.07, 0, 90);
+    noise(0.16, 0.08, 0.02, 700);
+    tone(140, 0.14, 'sine', 0.05, 0.06, 60);
+  },
+  // Diseased thrower (pox-slinger): a sick cough into a wet collapse.
+  deathWet() {
+    noise(0.1, 0.16, 0, 500);
+    noise(0.2, 0.12, 0.07, 300);
+    tone(110, 0.16, 'triangle', 0.05, 0.05, 50);
+  },
+  // Armored man (plague guard / censer knight): a groan and clattering steel.
+  deathArmored() {
+    tone(180, 0.22, 'sawtooth', 0.07, 0, 70);
+    noise(0.05, 0.13, 0.06, 2600);
+    noise(0.05, 0.11, 0.14, 3200);
+    noise(0.07, 0.1, 0.22, 1800);
+    tone(90, 0.2, 'square', 0.06, 0.2, 45);
+  },
+  // Soulless husk (hollow guard / reliquary husk): a dry collapse, a fading
+  // whisper, no human cry.
+  deathHollow() {
+    noise(0.42, 0.05, 0, 3400);
+    tone(70, 0.3, 'sine', 0.07, 0.04, 40);
+    noise(0.06, 0.1, 0.18, 1200);
+    tone(520, 0.26, 'sine', 0.022, 0.1, 180);
+  },
+  // Zealot (ashen flagellant): a rising shriek snapped short, then a thud.
+  deathZealot() {
+    tone(420, 0.16, 'sawtooth', 0.08, 0, 900);
+    tone(900, 0.1, 'sawtooth', 0.05, 0.12, 200);
+    noise(0.1, 0.1, 0.18, 600);
+  },
+  // Demon (dogma demon): an unmaking — low growl, roar, a wail downward.
+  deathDemon() {
+    tone(70, 0.5, 'sawtooth', 0.13, 0, 30);
+    tone(140, 0.44, 'square', 0.06, 0.04, 50);
+    noise(0.4, 0.16, 0.05, 240);
+    tone(330, 0.3, 'sawtooth', 0.05, 0.18, 90);
+  },
   bossDeath() {
     tone(90, 0.55, 'sawtooth', 0.16, 0, 28);
     noise(0.32, 0.18, 0.04, 480);
@@ -136,6 +177,21 @@ const SOUNDS = {
   },
 };
 
+// Which death synth suits each enemy type (by its `sprite`). Bosses use
+// bossDeath; anything unlisted falls back to the generic death().
+const DEATH_BY_SPRITE = {
+  villager: 'deathFrail',
+  slinger: 'deathWet',
+  guard: 'deathArmored',
+  hollow_guard: 'deathHollow',
+  flagellant: 'deathZealot',
+  censer: 'deathArmored',
+  husk: 'deathHollow',
+  demon: 'deathDemon',
+  ascended_demon: 'deathDemon',
+};
+const deathSoundFor = (sprite) => DEATH_BY_SPRITE[sprite] || 'death';
+
 export function playSound(name) {
   if (!ensureAudio()) return;
   SOUNDS[name]?.();
@@ -145,7 +201,7 @@ export function playCombatEvents(events) {
   if (!events?.length || isSoundMuted()) return;
   const picked = [];
   for (const e of events) {
-    if (e.k === 'death') picked.push(e.boss ? 'bossDeath' : 'death');
+    if (e.k === 'death') picked.push(e.boss ? 'bossDeath' : deathSoundFor(e.sprite));
     else if (e.k === 'summon') picked.push('summon');
     else if (e.k === 'hit') picked.push(e.vicious ? 'crit' : 'hit');
     else if (e.k === 'dot') picked.push('dot');
