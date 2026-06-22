@@ -102,17 +102,37 @@ function Veato() {
 function Chan() {
   return (
     <svg viewBox="0 0 110 150" className="sil sil-chan" aria-label="Chan">
-      <path d="M42 100 L52 100 L50 140 L40 140 Z" fill={IRON_DARK} />
-      <path d="M58 100 L68 100 L72 140 L62 140 Z" fill={IRON_DARK} />
-      <path d="M36 44 L72 44 L76 104 L34 104 Z" fill="#20170f" />
-      <path d="M42 50 L68 50 L66 82 L44 82 Z" fill="#2b2116" />
-      <path d="M45 15 Q56 6 68 16 L66 34 L48 36 L42 28 Z" fill={IRON_DARK} />
-      <rect x="49" y="24" width="14" height="2" fill={GOLD} opacity="0.9" />
-      <path d="M72 58 L90 62 L86 72 L70 66 Z" fill="#20170f" />
-      <rect x="82" y="58" width="18" height="26" rx="1" fill="#1d1409" stroke={GOLD} strokeWidth="1.7" />
-      <path d="M86 66 L96 66 M86 72 L96 72" stroke={GOLD} strokeWidth="1.2" opacity="0.8" />
-      <path d="M38 60 L22 78 L28 84 L44 68 Z" fill="#20170f" />
-      <circle cx="23" cy="80" r="5" fill={GOLD} opacity="0.65" />
+      {/* compact legs and old polished boots */}
+      <path d="M40 91 L51 91 L49 128 L37 128 Z" fill="#262320" />
+      <path d="M59 91 L70 91 L73 128 L61 128 Z" fill="#262320" />
+      <path d="M34 126 H51 V133 H32 Z M60 126 H77 V133 H59 Z" fill="#171513" />
+      {/* cropped oxblood field jacket and charcoal waistcoat */}
+      <path d="M35 42 L75 42 L78 88 L32 88 Z" fill="#571c20" />
+      <path d="M43 48 L67 48 L69 86 L42 86 Z" fill="#27231f" />
+      <path d="M35 45 L27 58 L33 70 L42 58 Z" fill="#595550" />
+      <path d="M75 45 L84 58 L78 70 L68 58 Z" fill="#595550" />
+      {/* dead-parchment tally sash */}
+      <path d="M40 40 L50 39 L71 91 L59 94 Z" fill="#b8aa8d" />
+      <path d="M45 48 L51 47 M48 56 L55 54 M52 64 L59 62 M56 73 L63 71 M59 81 L67 79" stroke="#521b1d" strokeWidth="1.2" />
+      <circle cx="54" cy="59" r="2" fill="#6e2022" />
+      {/* one low iron shoulder */}
+      <path d="M70 39 L84 43 L80 54 L68 49 Z" fill="#393735" stroke="#6c6258" strokeWidth="1.1" />
+      {/* head, visible and unhooded */}
+      <path d="M45 14 Q55 6 66 14 L67 33 L58 40 L47 34 Z" fill="#3a2a20" />
+      <path d="M44 14 Q55 4 68 14 L66 20 Q55 14 45 22 Z" fill="#11100f" />
+      <path d="M50 28 Q55 29 61 27" fill="none" stroke="#8b7652" strokeWidth="1.1" />
+      {/* arms bracing a blackened repeating execution crossbow */}
+      <path d="M35 55 L25 68 L33 75 L48 64 Z" fill="#595550" />
+      <path d="M73 55 L84 68 L77 75 L61 64 Z" fill="#595550" />
+      <path d="M25 63 L92 65 L97 72 L29 74 Z" fill="#31251d" stroke="#77706a" strokeWidth="1.5" />
+      <path d="M23 56 L32 69 L23 82 M99 56 L90 69 L99 82" fill="none" stroke="#4b4946" strokeWidth="2.6" />
+      <rect x="53" y="57" width="17" height="9" fill="#181716" stroke="#77706a" />
+      <path d="M60 70 L60 88" stroke="#77706a" strokeWidth="2" />
+      {/* disciplined belt tools: writ cylinders, tags, collapsed scale */}
+      <rect x="30" y="87" width="6" height="16" fill="#31251d" stroke="#8b7652" />
+      <rect x="38" y="89" width="5" height="14" fill="#31251d" stroke="#8b7652" />
+      <path d="M75 86 V101 M68 91 H82 M70 91 L68 99 M80 91 L82 99" stroke="#8b7652" strokeWidth="1.1" />
+      <rect x="49" y="88" width="7" height="10" fill="#171513" stroke="#b8aa8d" />
     </svg>
   );
 }
@@ -387,6 +407,35 @@ function Demon() {
   );
 }
 
+function AscendedDemon() {
+  return (
+    <svg viewBox="0 0 160 190" className="sil sil-ascended-demon" aria-label="Ascended Dogma Demon">
+      <path d="M48 126 L64 122 L60 180 L42 180 Z" fill="#0b080d" />
+      <path d="M92 122 L108 126 L118 180 L98 180 Z" fill="#0b080d" />
+      <path d="M28 58 Q80 12 132 58 L118 138 L94 118 L80 148 L62 118 L38 140 Z" fill="#100a12" />
+      <path d="M48 38 L34 2 L68 31 Z M112 38 L132 2 L92 31 Z" fill="#130c15" />
+      <path d="M68 28 L80 0 L92 28 L86 42 L74 42 Z" fill="#1e111d" />
+      <ellipse cx="80" cy="54" rx="29" ry="23" fill="#20121e" />
+      <circle cx="66" cy="50" r="2.8" fill={BLOOD} />
+      <circle cx="94" cy="50" r="2.8" fill={BLOOD} />
+      <path d="M58 66 Q80 86 104 64" stroke={BONE} strokeWidth="4.5" fill="none" />
+      <path d="M63 69 L67 77 M73 72 L75 82 M84 72 L84 83 M94 69 L91 78" stroke="#1a0c0e" strokeWidth="2" />
+      <path d="M53 86 Q80 102 108 84 M50 98 Q80 114 112 96 M48 110 Q80 126 114 108" stroke="#5a3b42" strokeWidth="3" fill="none" />
+      <circle cx="80" cy="102" r="10" fill={BLOOD} opacity="0.32" />
+      <circle cx="80" cy="102" r="4" fill="#e9e4d6" opacity="0.9" />
+      <path d="M34 76 L6 104 L18 116 L48 88 Z M126 76 L154 104 L142 116 L112 88 Z" fill="#100a12" />
+      <path d="M40 92 L14 140 L27 146 L55 104 Z M120 92 L146 140 L133 146 L105 104 Z" fill="#0d090f" />
+      <path d="M12 106 L2 126 M17 110 L10 132 M143 110 L150 132 M148 106 L158 126" stroke={BONE} strokeWidth="2.5" />
+      <g className="sil-runes" fill={HEX} opacity="0.8">
+        <rect x="74" y="132" width="12" height="12" transform="rotate(45 80 138)" />
+        <circle cx="28" cy="42" r="4" />
+        <circle cx="132" cy="42" r="4" />
+        <circle cx="80" cy="22" r="3" />
+      </g>
+    </svg>
+  );
+}
+
 function Saint() {
   return (
     <svg viewBox="0 0 150 185" className="sil sil-saint" aria-label="The Saint Without a Face">
@@ -410,6 +459,7 @@ const SPRITES = {
   sjen: Sjen,
   veato: Veato,
   chan: Chan,
+  chan_broker: Chan,
   chibi: Chibi,
   wretch: Wretch,
   villager: Villager,
@@ -422,10 +472,22 @@ const SPRITES = {
   taxman: Taxman,
   husk: Husk,
   demon: Demon,
+  ascended_demon: AscendedDemon,
   saint: Saint,
 };
 
+function MissingSprite({ name }) {
+  return (
+    <svg viewBox="0 0 110 150" className="sil sil-missing" aria-label={`Missing enemy art: ${name}`}>
+      <path d="M34 34 L76 34 L84 122 L66 112 L55 138 L44 112 L26 122 Z" fill="#180b0c" stroke={BLOOD} strokeWidth="2" />
+      <circle cx="55" cy="24" r="14" fill="#080506" stroke={BLOOD} strokeWidth="2" />
+      <path d="M49 18 L61 30 M61 18 L49 30" stroke={BLOOD} strokeWidth="3" />
+      <text x="55" y="82" textAnchor="middle" fill={BONE} fontSize="34" fontFamily="serif">?</text>
+    </svg>
+  );
+}
+
 export default function Silhouette({ name }) {
-  const Sprite = SPRITES[name] || Villager;
-  return <Sprite />;
+  const Sprite = SPRITES[name];
+  return Sprite ? <Sprite /> : <MissingSprite name={name || 'unknown'} />;
 }

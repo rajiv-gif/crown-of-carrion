@@ -37,6 +37,7 @@ export default function Title() {
   // their true (inferred) chapter and campaign state.
   const view = hasSave ? migrateSave(save) : null;
   const chapter = hasSave ? CHAPTERS.find((c) => c.id === view.currentChapter) || CHAPTERS[0] : null;
+  const selectedDifficulty = DIFFICULTIES[difficulty];
 
   const erase = () => {
     localStorage.removeItem(SAVE_KEY);
@@ -107,6 +108,20 @@ export default function Title() {
               <span className="difficulty-desc">{d.desc}</span>
             </button>
           ))}
+        </div>
+        <div className="opening-contract panel">
+          <div className="opening-contract-head">
+            <span>Opening threat: <b>{selectedDifficulty.threat}</b></span>
+            <span>Level 1: <b>Unproven</b></span>
+          </div>
+          <div className="opening-contract-facts">
+            {selectedDifficulty.opening.map((fact) => <span key={fact}>{fact}</span>)}
+          </div>
+          <p>
+            The company begins deliberately incomplete. Level 2 chooses each core character’s specialization;
+            Level 3 chooses a method; Level 4 earns a capstone. Later levels add health and damage, not more buttons.
+            No character carries more than four active skills.
+          </p>
         </div>
 
         {!confirmNew && !confirmErase && (

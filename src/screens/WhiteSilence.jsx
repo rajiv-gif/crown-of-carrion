@@ -28,13 +28,13 @@ export default function WhiteSilence() {
       <div className="silence-inner">
         <p className="silence-narration fade-1">
           There is no ground here, and no sky, and no difference between them. The White Silence.
-          The place between the wound and the grave. Something is already watching. Something was
-          always already watching.
+          Not heaven. Not judgment. A pause on a road that no longer reaches its destination.
+          Something is already watching. Something remembers when death still opened outward.
         </p>
         <div className="cocoli-presence fade-2">
           <Cocoli />
           <div className="cocoli-name">COCOLI</div>
-          <div className="cocoli-epithet">the last good god, who watches</div>
+          <div className="cocoli-epithet">the one who remembers the old passage</div>
         </div>
         <p className="cocoli-line fade-3">“{line}”</p>
         <p className="silence-consequence fade-4">

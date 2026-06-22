@@ -108,6 +108,7 @@ export default function CombatScreen() {
     return sel === 'poultice' ? true : attackReachable(c, sel, u);
   };
   const anyTarget = !!sel && c.units.some((u) => isTargetable(u));
+  const recentActions = c.log.slice(-3);
 
   const finish = () =>
     dispatch({
@@ -127,6 +128,11 @@ export default function CombatScreen() {
     <div className="screen combat-screen">
       <div className="combat-header">
         <span className="combat-name">{c.name}</span>
+        {g.level === 1 && (
+          <span className="readiness-warning" title="Level 1 characters have only their two defining actions">
+            UNPROVEN · 2 ACTIONS EACH
+          </span>
+        )}
         <div className="mini-tension" title="Party tension — at 65+ they sabotage, at 90+ the knives come out">
           {Object.entries(TENSION_PAIRS).map(([k, v]) => (
             <div key={k} className="mini-bar" title={`${v.label}: ${c.tension[k]}`}>
@@ -151,6 +157,14 @@ export default function CombatScreen() {
         moveTiles={moveTiles}
         onMove={onMove}
       />
+
+      <div className="combat-live-feed" aria-live="polite">
+        {recentActions.map((line) => (
+          <span key={line.id} className={`log-${line.kind}`}>
+            {line.text}
+          </span>
+        ))}
+      </div>
 
       <div className="combat-bottom">
         <div className="control-zone">
@@ -261,8 +275,16 @@ export default function CombatScreen() {
                 “Your hands move faster near corpses than enemies.”
               </p>
             )}
-            {c.over === 'victory' && (c.bonusGold > 0 || c.bonusXp > 0 || c.lootItem || c.preventedAscensions > 0) && (
+            {c.over === 'victory' && (
               <div className="overlay-rewards">
+                <div className="reward-line">
+                  <span>Contract gold</span>
+                  <strong>+{c.rewardGold}</strong>
+                </div>
+                <div className="reward-line">
+                  <span>Experience</span>
+                  <strong>+{c.rewardXp + c.bonusXp} XP</strong>
+                </div>
                 {c.preventedAscensions > 0 && (
                   <div className="reward-line">
                     <span>Ascensions denied</span>
@@ -273,12 +295,6 @@ export default function CombatScreen() {
                   <div className="reward-line">
                     <span>Bonus gold</span>
                     <strong>+{c.bonusGold}</strong>
-                  </div>
-                )}
-                {c.bonusXp > 0 && (
-                  <div className="reward-line">
-                    <span>Bonus XP</span>
-                    <strong>+{c.bonusXp}</strong>
                   </div>
                 )}
                 {c.lootItem && ITEMS[c.lootItem] && (

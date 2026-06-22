@@ -8,12 +8,13 @@
 
 import { SCRIPTS, ITEMS, SCARS } from './data/story.js';
 import { ENCOUNTERS, ENEMIES } from './data/units.js';
+import { availableTalents, talentNode } from './data/progression.js';
 
 export const SAVE_KEY = 'crown_of_carrion_save';
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 export function initialState() {
-  return {
+  const state = {
     version: SAVE_VERSION,
     screen: 'title',
     gold: 40,
@@ -35,7 +36,9 @@ export function initialState() {
       sjen: { cunning: 0, envy: 0, deceit: 0, gluttony: 0, ambition: 0 },
       veato: { greed: 0, deceit: 0, envy: 0, cunning: 0, wrath: 0 },
     },
+    talents: { lucian: [], sjen: [], veato: [] },
     pendingAscension: [],
+    ascensionReturn: null,
     inventory: [],
     flags: {},
     // Campaign structure
@@ -57,6 +60,22 @@ export function initialState() {
     mark: null,
     lastSavedAt: null,
   };
+
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const combat = params.get('combat');
+    if (ENCOUNTERS[combat]) {
+      return { ...state, screen: 'combat', encounterId: combat };
+    }
+
+    const scene = params.get('scene');
+    const [scriptId, nodeId] = scene?.split(':') || [];
+    if (SCRIPTS[scriptId]?.nodes[nodeId]) {
+      return { ...state, screen: 'dialogue', scriptId, nodeId };
+    }
+  }
+
+  return state;
 }
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -79,12 +98,25 @@ export function migrateSave(save) {
     sjen: { ...base.sins.sjen, ...(save.sins?.sjen || {}) },
     veato: { ...base.sins.veato, ...(save.sins?.veato || {}) },
   };
+  s.talents = {
+    lucian: [...(save.talents?.lucian || [])],
+    sjen: [...(save.talents?.sjen || [])],
+    veato: [...(save.talents?.veato || [])],
+  };
   s.betrayalStage = { ...base.betrayalStage, ...(save.betrayalStage || {}) };
   s.flags = save.flags || {};
   s.inventory = save.inventory || [];
   s.scars = save.scars || [];
   s.missionsDone = save.missionsDone || [];
   s.pendingAscension = save.pendingAscension || [];
+  if (!save.talents && s.level > 1 && s.pendingAscension.length === 0) {
+    const owed = Math.min(3, s.level - 1);
+    s.pendingAscension = Array.from({ length: owed }, () => ['lucian', 'sjen', 'veato']).flat();
+    if (s.pendingAscension.length) {
+      s.ascensionReturn = save.screen === 'map' || !save.scriptId ? 'map' : 'dialogue';
+      s.screen = 'ascension';
+    }
+  }
   // Infer chapter progress from pre-campaign saves.
   const ch1Done = s.missionsDone.includes('butchers_debt');
   if (!save.completedChapters) s.completedChapters = ch1Done ? [1] : [];
@@ -174,15 +206,20 @@ export function reducer(g, a) {
           s.defeatedBosses = [...s.defeatedBosses, g.encounterId];
         }
         s.xp = s.xp + Math.round((enc.xp || 0) * ambMult) + (a.bonusXp || 0);
-        let leveled = false;
+        let levelsGained = 0;
         while (s.xp >= s.level * 100) {
           s.xp -= s.level * 100;
           s.level += 1;
-          leveled = true;
+          levelsGained += 1;
         }
-        if (leveled) {
-          // No stat points. Each of them feeds a sin instead.
-          s.pendingAscension = ['lucian', 'sjen', 'veato'];
+        const talentLevelsGained = Array.from(
+          { length: levelsGained },
+          (_, i) => s.level - levelsGained + i + 1
+        ).filter((level) => level <= 4).length;
+        if (talentLevelsGained > 0) {
+          // One visible specialization-tree choice per core party member.
+          s.pendingAscension = Array.from({ length: talentLevelsGained }, () => ['lucian', 'sjen', 'veato']).flat();
+          s.ascensionReturn = 'dialogue';
           s.screen = 'ascension';
           return mark(s, bossKilled ? 'The boss’s debt is crossed out. The ledger remembers.' : undefined);
         }
@@ -192,14 +229,44 @@ export function reducer(g, a) {
       // Defeat: Lucian goes somewhere outside death.
       return { ...g, deaths: g.deaths + 1, screen: 'silence' };
     }
-    case 'FEED_SIN': {
-      const charSins = { ...g.sins[a.char], [a.sin]: (g.sins[a.char][a.sin] || 0) + 1 };
+    case 'LEARN_TALENT': {
+      const allowed = availableTalents(g, a.char).some((n) => n.id === a.talent);
+      if (!allowed) return g;
+      const picked = talentNode(a.char, a.talent);
       const pending = g.pendingAscension.slice(1);
-      let s = { ...g, sins: { ...g.sins, [a.char]: charSins }, pendingAscension: pending };
+      const talents = {
+        ...g.talents,
+        [a.char]: [...(g.talents?.[a.char] || []), a.talent],
+      };
+      const flags = { ...g.flags };
+      if (picked?.specialization && a.char === 'veato') flags.veato_specialization = picked.specialization;
+      let s = { ...g, talents, flags, pendingAscension: pending };
       if (pending.length) return s;
-      s = { ...s, screen: 'dialogue' };
-      return mark(gotoNode(s, g.victoryNode), 'What they fed is written down. The ledger remembers.');
+      if (s.ascensionReturn === 'map') return mark({ ...s, screen: 'map', ascensionReturn: null }, 'The company’s new methods are entered in the ledger.');
+      s = { ...s, screen: 'dialogue', ascensionReturn: null };
+      return mark(gotoNode(s, g.victoryNode), 'The company has learned something expensive. The ledger remembers.');
     }
+    case 'COMPLETE_ASCENSION': {
+      const pending = g.pendingAscension.slice(1);
+      if (pending.length) return { ...g, pendingAscension: pending };
+      if (g.ascensionReturn === 'map') {
+        return mark({ ...g, pendingAscension: [], ascensionReturn: null, screen: 'map' }, 'The branch is complete. Power now comes from surviving.');
+      }
+      return mark(
+        gotoNode({ ...g, pendingAscension: [], ascensionReturn: null, screen: 'dialogue' }, g.victoryNode),
+        'The branch is complete. Power now comes from surviving.'
+      );
+    }
+    case 'SPECIALIZE_VEATO':
+      return mark(
+        {
+          ...g,
+          flags: { ...g.flags, veato_specialization: a.path },
+        },
+        a.path === 'jaguar_knife'
+          ? 'Veato lowers his stance. The bow goes quiet. Two knives answer.'
+          : 'Veato draws the Nether Bow. Distance becomes a kind of ownership.'
+      );
     case 'CAMP_ACTION': {
       // Tension management between contracts. Nothing here is free.
       if (a.kind === 'pay') {

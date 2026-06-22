@@ -1,68 +1,99 @@
 import React from 'react';
 import { useGame } from '../App.jsx';
-import { ABILITY_UNLOCKS, SINS, SIN_PATHS, abilityUnlocked } from '../data/sins.js';
 import { PARTY } from '../data/units.js';
+import {
+  PROGRESSION,
+  availableTalents,
+  branchName,
+  ownedTalents,
+  progressionAbilities,
+  talentNode,
+} from '../data/progression.js';
 import { ABILITIES } from '../combat/engine.js';
 
-const MONSTROUS = {
-  lucian: 'Lucian grows more monstrous. Choose what part of him deepens.',
-  sjen: 'Something in Sjen unfolds another joint. Choose what part of him deepens.',
-  veato: 'Veato sharpens in the dark. Choose what part of him deepens.',
+const COPY = {
+  lucian: 'Choose what kind of leader survives Veyrath.',
+  sjen: 'Choose which forbidden method becomes habit.',
+  veato: 'Choose the distance at which Veato becomes dangerous.',
 };
 
 export default function Ascension() {
   const { g, dispatch } = useGame();
   const char = g.pendingAscension[0];
   if (!char) return null;
-  const P = PARTY[char];
-  const idx = 4 - g.pendingAscension.length; // 1st, 2nd, 3rd of three
+  const party = PARTY[char];
+  const owned = ownedTalents(g, char);
+  const choices = availableTalents(g, char);
+  const tree = PROGRESSION[char];
+  const loadout = progressionAbilities(g, char);
+  const branch = branchName(char, g);
 
   return (
     <div className="screen ascension-screen">
-      <div className="panel ascension-panel" key={char}>
-        <div className="title-rule dim">
-          — ascension · level {g.level} · {idx} of 3 —
-        </div>
+      <div className="panel ascension-panel talent-panel" key={`${char}-${owned.length}`}>
+        <div className="title-rule dim">— level {g.level} · specialization point —</div>
         <div className="ascension-head">
-          <span className="ascension-sigil" style={{ color: P.color }}>
-            {P.sigil}
-          </span>
-          <h2 className="ascension-title">{MONSTROUS[char]}</h2>
+          <span className="ascension-sigil" style={{ color: party.color }}>{party.sigil}</span>
+          <div>
+            <h2 className="ascension-title">{party.name}: {branch}</h2>
+            <p className="ascension-sub">{COPY[char]}</p>
+          </div>
         </div>
-        <p className="ascension-sub">
-          There are no virtues left to train. Only sins, and the question of which one eats first.
-        </p>
-        <div className="sin-list">
-          {SIN_PATHS[char].map((sinId) => {
-            const sin = SINS[sinId];
-            const rank = g.sins[char][sinId] || 0;
-            const unlocks = Object.entries(ABILITY_UNLOCKS)
-              .filter(([id, req]) => req.char === char && req.sins.includes(sinId) && !abilityUnlocked(id, g.sins))
-              .map(([id, req]) => req.passive || ABILITIES[id]?.name)
-              .filter(Boolean);
-            return (
-              <button
-                key={sinId}
-                className="sin-card"
-                onClick={() => dispatch({ type: 'FEED_SIN', char, sin: sinId })}
-              >
-                <div className="sin-head">
-                  <span className="sin-name">Feed {sin.name}</span>
-                  <span className="sin-rank">
-                    {Array.from({ length: 3 }, (_, i) => (
-                      <span key={i} className={i < rank ? 'sin-dot full' : 'sin-dot'}>
-                        ●
-                      </span>
-                    ))}
-                  </span>
-                </div>
-                <p className="sin-flavor">{sin.flavor[char] || sin.flavor.default}</p>
-                <p className="sin-mech">{sin.mech}</p>
-                {unlocks.length > 0 && <p className="sin-unlock">Unlocks: {unlocks.join(', ')}</p>}
-              </button>
-            );
-          })}
+
+        <div className="talent-summary">
+          <div>
+            <span className="talent-label">Current loadout</span>
+            <strong>{loadout.map((id) => ABILITIES[id]?.name).filter(Boolean).join(' · ')}</strong>
+          </div>
+          <div>
+            <span className="talent-label">Active limit</span>
+            <strong>{loadout.length}/4</strong>
+          </div>
+          <div>
+            <span className="talent-label">Progress</span>
+            <strong>{owned.length}/3 nodes</strong>
+          </div>
         </div>
+
+        <div className="talent-tree">
+          {[1, 2, 3].map((tier) => (
+            <section className="talent-tier" key={tier}>
+              <div className="talent-tier-label">
+                <span>Tier {tier}</span>
+                <small>{tier === 1 ? 'Specialization' : tier === 2 ? 'Method' : 'Capstone'}</small>
+              </div>
+              <div className="talent-tier-nodes">
+                {tree.nodes.filter((n) => n.tier === tier).map((n) => {
+                  const learned = owned.includes(n.id);
+                  const available = choices.some((x) => x.id === n.id);
+                  const locked = !learned && !available;
+                  return (
+                    <button
+                      key={n.id}
+                      className={`talent-node ${learned ? 'learned' : ''} ${available ? 'available' : ''}`}
+                      disabled={!available}
+                      onClick={() => dispatch({ type: 'LEARN_TALENT', char, talent: n.id })}
+                    >
+                      <span className="talent-node-state">{learned ? 'Learned' : locked ? 'Locked' : 'Choose'}</span>
+                      <span className="talent-node-name">{n.name}</span>
+                      <span className="talent-node-desc">{n.desc}</span>
+                      <span className="talent-node-reward">{n.reward}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        {choices.length === 0 && (
+          <button
+            className="btn btn-blood"
+            onClick={() => dispatch({ type: 'COMPLETE_ASCENSION' })}
+          >
+            Branch complete — continue
+          </button>
+        )}
       </div>
     </div>
   );

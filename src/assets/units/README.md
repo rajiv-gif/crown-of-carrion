@@ -22,6 +22,9 @@ member shows its `-ascended` art once it has fed enough sins (3+ ranks total).
 - `sjen.png`: approved transparent full-body Sjen.
 - `veato.png`: reserved for Veato's starting outfit with the dirty mercenary bow.
 - `veato-ascended.png`: reserved for the Bow from the Nether upgrade.
+- `veato-jaguar.png`: reserved for the dual-dagger Jaguar Knife specialization.
+- `chan.png`: archived first merchant design.
+- `chan_broker.png`: Carrion Factor redesign with cropped field jacket, tally sash, and repeating execution crossbow.
 - `guard.png`: weaker Plague Guard, still partly human.
 - `hollow_guard.png`: soulless transformed guard.
 - `knight.png`: oversized Debt-Bound Knight boss.

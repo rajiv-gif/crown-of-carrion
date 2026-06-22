@@ -6,7 +6,8 @@ const TILE := 1.35
 const PARTY_TEXTURES := {
 	"sjen": "res://assets/characters/sjen.png",
 	"chibi": "res://assets/portrait-chibi.jpg",
-	"veato": "res://assets/portrait-veato.jpg",
+	"lucian": "res://assets/characters/lucian.jpg",
+	"veato": "res://assets/characters/veato.png",
 }
 const ACTIONS := {
 	"Needlework": {"range": 1, "damage": 18, "kind": "melee"},

@@ -15,6 +15,7 @@ import { PARTY, ENEMIES, ENCOUNTERS } from '../data/units.js';
 import { DIFFICULTIES } from '../data/difficulty.js';
 import { abilityUnlocked, deriveMods, tensionTier } from '../data/sins.js';
 import { battlefieldFor, terrainAt } from '../data/battlefields.js';
+import { progressionAbilities, progressionMods, specializationFor } from '../data/progression.js';
 
 export const ABILITIES = {
   basic_attack: { name: 'Basic Attack', cd: 0, target: 'enemy', desc: 'A plain, ugly strike. Reliable. Unimpressive.' },
@@ -34,15 +35,21 @@ export const ABILITIES = {
   crown_hex: { name: 'Crown Hex', cd: 2, target: 'enemy', desc: 'Hex Master: a deeper curse that bites hard and spreads panic from already-rotting prey.' },
   demon_invocation: { name: 'Demon Invocation', cd: 4, target: 'none', desc: 'Invoker: Sjen partially changes into a demon, gains brutal power, and tears the elements through every enemy.' },
   // Veato
+  bow_shot: { name: 'Mercenary Shot', cd: 0, target: 'enemy', desc: 'Range 5. A reliable shot from Veato’s battered road bow. 105% damage.' },
+  venom_arrow: { name: 'Venom Arrow', cd: 1, target: 'enemy', desc: 'Range 5. 85% damage and strong poison. Already-afflicted prey suffers more.' },
+  pinning_shot: { name: 'Pinning Shot', cd: 2, target: 'enemy', desc: 'Range 5. Pin the target in place: damage, bleed, and Cripple for 2 turns.' },
+  marked_quarry: { name: 'Marked Quarry', cd: 3, target: 'enemy', desc: 'Range 6. Mark one enemy as prey. Veato’s arrows strike it harder and Covering Shot favors it.' },
   backstab: { name: 'Backstab', cd: 2, target: 'enemy', desc: '260% damage to afflicted prey; 130% otherwise. Deceit cuts deeper.' },
   poison_blade: { name: 'Poison Blade', cd: 0, target: 'enemy', desc: '90% damage plus poison each turn. Cunning brews it stronger.' },
-  nether_bow: { name: 'Bow from the Nether', cd: 1, target: 'enemy', desc: 'Range 5. Loose a poisoned shadow-arrow. Afflicted prey suffers 145% damage; others suffer 110%.' },
+  nether_bow: { name: 'Bow from the Nether', cd: 1, target: 'enemy', desc: 'Range 6. Loose a poisoned shadow-arrow. Marked or afflicted prey suffers 165% damage.' },
+  prowling_pounce: { name: 'Prowling Pounce', cd: 3, target: 'enemy', desc: 'Jaguar Knife: spring onto prey within 4 tiles, close to melee, and strike with both daggers.' },
   smoke_step: { name: 'Smoke Step', cd: 3, target: 'self', desc: 'The next blow aimed at Veato finds only smoke.' },
   crippling_cut: { name: 'Crippling Cut', cd: 2, target: 'enemy', desc: '80% damage; the target bleeds and deals 30% less. Wrath opens the wound wider.' },
   // Chan
-  ledgers_cut: { name: "Ledger's Cut", cd: 1, target: 'enemy', desc: 'Mark and bleed an enemy. Chan invoices the corpse later.' },
-  bitter_appraisal: { name: 'Bitter Appraisal', cd: 2, target: 'enemy', desc: 'Insult an enemy into Fear and Cripple. Accuracy through contempt.' },
-  paid_in_advance: { name: 'Paid in Advance', cd: 3, target: 'ally', desc: 'Shield an ally, then charge the company gold and tension.' },
+  sample_bolt: { name: 'Appraisal Bolt', cd: 0, target: 'enemy', desc: 'Range 5. 90% damage; 125% against a target bearing a Black Writ.' },
+  place_lien: { name: 'Black Writ', cd: 2, target: 'enemy', desc: 'Range 5. Condemn an enemy as recoverable property. Its death pays bonus gold.' },
+  repossess: { name: 'Confiscate', cd: 3, target: 'enemy', desc: 'Range 4. Strip Might, Zeal, or Shield and convert it into protection for Chan.' },
+  cheap_insurance: { name: 'Indemnity', cd: 3, target: 'ally', desc: 'Give an ally 16 shield. Five gold is withheld from the final settlement.' },
   // Chibi
   spite_hex: { name: 'Spite Hex', cd: 0, target: 'enemy', desc: 'Rot damage that bites harder when Sjen is still standing.' },
   needlework: { name: 'Needlework', cd: 2, target: 'enemy', desc: 'A small precise cut. Bleeds, poisons, and embarrasses larger targets.' },
@@ -59,6 +66,8 @@ export const ABILITIES = {
   debt_mark: { name: 'Debt Mark', cd: 2, target: 'party' },
   collection_swing: { name: 'Collection Swing', cd: 1, target: 'party' },
   chain_tax: { name: 'Chain Tax', cd: 3, target: 'none' },
+  ledger_hook: { name: 'Ledger Hook', cd: 2, target: 'party' },
+  foreclosure: { name: 'Foreclosure', cd: 3, target: 'party' },
   kneel_debtor: { name: 'Kneel, Debtor', cd: 3, target: 'party' },
   final_ledger: { name: 'Final Ledger', cd: 99, target: 'party' },
   penitent_flurry: { name: 'Penitent Flurry', cd: 2, target: 'party' },
@@ -115,6 +124,30 @@ const BANTER = {
   ],
 };
 
+const ENEMY_BARKS = {
+  debt_bound_knight: [
+    '“Your names were entered before you arrived.”',
+    '“Distance is an unpaid privilege.”',
+    '“The living always mistake delay for mercy.”',
+    '“Every step accrues.”',
+  ],
+  chained_thrall: ['“Please. Make the chain stop.”', '“He wrote my children beneath my name.”'],
+  starved_villager: ['“You ate while we buried ours!”', '“There is nothing left to beg with.”'],
+  plague_guard: ['“Hold the line. Hold the rot in.”', '“The uniform still fits.”'],
+  hollow_guard: ['“HOLD.”', '“NO MAN INSIDE.”'],
+  pox_slinger: ['“Catch.”', '“Breathe deep, rich man.”'],
+  default: ['“You should have stayed on the road.”', '“The dead have more patience than you.”'],
+};
+
+const PARTY_RETORTS = {
+  lucian: ['“Then write this down.”', '“Come collect it.”', '“You speak too much for a corpse.”'],
+  sjen: ['“Hm... your ledger cannot count what owns you.”', '“Hm... chains are only promises made by weak iron.”'],
+  veato: ['“Long speech. Large target.”', '“I charge extra for sermons.”', '“Keep talking. It helps the range.”'],
+  chan: ['“Your terms are unenforceable.”', '“I have seen better books in latrines.”', '“Your interest rate lacks imagination.”'],
+  chibi: ['“Sjen. This one thinks paper is armor.”', '“Big voice. Empty thing.”'],
+  default: ['“Enough.”'],
+};
+
 let uidCounter = 0;
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -138,11 +171,20 @@ const tdist = (a, b) =>
 const ABILITY_RANGE = {
   // short reach
   poison_blade: 2,
-  nether_bow: 5,
+  backstab: 1,
+  crippling_cut: 1,
+  prowling_pounce: 4,
+  bow_shot: 5,
+  venom_arrow: 5,
+  pinning_shot: 5,
+  marked_quarry: 6,
+  nether_bow: 6,
+  sample_bolt: 5,
+  place_lien: 5,
   tyrants_grip: 2,
   debt_mark: 2,
   kneel_debtor: 2,
-  bitter_appraisal: 3,
+  repossess: 4,
   collection_swing: 2,
   // ranged occult / chains / fire
   rot_hex: 3,
@@ -151,6 +193,8 @@ const ABILITY_RANGE = {
   debt_of_flesh: 3,
   mo_bos_ie_eye: 4,
   chain_lash: 3,
+  ledger_hook: 7,
+  foreclosure: 4,
   audit_sin: 3,
   burning_writ: 3,
   grave_bloom: 3,
@@ -161,15 +205,18 @@ const ABILITY_RANGE = {
   // the boss's telegraphed killshot lands wherever the debtor stands
   final_ledger: 99,
 };
-function abilityReach(id) {
+function abilityReach(id, actor) {
   const A = ABILITIES[id];
   if (!A) return 1;
   if (A.target === 'self' || A.target === 'none' || A.target === 'ally') return 99;
-  return ABILITY_RANGE[id] ?? 1;
+  const bonus = actor?.mods?.bowRange && ['bow_shot', 'venom_arrow', 'pinning_shot', 'marked_quarry', 'nether_bow'].includes(id)
+    ? actor.mods.bowRange
+    : 0;
+  return (ABILITY_RANGE[id] ?? 1) + bonus;
 }
 function inReach(s, actor, target, id) {
-  if (abilityReach(id) >= 99) return true;
-  return tdist(actor, target) <= abilityReach(id);
+  if (abilityReach(id, actor) >= 99) return true;
+  return tdist(actor, target) <= abilityReach(id, actor);
 }
 
 // Movement budget from Speed (1–4 tiles): Veato darts, Lucian lumbers.
@@ -185,26 +232,27 @@ function reachableTiles(s, u) {
     s.units.filter((x) => x.alive && x.uid !== u.uid).map((x) => `${x.tile?.x},${x.tile?.y}`)
   );
   const start = u.tile || { x: 0, y: 0 };
-  const seen = new Set([`${start.x},${start.y}`]);
-  const out = [];
-  let frontier = [start];
-  for (let step = 1; step <= moveBudget(u); step++) {
-    const next = [];
-    for (const t of frontier) {
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        const nx = t.x + dx;
-        const ny = t.y + dy;
-        const key = `${nx},${ny}`;
-        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
-        if (occupied.has(key) || seen.has(key)) continue;
-        seen.add(key);
-        next.push({ x: nx, y: ny });
-        out.push({ x: nx, y: ny, cost: step });
-      }
+  const bestCost = new Map([[`${start.x},${start.y}`, 0]]);
+  const destinations = new Map();
+  const budget = moveBudget(u);
+  let frontier = [{ ...start, cost: 0 }];
+  while (frontier.length) {
+    frontier.sort((a, b) => a.cost - b.cost);
+    const t = frontier.shift();
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = t.x + dx;
+      const ny = t.y + dy;
+      const key = `${nx},${ny}`;
+      if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+      const cost = t.cost + (terrainAt(s.field, { x: nx, y: ny }).moveCost || 1);
+      if (cost > budget || occupied.has(key) || cost >= (bestCost.get(key) ?? Infinity)) continue;
+      bestCost.set(key, cost);
+      const tile = { x: nx, y: ny, cost };
+      destinations.set(key, tile);
+      frontier.push(tile);
     }
-    frontier = next;
   }
-  return out;
+  return [...destinations.values()];
 }
 
 // One step from `from` toward `goal` along free tiles (greedy, bodies block).
@@ -229,7 +277,7 @@ function stepToward(s, u, goal, budget) {
 function meleeThreat(u) {
   return u.abilities.some((id) => {
     const A = ABILITIES[id];
-    return A && (A.target === 'enemy' || A.target === 'party') && abilityReach(id) === 1;
+    return A && (A.target === 'enemy' || A.target === 'party') && abilityReach(id, u) === 1;
   });
 }
 
@@ -240,7 +288,7 @@ function maxReadyReach(u) {
     if ((u.cooldowns[id] || 0) > 0) continue;
     const A = ABILITIES[id];
     if (!A || !(A.target === 'enemy' || A.target === 'party')) continue;
-    const reach = abilityReach(id);
+    const reach = abilityReach(id, u);
     if (reach < 99) r = Math.max(r, reach);
   }
   return r;
@@ -351,6 +399,11 @@ function getStatus(u, t) {
   return u.statuses.find((x) => x.type === t);
 }
 function addStatus(s, u, type, turns, power = 0) {
+  if (u.immunities?.includes(type)) {
+    log(s, `${u.name} is immune to ${type}.`, 'dim');
+    evt(s, { k: 'float', unit: u.uid, text: `Immune: ${type}`, type: 'word' });
+    return false;
+  }
   const ex = getStatus(u, type);
   if (ex) {
     ex.turns = Math.max(ex.turns, turns);
@@ -359,6 +412,19 @@ function addStatus(s, u, type, turns, power = 0) {
     u.statuses.push({ type, turns, power });
   }
   evt(s, { k: 'status', unit: u.uid, status: type });
+  return true;
+}
+
+function combatExchange(s, enemy, target) {
+  if (!enemy?.alive || s.over || s.lastExchangeRound === s.round || Math.random() > 0.38) return;
+  const speaker = target?.alive ? target : pick(alive(s, 'party').filter((u) => u.key !== 'wretch'));
+  if (!speaker) return;
+  const enemyLine = pick(ENEMY_BARKS[enemy.key] || ENEMY_BARKS.default);
+  const reply = pick(PARTY_RETORTS[speaker.key] || PARTY_RETORTS.default);
+  s.lastExchangeRound = s.round;
+  log(s, `${enemy.name}: ${enemyLine} ${speaker.name}: ${reply}`, 'dim');
+  evt(s, { k: 'bubble', unit: enemy.uid, text: enemyLine });
+  evt(s, { k: 'bubble', unit: speaker.uid, text: reply });
 }
 function syncTransformStatus(s, u) {
   if (!u.transformInto || !u.alive) return;
@@ -388,6 +454,11 @@ function bumpTension(s, key, v) {
 }
 function tryFear(s, target, turns) {
   if (!target.alive) return;
+  if (target.immunities?.includes('fear')) {
+    log(s, `${target.name} has nothing left that fear can reach.`, 'dim');
+    evt(s, { k: 'float', unit: target.uid, text: 'Fear Immune', type: 'word' });
+    return;
+  }
   const resist = target.mods?.fearResist || 0;
   if (resist && Math.random() < resist) {
     log(s, `${target.name} refuses to be afraid.`, 'dim');
@@ -407,6 +478,8 @@ function mkUnit(tpl, side, key, mods) {
     epithet: tpl.epithet || '',
     sigil: tpl.sigil || '✥',
     sprite: tpl.sprite || key,
+    stature: tpl.stature || (tpl.boss ? 'boss' : 'human'),
+    immunities: [...(tpl.immunities || [])],
     color: tpl.color || 'var(--rust)',
     boss: !!tpl.boss,
     hp: tpl.hp,
@@ -446,6 +519,8 @@ function transformEnemy(s, u) {
   u.epithet = tpl.epithet || '';
   u.sigil = tpl.sigil || u.sigil;
   u.sprite = tpl.sprite || u.sprite;
+  u.stature = tpl.stature || (tpl.boss ? 'boss' : 'human');
+  u.immunities = [...(tpl.immunities || [])];
   u.color = tpl.color || u.color;
   u.boss = !!tpl.boss;
   u.maxHp = Math.round(scaled.maxHp * 1.12);
@@ -466,6 +541,7 @@ function transformEnemy(s, u) {
 }
 
 function kill(s, u, attacker) {
+  const liened = u.side === 'enemy' && hasStatus(u, 'lien');
   if (u.side === 'enemy' && u.transformInto && u.transformTimer > 0) {
     s.preventedAscensions = (s.preventedAscensions || 0) + 1;
     s.bonusGold = (s.bonusGold || 0) + 10;
@@ -477,17 +553,29 @@ function kill(s, u, attacker) {
   u.hp = 0;
   u.alive = false;
   u.statuses = [];
-  log(s, u.boss ? `${u.name} collapses — chains, clauses, and all.` : `${u.name} dies.`, 'death');
+  log(
+    s,
+    u.boss
+      ? `${u.name} collapses. Its soul reaches for a road that is no longer there.`
+      : `${u.name} dies.`,
+    'death'
+  );
   evt(s, { k: 'death', unit: u.uid, boss: u.boss });
   if (u.side === 'enemy') {
+    if (liened) {
+      s.bonusGold = (s.bonusGold || 0) + 12;
+      log(s, `Closed Account — Chan collects 12 gold from ${u.name}'s remaining value.`, 'gold');
+      evt(s, { k: 'float', unit: u.uid, text: '+12 gold', type: 'word' });
+    }
     const luc = byKey(s, 'lucian');
-    if (luc && abilityUnlocked('feast_on_fear', s.sins)) {
-      const heal = Math.min(12 + (luc.mods.feastBonus || 0), luc.maxHp - luc.hp);
+    if (luc && (luc.mods.feastHeal || abilityUnlocked('feast_on_fear', s.sins))) {
+      const heal = Math.min(luc.mods.feastHeal || 12 + (luc.mods.feastBonus || 0), luc.maxHp - luc.hp);
       if (heal > 0) {
         luc.hp += heal;
         log(s, `Feast on Fear — Lucian drinks the dying moment. +${heal} HP.`, 'gold');
         evt(s, { k: 'float', unit: luc.uid, text: `+${heal}`, type: 'heal' });
       }
+      if (luc.mods.butcherReset) luc.cooldowns.cleave = 0;
     }
     if (attacker && attacker.alive && attacker.side === 'party' && attacker.mods.killMomentum) {
       addStatus(s, attacker, 'might', 1);
@@ -564,15 +652,26 @@ function hit(s, attacker, target, mult, label) {
   return amount;
 }
 
-function hiddenKnife(s, target) {
+function veatoFollowUp(s, target) {
   if (!target || !target.alive) return;
   const v = byKey(s, 'veato');
-  if (v && abilityUnlocked('hidden_knife', s.sins) && !hasStatus(v, 'stun') && Math.random() < 0.35) {
-    log(s, 'Hidden Knife — Veato strikes from Lucian’s shadow. His opportunism, for once, is on the right side.', 'dim');
+  if (v && !hasStatus(v, 'stun') && Math.random() < 0.35) {
+    const jaguar = v.specialization === 'jaguar_knife';
+    if (jaguar && !inReach(s, v, target, 'backstab')) return;
+    if (!jaguar && !inReach(s, v, target, 'bow_shot')) return;
+    const id = jaguar ? 'hidden_knife' : 'covering_shot';
+    const label = jaguar ? 'Hidden Knife' : 'Covering Shot';
+    log(
+      s,
+      jaguar
+        ? 'Hidden Knife — Veato springs from Lucian’s shadow with one dagger already wet.'
+        : 'Covering Shot — Veato threads an arrow past Lucian’s shoulder into the same prey.',
+      'dim'
+    );
     const prev = s.castAbility;
-    s.castAbility = 'hidden_knife';
-    evt(s, { k: 'cast', actor: v.uid, ability: 'hidden_knife', target: target.uid });
-    hit(s, v, target, 0.6, 'Hidden Knife');
+    s.castAbility = id;
+    evt(s, { k: 'cast', actor: v.uid, ability: id, target: target.uid });
+    hit(s, v, target, 0.6, label);
     s.castAbility = prev;
   }
 }
@@ -581,14 +680,17 @@ function resolveAbility(s, u, id, targetUid) {
   const A = ABILITIES[id];
   const t = targetUid ? getUnit(s, targetUid) : null;
   const m = u.mods || {};
-  if ((A.cd || 0) > 0) u.cooldowns[id] = Math.max(1, A.cd - (m.cdr || 0));
+  if ((A.cd || 0) > 0) {
+    const specialCdr = id === 'prowling_pounce' ? m.pounceCdr || 0 : 0;
+    u.cooldowns[id] = Math.max(1, A.cd - (m.cdr || 0) - specialCdr);
+  }
   s.castAbility = id;
   evt(s, { k: 'cast', actor: u.uid, ability: id, target: t?.uid });
 
   switch (id) {
     case 'basic_attack':
       hit(s, u, t, 1.0, 'Basic Attack');
-      if (u.key === 'lucian') hiddenKnife(s, t);
+      if (u.key === 'lucian') veatoFollowUp(s, t);
       break;
     case 'wait_power':
       addStatus(s, u, 'focus', 2);
@@ -598,11 +700,11 @@ function resolveAbility(s, u, id, targetUid) {
       evt(s, { k: 'float', unit: u.uid, text: 'Focus', type: 'word' });
       break;
     case 'cleave':
-      hit(s, u, t, 1.2, 'Cleave');
-      hiddenKnife(s, t);
+      hit(s, u, t, 1.2 + (m.cleaveBonus || 0), 'Cleave');
+      veatoFollowUp(s, t);
       break;
     case 'execute': {
-      const low = t.hp < t.maxHp * 0.35;
+      const low = t.hp < t.maxHp * (m.executeThreshold || 0.35);
       const before = t.alive;
       hit(s, u, t, low ? 3.0 + (m.executeBonus || 0) : 1.0, low ? 'Execute' : 'Execute (the prey still stands strong)');
       if (low && before && !t.alive) evt(s, { k: 'float', unit: t.uid, text: 'EXECUTED', type: 'execute' });
@@ -613,7 +715,7 @@ function resolveAbility(s, u, id, targetUid) {
           log(s, 'Veato: “Terrifying. Shall I scream now, or wait until you hit something?”', 'dim');
         }
       }
-      hiddenKnife(s, t);
+      veatoFollowUp(s, t);
       break;
     }
     case 'blood_command':
@@ -633,6 +735,9 @@ function resolveAbility(s, u, id, targetUid) {
     case 'tyrants_grip':
       addStatus(s, t, 'stun', 1);
       tryFear(s, t, 2 + (m.gripBonus || 0));
+      if (m.dreadSovereign) {
+        for (const e of alive(s, 'enemy').filter((x) => x.uid !== t.uid && tdist(t, x) <= 2)) tryFear(s, e, 1);
+      }
       log(s, `Tyrant’s Grip — ${t.name} is seized, throttled, and dropped trembling.`, 'hex');
       break;
     case 'rot_hex':
@@ -643,22 +748,23 @@ function resolveAbility(s, u, id, targetUid) {
       }
       break;
     case 'bone_ward':
-      addStatus(s, t, 'shield', 99, 24);
-      log(s, `Cursed bone closes over ${t.name}. (24 shield)`, 'hex');
+      addStatus(s, t, 'shield', 99, 24 + (m.wardBonus || 0));
+      log(s, `Cursed bone closes over ${t.name}. (${24 + (m.wardBonus || 0)} shield)`, 'hex');
       break;
     case 'debt_of_flesh': {
       const donors = alive(s, 'party').filter((a) => a.uid !== u.uid && a.key !== 'wretch');
       const donor = donors.sort((a, b) => b.hp - a.hp)[0] || u;
-      donor.hp = Math.max(1, donor.hp - 12);
-      log(s, `Sjen opens a vein in ${donor.name}’s arm without asking. −12 HP.`, 'hurt');
-      evt(s, { k: 'float', unit: donor.uid, text: '−12', type: 'drain' });
+      const drain = Math.max(4, 12 + (m.fleshDrain || 0));
+      donor.hp = Math.max(1, donor.hp - drain);
+      log(s, `Sjen opens a vein in ${donor.name}’s arm without asking. −${drain} HP.`, 'hurt');
+      evt(s, { k: 'float', unit: donor.uid, text: `−${drain}`, type: 'drain' });
       if (donor.key === 'lucian') {
         bumpTension(s, 'lucian_sjen', 3);
         evt(s, { k: 'bubble', unit: donor.uid, text: '“Touch my blood again and I’ll take your hands.”' });
         log(s, 'Lucian: “Touch my blood again and I’ll take your hands.”', 'blood');
       }
       if (donor.key === 'veato') bumpTension(s, 'sjen_veato', 3);
-      hit(s, u, t, 2.4, 'Debt of Flesh');
+      hit(s, u, t, 2.4 + (m.fleshBonus || 0), 'Debt of Flesh');
       break;
     }
     case 'summon_wretch': {
@@ -767,6 +873,31 @@ function resolveAbility(s, u, id, targetUid) {
       s.corruptionDelta += 2;
       break;
     }
+    case 'bow_shot':
+      hit(s, u, t, hasStatus(t, 'marked') ? 1.3 : 1.05, hasStatus(t, 'marked') ? 'Mercenary Shot — Quarry' : 'Mercenary Shot');
+      break;
+    case 'venom_arrow': {
+      const afflicted = t.statuses.some((x) => DEBUFFS.includes(x.type));
+      hit(s, u, t, afflicted ? 1.15 : 0.85, afflicted ? 'Venom Arrow — Open Vein' : 'Venom Arrow');
+      if (t.alive) addStatus(s, t, 'poison', 3, 7 + (m.hexPower || 0));
+      break;
+    }
+    case 'pinning_shot':
+      hit(s, u, t, 0.9, 'Pinning Shot');
+      if (t.alive) {
+        addStatus(s, t, 'cripple', 2);
+        addStatus(s, t, 'bleed', 2, 4 + (m.bleedPower || 0));
+        log(s, `${t.name} is nailed to its own shadow.`, 'hex');
+      }
+      break;
+    case 'marked_quarry':
+      hit(s, u, t, 0.65, 'Marked Quarry');
+      if (t.alive) {
+        addStatus(s, t, 'marked', 3);
+        addStatus(s, t, 'fear', 1);
+        log(s, `Veato names ${t.name} as quarry. The next arrow already knows the route.`, 'hex');
+      }
+      break;
     case 'backstab': {
       const weakened = t.statuses.some((x) => DEBUFFS.includes(x.type));
       hit(s, u, t, weakened ? 2.6 + (m.backstabBonus || 0) : 1.3, weakened ? 'Backstab' : 'Backstab (unweakened prey)');
@@ -780,13 +911,26 @@ function resolveAbility(s, u, id, targetUid) {
       }
       break;
     case 'nether_bow': {
-      const afflicted = t.statuses.some((x) => DEBUFFS.includes(x.type));
-      hit(s, u, t, afflicted ? 1.45 : 1.1, afflicted ? 'Nether Bow — Hunted Soul' : 'Nether Bow');
+      const afflicted = t.statuses.some((x) => DEBUFFS.includes(x.type)) || hasStatus(t, 'marked');
+      hit(s, u, t, afflicted ? 1.65 : 1.2, afflicted ? 'Nether Bow — Hunted Soul' : 'Nether Bow');
       if (t.alive) {
         addStatus(s, t, 'poison', 2, 5 + (m.hexPower || 0));
         if (afflicted && Math.random() < 0.4) addStatus(s, t, 'fear', 1);
       }
       log(s, 'Veato draws a bow that exists only between debts. Its string sounds like a door closing underground.', 'hex');
+      break;
+    }
+    case 'prowling_pounce': {
+      if (u.tile && t?.tile) {
+        const candidates = reachableTiles(s, u)
+          .filter((tile) => Math.max(Math.abs(tile.x - t.tile.x), Math.abs(tile.y - t.tile.y)) === 1)
+          .sort((a, b) => a.cost - b.cost);
+        if (candidates[0]) moveUnit(s, u, candidates[0]);
+      }
+      const weakened = t.statuses.some((x) => DEBUFFS.includes(x.type));
+      hit(s, u, t, weakened ? 2.35 : 1.75, weakened ? 'Prowling Pounce — Throat Found' : 'Prowling Pounce');
+      if (t.alive) addStatus(s, t, 'bleed', 2, 5 + (m.bleedPower || 0));
+      log(s, 'Veato bows low, then crosses the distance like a black shape remembering claws.', 'blood');
       break;
     }
     case 'smoke_step':
@@ -801,28 +945,39 @@ function resolveAbility(s, u, id, targetUid) {
         log(s, `${t.name}’s tendons remember the knife.`, 'hex');
       }
       break;
-    case 'ledgers_cut':
-      hit(s, u, t, 1.05, "Ledger's Cut");
+    case 'sample_bolt': {
+      const due = hasStatus(t, 'lien');
+      hit(s, u, t, due ? 1.25 : 0.9, due ? 'Appraisal Bolt — Condemned' : 'Appraisal Bolt');
+      log(s, due ? 'Chan: “Condemned.”' : 'Chan: “Insufficient.”', 'dim');
+      break;
+    }
+    case 'place_lien':
+      hit(s, u, t, 0.55, 'Black Writ');
       if (t.alive) {
-        addStatus(s, t, 'marked', 2);
-        addStatus(s, t, 'bleed', 2, 5);
-        log(s, `Chan marks ${t.name} as a depreciating asset.`, 'gold');
+        addStatus(s, t, 'lien', 3);
+        addStatus(s, t, 'cripple', 1);
+        log(s, `Chan: “Entered.” A black writ fixes ${t.name}'s value in blood.`, 'gold');
       }
       break;
-    case 'bitter_appraisal':
-      hit(s, u, t, 0.55, 'Bitter Appraisal');
-      if (t.alive) {
-        addStatus(s, t, 'fear', 2);
-        addStatus(s, t, 'cripple', 2);
-        log(s, `Chan explains exactly why ${t.name} is overvalued. It hurts because he is right.`, 'dim');
+    case 'repossess': {
+      const seized = ['shield', 'might', 'zeal'].find((type) => hasStatus(t, type));
+      hit(s, u, t, seized ? 0.85 : 0.55, 'Confiscate');
+      if (seized) {
+        const stolen = getStatus(t, seized);
+        const protection = seized === 'shield' ? Math.max(12, stolen?.power || 0) : 18;
+        removeStatus(t, seized);
+        addStatus(s, u, 'shield', 99, protection);
+        log(s, `Chan: “Forfeit.” ${t.name}'s ${seized} becomes ${protection} shield.`, 'gold');
+      } else {
+        addStatus(s, t, 'fear', 1);
+        log(s, 'Chan: “Nothing worth taking.”', 'dim');
       }
       break;
-    case 'paid_in_advance':
-      addStatus(s, t, 'shield', 99, 18);
-      s.skim += 8;
-      bumpTension(s, 'lucian_veato', 2);
-      bumpTension(s, 'sjen_veato', 1);
-      log(s, `Chan protects ${t.name}. The invoice arrives before the gratitude.`, 'gold');
+    }
+    case 'cheap_insurance':
+      addStatus(s, t, 'shield', 99, 16);
+      s.skim += 5;
+      log(s, `Chan covers ${t.name}. “Deducted.”`, 'gold');
       break;
     case 'spite_hex': {
       const duo = byKey(s, 'sjen') ? 0.35 : 0;
@@ -901,6 +1056,28 @@ function resolveAbility(s, u, id, targetUid) {
       bumpTension(s, 'lucian_veato', Math.round(3 * (s.diff?.tensionMult || 1)));
       bumpTension(s, 'sjen_veato', Math.round(2 * (s.diff?.tensionMult || 1)));
       break;
+    case 'ledger_hook': {
+      hit(s, u, t, 0.8, 'Ledger Hook');
+      if (t?.alive && u.tile && t.tile) {
+        const dragged = stepToward(s, t, u.tile, 2);
+        if (dragged) {
+          moveUnit(s, t, dragged);
+          log(s, `${t.name} is dragged across the ledger stones and torn out of formation.`, 'blood');
+          evt(s, { k: 'float', unit: t.uid, text: 'Dragged', type: 'blood-word' });
+        }
+        addStatus(s, t, 'marked', 2);
+      }
+      break;
+    }
+    case 'foreclosure': {
+      const clustered = alive(s, 'party').filter((p) => p.tile && t?.tile && tdist(p, t) <= 1);
+      log(s, 'Foreclosure — the Knight repossesses the ground beneath the company.', 'death');
+      for (const p of clustered) {
+        hit(s, u, p, p.uid === t.uid ? 1.25 : 0.8, 'Foreclosure');
+        if (p.alive) addStatus(s, p, 'cripple', 1);
+      }
+      break;
+    }
     case 'kneel_debtor':
       hit(s, u, t, 0.65, 'Kneel, Debtor');
       if (t && t.alive) addStatus(s, t, Math.random() < 0.5 ? 'stun' : 'fear', 1);
@@ -996,6 +1173,7 @@ function resolveAbility(s, u, id, targetUid) {
   }
   s.castAbility = null;
   checkEnd(s);
+  if (u.side === 'enemy') combatExchange(s, u, t);
 }
 
 function endTurn(s, u) {
@@ -1142,6 +1320,16 @@ function advance_(s) {
     if (!u || !u.alive) continue;
 
     const terrain = unitTerrain(s, u);
+    if (terrain.type === 'debtor_seal' && u.side === 'party' && hasStatus(u, 'marked')) {
+      const dmg = 7;
+      u.hp -= dmg;
+      log(s, `The debtor seal recognizes ${u.name}. The ground collects ${dmg} HP.`, 'hurt');
+      evt(s, { k: 'dot', unit: u.uid, type: 'curse', amount: dmg });
+      if (u.hp <= 0) {
+        kill(s, u, null);
+        continue;
+      }
+    }
     if (terrain.type === 'holy_ground' && isUnholy(u)) {
       const dmg = u.boss ? 4 : 7;
       u.hp -= dmg;
@@ -1316,7 +1504,7 @@ function enemyAI(s, u) {
       (id) =>
         (u.cooldowns[id] || 0) <= 0 &&
         (ABILITIES[id].target === 'enemy' || ABILITIES[id].target === 'party') &&
-        abilityReach(id) < 99
+        abilityReach(id, u) < 99
     );
     const hasFreeAoe = u.abilities.some(
       (id) => (u.cooldowns[id] || 0) <= 0 && ABILITIES[id].target === 'none' && FREE_AOE.includes(id)
@@ -1398,26 +1586,49 @@ export function createCombat(g) {
   ];
   for (const key of partyKeys) {
     const b = PARTY[key];
-    const mods = deriveMods(g.sins?.[key]);
+    const legacyMods = deriveMods(g.sins?.[key]);
+    const treeMods = progressionMods(g, key);
+    const mods = { ...legacyMods };
+    for (const [mod, value] of Object.entries(treeMods)) {
+      mods[mod] = typeof value === 'number' ? (mods[mod] || 0) + value : value;
+    }
     const u = mkUnit(b, 'party', key, mods);
-    // Show a character's upgraded/ascended art once it has fed 3+ sin ranks.
-    u.ascended = Object.values(g.sins?.[key] || {}).reduce((a, n) => a + n, 0) >= 3;
-    u.abilities = u.abilities.filter((id) => abilityUnlocked(id, g.sins));
+    const treeAbilities = progressionAbilities(g, key);
+    if (treeAbilities.length) u.abilities = treeAbilities;
+    else u.abilities = u.abilities.filter((id) => abilityUnlocked(id, g.sins)).slice(0, 4);
+    u.ascended = (g.talents?.[key]?.length || 0) >= 3;
+    if (key === 'veato') {
+      u.specialization = specializationFor(g, key) || g.flags?.veato_specialization || null;
+      if (u.specialization === 'nether_archer') {
+        u.epithet = 'Nether Archer';
+        u.artVariant = 'ascended';
+      } else if (u.specialization === 'jaguar_knife') {
+        u.epithet = 'Jaguar Knife';
+        u.artVariant = 'jaguar';
+      } else {
+        u.artVariant = false;
+      }
+    }
     if (key === 'sjen' && g.flags?.sjen_specialization === 'hex_master') {
       u.epithet = 'Hex Master';
       u.atk += 2;
       u.mods.hexPower = (u.mods.hexPower || 0) + 3;
-      u.abilities.push('crown_hex');
+      if (!u.abilities.includes('crown_hex') && u.abilities.length < 4) u.abilities.push('crown_hex');
     }
     if (key === 'sjen' && g.flags?.sjen_specialization === 'invoker') {
       u.epithet = 'Partial Demon Invoker';
       u.atk += 5;
       u.maxHp += 10;
       u.mods.hexPower = (u.mods.hexPower || 0) + 1;
-      u.abilities.push('demon_invocation');
+      if (!u.abilities.includes('demon_invocation') && u.abilities.length < 4) u.abilities.push('demon_invocation');
     }
     u.atk += mods.atk + Math.floor((g.corruption || 0) / 25) * mods.corrAtk;
     u.maxHp += mods.maxHp;
+    u.speed += mods.speed || 0;
+    if (u.side === 'party' && key !== 'wretch') {
+      u.atk += Math.floor(Math.max(0, (g.level || 1) - 1) / 2);
+      u.maxHp += Math.max(0, (g.level || 1) - 1) * 6;
+    }
     if (key === 'lucian') {
       for (const sc of g.scars) {
         u.maxHp += sc.hp || 0;
@@ -1447,6 +1658,8 @@ export function createCombat(g) {
   const s = {
     encounterId: g.encounterId,
     name: enc.name,
+    rewardGold: enc.gold || 0,
+    rewardXp: enc.xp || 0,
     units,
     round: 0,
     queue: [],
@@ -1487,6 +1700,7 @@ export function createCombat(g) {
   log(s, enc.opener || `${enc.name}. The ledger opens.`, 'round');
   if (s.field?.rules?.length) log(s, `Terrain: ${s.field.rules.join(' ')}`, 'dim');
   if (diff.id === 'merciless') log(s, 'Merciless ledger: skills are scarce, healing is mean, and Cocoli is listening.', 'death');
+  if ((g.level || 1) === 1) log(s, 'Unproven company: each fighter knows only two defining actions. Survive long enough to specialize.', 'gold');
   if (s.poultices > 0) log(s, `Black Poultice x${s.poultices}: tar, old blood, and something still alive.`, 'dim');
   if (g.flags?.cocoli_vengeance) {
     const luc = byKey(s, 'lucian');
@@ -1663,7 +1877,8 @@ export function autoAct(state) {
     const others = alive(s, 'party').filter((p) => p.uid !== u.uid);
     if (others.length && Math.random() < 0.25) {
       const victim = pick(others);
-      s.castAbility = u.key === 'veato' ? 'poison_blade' : 'rot_hex';
+      const veatoAbility = u.specialization === 'jaguar_knife' ? 'poison_blade' : 'bow_shot';
+      s.castAbility = u.key === 'veato' ? veatoAbility : 'rot_hex';
       evt(s, { k: 'cast', actor: u.uid, ability: s.castAbility, target: victim.uid });
       hit(s, u, victim, 0.5, 'A Stray Blade');
       s.castAbility = null;
@@ -1672,7 +1887,10 @@ export function autoAct(state) {
       if (victim.key === 'lucian') bumpTension(s, u.key === 'sjen' ? 'lucian_sjen' : 'lucian_veato', 2);
     } else {
       const t = pick(alive(s, 'enemy'));
-      if (t) resolveAbility(s, u, u.key === 'veato' ? 'poison_blade' : 'rot_hex', t.uid);
+      if (t) {
+        const veatoAbility = u.specialization === 'jaguar_knife' ? 'poison_blade' : 'bow_shot';
+        resolveAbility(s, u, u.key === 'veato' ? veatoAbility : 'rot_hex', t.uid);
+      }
     }
   }
   endTurn(s, u);

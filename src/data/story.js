@@ -22,19 +22,19 @@ export const SPEAKERS = {
 export const FACTIONS = {
   ashen_church: {
     name: 'The Ashen Church',
-    desc: 'Turns fear into doctrine, doctrine into hatred, and hatred into obedient fire.',
+    desc: 'Sells absolution, fixes souls inside relics, and calls punishment a form of passage.',
   },
   plague_barons: {
     name: 'The Plague Barons',
-    desc: 'Diseased nobility ruling through debt, infection, and forced servitude.',
+    desc: 'Diseased nobility whose blood contracts make obligation survive the debtor’s body.',
   },
   iron_covenant: {
     name: 'The Iron Covenant',
-    desc: 'A mercenary guild that sells wars to the highest bidder. Lucian owes them dues.',
+    desc: 'A war market whose oaths remain enforceable after death. Lucian still owes them dues.',
   },
   hollow_choir: {
     name: 'The Hollow Choir',
-    desc: 'A cult that hears voices from under the earth. The voices answer back.',
+    desc: 'Occultists who pull failed souls from the Root-Beneath and lend them living mouths.',
   },
 };
 
@@ -48,13 +48,13 @@ export const ITEMS = {
   relic_shard: {
     id: 'relic_shard',
     name: 'Sliver of the Carrion Crown',
-    desc: 'Warm. Listening. It taps against the palm like a heartbeat learning a name. +2 ATK.',
+    desc: 'Warm. Listening. Not a jewel but a pressure from elsewhere, gathering trapped voices toward one will. +2 ATK.',
     atk: 2,
   },
   tithe_ledger: {
     id: 'tithe_ledger',
     name: 'The Sealed Tithe Ledger',
-    desc: 'Seven years of Marrowfen’s debt, signed in Vessik’s own weeping hand. Leverage. +10 max HP.',
+    desc: 'Seven years of debt written against bodies, descendants, and whatever survives them. Leverage. +10 max HP.',
     hp: 10,
   },
   chan_contract: {
@@ -66,7 +66,7 @@ export const ITEMS = {
   faceless_reliquary: {
     id: 'faceless_reliquary',
     name: 'Reliquary of the Faceless Saint',
-    desc: 'A locked glass mouth full of ash. It whispers absolutions that sound like threats. +8 max HP.',
+    desc: 'A locked glass mouth holding a soul that the Church prevented from passing. Its absolutions sound like threats. +8 max HP.',
     hp: 8,
   },
   demon_tooth: {
@@ -115,11 +115,11 @@ export const SCARS = [
 
 // Indexed by (deaths - 1), clamped to the last entry.
 export const COCOLI_LINES = [
-  'You died with rage in your mouth. I have returned you. Do not mistake this for mercy — mercy is not what you think it is.',
-  'Again. The Crown calls louder when your blood is opened. I wonder if you hear it yet.',
-  'I do not save you, Lucian. I return you. There is a difference, and one day you will be old enough to feel it.',
+  'You reached the broken road with rage in your mouth. I turned you back. Do not mistake interruption for mercy.',
+  'Again. Your soul remembers less of the road each time. The Crown remembers more.',
+  'I do not save you, Lucian. I return you. Salvation would require somewhere left to go.',
   'You mistake survival for permission.',
-  'Even rot dreams of becoming eternal. There was a time when this world still knew how to bloom. I remember it. Or perhaps I was it.',
+  'Even rot dreams of becoming eternal. There was a height this world could once reach. I remember it. I will not tell you how.',
 ];
 
 export const WHISPERS = [
@@ -174,7 +174,7 @@ export const SCRIPTS = {
       i1: {
         speaker: 'narrator',
         text:
-          'Veyrath. Nineteen years since the sun went pale. The crops come up black, the bells ring for no one, and the churches pray to saints who answer in the wrong voices. The old emperor is dead. The thing he sat beneath — the Carrion Crown — has gone into the world like marrow into soil. Every tyrant left alive is digging.',
+          'Veyrath. Nineteen years since the sun went pale. The crops come up black, the bells ring for no one, and the churches pray to saints who answer in the wrong voices. The old emperor is dead. Death has gone wrong in ways nobody can tax cleanly. The thing he sat beneath — the Carrion Crown — has gone into the world like marrow into soil. Every tyrant left alive is digging.',
         next: 'i2',
       },
       i2: {
@@ -264,13 +264,12 @@ export const SCRIPTS = {
       a2: {
         speaker: 'narrator',
         text:
-          'At the first toll shrine, a merchant waits under a black umbrella, counting smoke-stained coins while two families spit at each other across a painted line neither side remembers drawing.',
+          'At the first toll shrine waits a wagon built like a locked account: black iron over patched wood, scales hanging beneath a mounted crossbow, every drawer chained twice. Its merchant counts smoke-stained coins while two families spit at each other across a painted line neither side remembers drawing.',
         next: 'a3',
       },
       a3: {
         speaker: 'Chan',
-        text:
-          'You are late, under-equipped, overconfident, and carrying crownmetal with the subtlety of a burning tax office. Excellent. I can make money from every part of that.',
+        text: 'Late. Under-equipped. Loud. Good. I can profit from all three.',
         effects: { flag: { chan_joined: true }, item: 'chan_contract', gold: -35, tension: { lucian_veato: 4, lucian_sjen: 3 } },
         next: 'a4',
       },
@@ -282,14 +281,13 @@ export const SCRIPTS = {
       },
       a5: {
         speaker: 'Chan',
-        text:
-          'My name is Chan. I sell exits, names, indulgence ledgers, and the truth when the lie is overpriced. The Church sells people enemies cheap, then rents them forgiveness at interest. It is disgusting. It is also a market.',
+        text: 'Chan. I sell exits and expensive truths. The Church sells hatred. Business is excellent.',
         next: 'a6',
       },
       a6: {
         speaker: 'Sjen',
         text:
-          'There is something under the shrine. No — someone. And something else behind him.',
+          'There is something under the shrine. No — someone. A voice pressed upward from the Root-Beneath. And something else behind him.',
         next: 'a7',
       },
       a7: {
@@ -325,7 +323,7 @@ export const SCRIPTS = {
       a12: {
         speaker: 'narrator',
         text:
-          'The Kul Fra Gem opens without opening. The three stones turn in their oil, wing, thigh, heart, each one a missing lock in Sjen’s blood. He inhales once. Every candle at the toll shrine bends toward him, and something under his skin answers like a chained animal recognizing its name.',
+          'The Kul Fra Gem opens without opening. The three stones turn in their oil, wing, thigh, heart, each one a missing lock in Sjen’s blood. He inhales once. Every candle bends toward him. For one breath, a wound opens between Veyrath and the place below it, and something under his skin recognizes the route.',
         choices: [
           {
             text: 'Make Sjen a Hex Master — deeper curses, spreading rot, control through ruin.',
@@ -369,8 +367,7 @@ export const SCRIPTS = {
       },
       a16: {
         speaker: 'Chan',
-        text:
-          'Statistically, Captain, adding two competent people to your company improves your survival odds by almost enough to offset your personality.',
+        text: 'Two competent recruits. Almost enough to offset you.',
         next: 'a17',
       },
       a17: {
@@ -381,8 +378,7 @@ export const SCRIPTS = {
       },
       a18: {
         speaker: 'Chan',
-        text:
-          'See? Hatred with paperwork. Ambush disclosed before services rendered. That is value. You are welcome.',
+        text: 'Hatred with paperwork. Predictable. You are welcome.',
         next: 'a19',
       },
       a19: {
@@ -411,8 +407,7 @@ export const SCRIPTS = {
       },
       s2: {
         speaker: 'Chan',
-        text:
-          'The Church sells forgiveness by the ounce. First it convinces people they are filthy. Then it sells them clean names. Then it points them at someone filthier so they stop asking who owns the washhouse.',
+        text: 'Call them filthy. Sell them clean names. Point at someone filthier. Old scam.',
         next: 's3',
       },
       s3: {
@@ -441,8 +436,7 @@ export const SCRIPTS = {
       },
       s7: {
         speaker: 'Chan',
-        text:
-          'That is usually the sort of sentence people say immediately before becoming educational debris.',
+        text: 'Fine. Become educational debris.',
         next: 's8',
       },
       s8: {
@@ -454,7 +448,7 @@ export const SCRIPTS = {
       s9: {
         speaker: 'narrator',
         text:
-          'When the saint breaks, it does not bleed. It forgives. The word passes through the room like poison through a well: everyone drinks, everyone blames the next throat. In the ash beneath the glass, Lucian finds another sliver of crownmetal.',
+          'When the saint breaks, it does not bleed. A trapped life tears loose, circles the chamber, and falls back into the ash. It failed to leave. Then the corpse forgives. The word passes through the room like poison through a well. Beneath the glass, Lucian finds another sliver of crownmetal.',
         effects: { item: 'faceless_reliquary', shard: true, whisper: true, rep: { ashen_church: -35, hollow_choir: 10 }, corruption: 10 },
         next: 's10',
       },
@@ -472,8 +466,7 @@ export const SCRIPTS = {
       },
       s12: {
         speaker: 'Chan',
-        text:
-          'Two slivers, five left, and the Church will now pay handsomely to see us displayed in pieces. Grim, yes. But diversified.',
+        text: 'Two slivers. Five left. Our corpses are now premium goods.',
         next: 's13',
       },
       s13: {
@@ -533,13 +526,13 @@ export const SCRIPTS = {
       m8: {
         speaker: 'narrator',
         text:
-          'When it is over, the square is quiet in the way only emptied places are quiet. In the chapel, beneath the altar, the village’s only treasure: a dead saint, seven hundred years dry, her chest split open as if from inside. Between the ribs, something glints — a sliver of dark metal that drinks the candlelight. Sjen stops breathing when he sees it.',
+          'When it is over, the square is quiet in the way only emptied places are quiet. Beneath the altar lies a dead saint, seven hundred years dry, her chest split from inside. The Church called her preserved. Sjen sees the truth: her soul never passed. Between the ribs, something dark has fed on that failure for centuries.',
         next: 'm9',
       },
       m9: {
         speaker: 'Sjen',
         text:
-          'That is not reliquary silver. That is crownmetal. Lucian — the Carrion Crown is not a story. It seeds itself in bodies. Saints. Kings. Beasts. This is a piece of it, grown in her like a pearl in a drowned oyster.',
+          'That is crownmetal. It grows where passage fails. Saints. Kings. Beasts. The Crown is feeding on souls that cannot leave, Lucian. This piece formed in her like a pearl around a scream.',
         next: 'm10',
       },
       m10: {
@@ -659,7 +652,7 @@ export const SCRIPTS = {
       md1: {
         speaker: 'narrator',
         text:
-          'Sjen opens the saint’s jaw with two fingers and speaks a language that hurts to overhear. The candles burn the wrong color. The jaw moves. Sjen listens — and for one moment he looks at Lucian the way a starving man looks at a locked pantry.',
+          'Sjen opens the saint’s jaw and reads from a dead alphabet carved behind her teeth. The rite does not summon her. It tears a narrow listening wound toward the Root-Beneath. The jaw moves. Several buried voices answer through it.',
         next: 'md2',
       },
       md2: {
@@ -706,7 +699,7 @@ export const SCRIPTS = {
       mv1: {
         speaker: 'narrator',
         text:
-          'The Knight comes apart like a ledger in the rain — clauses, chains, and all. When he stops moving, the sliver of crownmetal is in Lucian’s hand: pried from a saint, fought over, paid for in blood. However it got there, it is his now.',
+          'The Knight comes apart like a ledger in the rain. Something leaves the armor, reaches for a road that is no longer there, and is pulled into the sliver instead. Lucian closes his hand around it before Sjen can warn him.',
         effects: { item: 'relic_shard', shard: true },
         next: 'mv2',
       },
@@ -720,13 +713,13 @@ export const SCRIPTS = {
       mv3: {
         speaker: 'Sjen',
         text:
-          '…It spoke to you. Through one sliver. Lucian, the full Crown does not grant dominion. The full Crown *is* dominion. Whoever wears it will not rule the dying kingdoms. He will digest them.',
+          '…It spoke through one sliver. The Crown is not a throne. It is a hand around the wheel. Whoever completes it will not rule the dying kingdoms. He will decide where every dead thing goes.',
         next: 'mv4',
       },
       mv4: {
         speaker: 'Lucian',
         text:
-          'The Baron wanted a debt collected. Fine. Consider it collected. From this day, all of Veyrath owes me — it just doesn’t know the interest rate yet.',
+          'Then death has been badly managed. I do not want release, Sjen. I want the key.',
         action: { aftermath: true },
       },
     },

@@ -38,7 +38,7 @@ export default function Hud() {
           <b className="hex-text">{g.shards}</b>/7 slivers
         </span>
         <span className="hud-stat" title="The Black Tithe's strength">
-          level <b>{g.level}</b>
+          level <b>{g.level}</b> · {g.xp}/{g.level * 100} XP
         </span>
         {g.deaths > 0 && (
           <span className="hud-stat" title="Times returned from The White Silence">

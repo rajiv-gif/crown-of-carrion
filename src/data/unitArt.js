@@ -23,9 +23,10 @@ for (const path in files) {
 }
 
 // URL for a unit's painted art, or null to fall back to the SVG silhouette.
-export function unitArt(sprite, ascended) {
+export function unitArt(sprite, variant) {
   if (!sprite) return null;
-  if (ascended && ART[`${sprite}-ascended`]) return ART[`${sprite}-ascended`];
+  if (typeof variant === 'string') return ART[`${sprite}-${variant}`] || null;
+  if (variant && ART[`${sprite}-ascended`]) return ART[`${sprite}-ascended`];
   return ART[sprite] || null;
 }
 

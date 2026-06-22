@@ -3,6 +3,8 @@ import { useGame } from '../App.jsx';
 import { CHAPTERS, chapterStatus } from '../data/chapters.js';
 import { FACTIONS, AFTERMATH_REACTIONS } from '../data/story.js';
 import { PARTY } from '../data/units.js';
+import { branchName, ownedTalents, talentNode } from '../data/progression.js';
+import { revealedCosmology } from '../data/cosmology.js';
 
 // The Campaign Ledger: a cursed record of everything the Black Tithe has
 // done, owed, fed, and survived. In-world bookkeeping, not a settings menu.
@@ -26,6 +28,7 @@ const BARGAIN_LINES = {
 export default function Ledger() {
   const { g, dispatch } = useGame();
   const choice = g.flags.choice ? AFTERMATH_REACTIONS[g.flags.choice] : null;
+  const cosmology = revealedCosmology(g);
 
   return (
     <div className="screen ledger-screen">
@@ -54,6 +57,19 @@ export default function Ledger() {
             );
           })}
         </section>
+
+        {cosmology.length > 0 && (
+          <section className="ledger-section">
+            <h3 className="panel-title">THE BROKEN PASSAGE</h3>
+            {cosmology.map((fragment) => (
+              <div key={fragment.id} className="ledger-fragment">
+                <b className="pale-text">{fragment.name}</b>
+                <p>{fragment.text}</p>
+              </div>
+            ))}
+            <p className="ledger-line dim-text">Sjen’s margin: “The Church calls them relics. They are jammed doors.”</p>
+          </section>
+        )}
 
         <section className="ledger-section">
           <h3 className="panel-title">THE ACCOUNT</h3>
@@ -93,17 +109,19 @@ export default function Ledger() {
           <h3 className="panel-title">THE COMPANY</h3>
           <p className="ledger-line">{loyaltyLine('sjen', g.tension.lucian_sjen)}</p>
           <p className="ledger-line">{loyaltyLine('veato', g.tension.lucian_veato)}</p>
-          {Object.entries(PARTY).map(([key, p]) => {
-            const fed = Object.entries(g.sins[key] || {}).filter(([, r]) => r > 0);
-            if (!fed.length) return null;
+          {Object.entries(PARTY).filter(([key]) => ['lucian', 'sjen', 'veato'].includes(key)).map(([key, p]) => {
+            const learned = ownedTalents(g, key).map((id) => talentNode(key, id)).filter(Boolean);
             return (
               <p key={key} className="ledger-line">
-                <span style={{ color: p.color }}>{p.name}</span> has fed:{' '}
-                {fed.map(([sin, r]) => `${sin} ${'●'.repeat(r)}`).join(', ')}.
+                <span style={{ color: p.color }}>{p.name}</span>: <b>{branchName(key, g)}</b>
+                {learned.length ? ` · ${learned.map((n) => n.name).join(' → ')}` : ' · no specialization yet'}.
               </p>
             );
           })}
-          <p className="ledger-line dim-text">Level {g.level} · the Black Tithe, {g.deaths > 0 ? 'harder to kill than it should be' : 'still breathing'}.</p>
+          <p className="ledger-line dim-text">
+            Level {g.level} · {g.xp}/{g.level * 100} XP toward level {g.level + 1} · the Black Tithe, {g.deaths > 0 ? 'harder to kill than it should be' : 'still breathing'}.
+          </p>
+          {g.level >= 4 && <p className="ledger-line gold-text">Capstones earned. Further levels harden the body instead of widening the skill bar.</p>}
         </section>
 
         {(g.flags.bargain || choice) && (

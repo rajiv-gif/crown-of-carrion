@@ -15,7 +15,7 @@ export const SINS = {
     mech: '+8% vicious blows (1.5×) · bleeds cut 2 deeper · rank 2: kills grant Might',
     flavor: {
       lucian: 'The violence stops being a means. Each kill begs for the next.',
-      veato: 'Veato’s knives stop being tools. They become appetites.',
+      veato: 'Veato stops aiming to wound. Every arrow begins choosing where the body will fail.',
       default: 'Rage, banked and fed, until it burns clean.',
     },
   },
@@ -59,7 +59,7 @@ export const SINS = {
     mech: '+15% damage against bosses and elites · rank 2: tear Might out of enemies',
     flavor: {
       sjen: 'What others wield, Sjen catalogues — and plans to own.',
-      veato: 'Every better-paid blade in Veyrath is a personal insult awaiting correction.',
+      veato: 'Every better-paid killer in Veyrath is a target awaiting correction.',
       default: 'Hatred of those above you, refined into reach.',
     },
   },
@@ -68,7 +68,7 @@ export const SINS = {
     mech: '+5% chance to slip any blow · Backstab cuts 25% deeper into the weakened',
     flavor: {
       sjen: 'Sjen’s truths arrive pre-bent.',
-      veato: 'Veato exists slightly to the left of wherever you are looking.',
+      veato: 'Veato’s arrow arrives from the direction you already checked.',
       default: 'Hidden intent, worn like a second skin.',
     },
   },
@@ -132,10 +132,10 @@ export const ABILITY_UNLOCKS = {
   summon_wretch: { char: 'sjen', sins: ['ambition', 'envy'] },
   whispering_pact: { char: 'sjen', sins: ['cunning', 'envy', 'ambition'] },
   // Veato
+  marked_quarry: { char: 'veato', sins: ['deceit', 'envy'] },
   backstab: { char: 'veato', sins: ['deceit', 'envy'] },
   smoke_step: { char: 'veato', sins: ['deceit', 'cunning'] },
   crippling_cut: { char: 'veato', sins: ['wrath', 'deceit'] },
-  hidden_knife: { char: 'veato', sins: ['greed', 'opportunism', 'envy'], passive: 'Hidden Knife' },
 };
 
 export function abilityUnlocked(id, sins) {

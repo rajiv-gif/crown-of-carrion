@@ -63,7 +63,7 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
         <span>{field.name || c.name}</span>
         <small>{field.rules?.join(' ')}</small>
       </div>
-      <div className="bf-tactical-board" style={{ '--cols': cols, '--rows': rows }}>
+      <div className={`bf-tactical-board ${cols > 8 ? 'is-large-board' : ''}`} style={{ '--cols': cols, '--rows': rows }}>
         {tiles.map((tile) => {
           const movable = moveSet.has(`${tile.x},${tile.y}`);
           const provokes = provokeSet.has(`${tile.x},${tile.y}`);

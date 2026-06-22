@@ -4,6 +4,9 @@ import { FACTIONS, TENSION_PAIRS } from '../data/story.js';
 import { PARTY } from '../data/units.js';
 import { tensionTier } from '../data/sins.js';
 import { CHAPTERS, CAMPAIGN_TAGLINE, chapterStatus, chapterStatusText } from '../data/chapters.js';
+import { unitArt } from '../data/unitArt.js';
+import { specializationFor } from '../data/progression.js';
+import Silhouette from '../components/Silhouettes.jsx';
 
 const WARNING_SIGNS = {
   lucian_veato: 'Veato’s hand keeps drifting toward his hidden knife.',
@@ -140,11 +143,21 @@ export default function MapScreen() {
               .filter(([key]) => ['lucian', 'sjen', 'veato'].includes(key) || g.flags?.[`${key}_joined`])
               .map(([key, p]) => {
               const fed = Object.entries(g.sins[key] || {}).filter(([, r]) => r > 0);
+              const sprite = p.sprite || key;
+              const veatoSpec = key === 'veato' ? specializationFor(g, key) || g.flags?.veato_specialization : null;
+              const variant = veatoSpec === 'jaguar_knife'
+                ? 'jaguar'
+                : veatoSpec === 'nether_archer'
+                  ? 'ascended'
+                  : (g.talents?.[key]?.length || 0) >= 3;
+              const art = unitArt(sprite, variant);
               return (
                 <div key={p.name} className="roster-row">
-                  <span className="roster-sigil" style={{ color: p.color }}>
-                    {p.sigil}
-                  </span>
+                  <div className="roster-figure" style={{ '--roster-color': p.color }}>
+                    {art
+                      ? <img src={art} alt={`${p.name} unit art`} />
+                      : <Silhouette name={sprite} />}
+                  </div>
                   <div>
                     <div className="roster-name" style={{ color: p.color }}>
                       {p.name} <span className="roster-epithet">— {p.epithet}</span>

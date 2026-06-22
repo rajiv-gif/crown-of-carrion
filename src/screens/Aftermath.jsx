@@ -32,7 +32,7 @@ export default function Aftermath() {
         )}
         {g.deaths > 0 && (
           <p className="secret-line pale-text">
-            And somewhere outside the world, something pale watched Lucian die {g.deaths === 1 ? 'once' : `${g.deaths} times`} — and sent him
+            And in the still interval outside Veyrath, something pale watched Lucian fail to leave {g.deaths === 1 ? 'once' : `${g.deaths} times`} — and sent him
             back without explaining why.
           </p>
         )}

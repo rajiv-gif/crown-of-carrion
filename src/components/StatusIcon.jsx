@@ -15,6 +15,7 @@ const TITLES = {
   shield: 'Bone Ward — absorbs damage',
   psychosis: 'Psychosis — the next turn is lost',
   marked: 'Debt Mark — the next collection will hurt',
+  lien: 'Black Writ — killing this condemned target pays bonus gold',
   vulnerable: 'Vulnerable — takes harder follow-up blows',
   rotten_guard: 'Rotten Guard — melee attackers risk poison',
   focus: 'Focus — the next strikes hit harder',
@@ -63,6 +64,14 @@ function glyph(type) {
       );
     case 'shield':
       return <path d="M7 1 L12.5 3.2 L12.5 7 Q12.5 11.6 7 13 Q1.5 11.6 1.5 7 L1.5 3.2 Z" fill="none" stroke="#cfc3a9" strokeWidth="1.6" />;
+    case 'lien':
+      return (
+        <g fill="none" stroke="#a98c45" strokeWidth="1.4">
+          <path d="M2 3 H10 L12 5 V12 H2 Z" />
+          <circle cx="9.5" cy="5.5" r="1.2" />
+          <path d="M4 8 H9 M4 10 H7" />
+        </g>
+      );
     case 'psychosis':
       return (
         <g>

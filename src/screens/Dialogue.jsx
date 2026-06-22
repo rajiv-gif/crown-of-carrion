@@ -4,9 +4,13 @@ import { SCRIPTS, SPEAKERS } from '../data/story.js';
 import Cocoli from '../components/Cocoli.jsx';
 import Silhouette from '../components/Silhouettes.jsx';
 import { speakLine, stopVoice } from '../voice.js';
+import { unitArt } from '../data/unitArt.js';
+import lucianPortrait from '../assets/portrait-lucian.jpg';
 import sjenPortrait from '../assets/portrait-sjen.jpg';
 import veatoPortrait from '../assets/portrait-veato.jpg';
 import chibiPortrait from '../assets/portrait-chibi.jpg';
+import chanPortrait from '../assets/portrait-chan.jpg';
+import chanWagon from '../assets/dialogue-chan-wagon.png';
 
 const SCENE_BY_SCRIPT = {
   intro: 'chapel',
@@ -19,7 +23,7 @@ const PORTRAITS = {
   Lucian: 'lucian',
   Sjen: 'sjen',
   Veato: 'veato',
-  Chan: 'chan',
+  Chan: 'chan_broker',
   Chibi: 'chibi',
   'The Envoy': 'villager',
   'Elder of Marrowfen': 'villager',
@@ -27,10 +31,14 @@ const PORTRAITS = {
 };
 
 const IMAGE_PORTRAITS = {
+  Lucian: lucianPortrait,
   Sjen: sjenPortrait,
   Veato: veatoPortrait,
   Chibi: chibiPortrait,
+  Chan: chanPortrait,
 };
+
+const CHAN_WAGON_NODES = new Set(['a2', 'a3', 'a4', 'a5']);
 
 function formatDialogueLine(speaker, text) {
   if (speaker !== 'Sjen') return text;
@@ -47,9 +55,10 @@ export default function Dialogue() {
   const isNarrator = node.speaker === 'narrator';
   const scene = SCENE_BY_SCRIPT[g.scriptId] || 'ashroad';
   const portrait = PORTRAITS[node.speaker];
-  const imagePortrait = IMAGE_PORTRAITS[node.speaker];
+  const imagePortrait = IMAGE_PORTRAITS[node.speaker] || unitArt(portrait);
   const showPortrait = !isNarrator && (imagePortrait || portrait || node.speaker === 'Cocoli');
   const dialogueText = formatDialogueLine(node.speaker, node.text);
+  const showChanWagon = g.scriptId === 'ashen_tithe' && CHAN_WAGON_NODES.has(g.nodeId);
 
   useEffect(() => {
     speakLine(node.speaker, dialogueText);
@@ -74,13 +83,20 @@ export default function Dialogue() {
   };
 
   return (
-    <div className={`screen dialogue-screen scene-${scene}`}>
+    <div
+      className={`screen dialogue-screen scene-${scene} ${showChanWagon ? 'scene-chan-wagon' : ''}`}
+      style={showChanWagon ? { '--dialogue-scene-image': `url(${chanWagon})` } : undefined}
+    >
       <div className={`dialogue-panel panel ${showPortrait ? 'with-portrait' : 'narrator-panel'}`} key={g.nodeId}>
         {showPortrait && (
           <aside className="dialogue-portrait" style={{ '--portrait-color': sp.color }}>
             <div className="portrait-glow" />
             {imagePortrait ? (
-              <img className="dialogue-portrait-img" src={imagePortrait} alt={`${node.speaker} portrait`} />
+              <img
+                className={`dialogue-portrait-img ${node.speaker === 'Chan' ? 'portrait-chan' : ''}`}
+                src={imagePortrait}
+                alt={`${node.speaker} portrait`}
+              />
             ) : node.speaker === 'Cocoli' ? (
               <Cocoli />
             ) : (
