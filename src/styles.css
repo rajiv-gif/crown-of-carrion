@@ -1271,6 +1271,38 @@ button { font-family: inherit; cursor: pointer; }
   100% { opacity: 0; transform: scale(1.5); }
 }
 .provoke-hint { color: var(--blood-bright); font-style: italic; font-size: 0.85em; }
+/* ── animation lab (?lab) ──────────────────────────────────── */
+.lab-screen { padding: 18px 26px 40px; max-width: 1320px; margin: 0 auto; }
+.lab-head { margin-bottom: 12px; }
+.lab-title {
+  font-family: var(--serif-display);
+  letter-spacing: 0.22em;
+  color: var(--blood-bright);
+  font-size: 20px;
+}
+.lab-sub { color: var(--bone-dim); font-size: 13px; max-width: 760px; line-height: 1.5; }
+.lab-sub code { color: var(--bone); background: rgba(0, 0, 0, 0.4); padding: 1px 5px; }
+.lab-buttons {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.lab-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  background: linear-gradient(180deg, #1d1813, #110d0a);
+  border: 1px solid var(--iron);
+  color: var(--bone);
+  padding: 8px 11px;
+  transition: all 0.12s ease;
+}
+.lab-btn:hover { border-color: var(--blood-bright); color: var(--pale); transform: translateY(-1px); }
+.lab-btn b { font-family: var(--serif-display); font-size: 12.5px; letter-spacing: 0.06em; }
+.lab-btn span { font-size: 10px; color: var(--bone-dim); font-family: monospace; }
+
 .bf-tile.is-movable {
   cursor: pointer;
   box-shadow: inset 0 0 0 2px rgba(169, 140, 69, 0.55), inset 0 0 20px rgba(169, 140, 69, 0.16);

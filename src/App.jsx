@@ -11,6 +11,7 @@ import WhiteSilence from './screens/WhiteSilence.jsx';
 import Aftermath from './screens/Aftermath.jsx';
 import Ascension from './screens/Ascension.jsx';
 import Ledger from './screens/Ledger.jsx';
+import AnimationLab from './screens/AnimationLab.jsx';
 
 const Ctx = createContext(null);
 export const useGame = () => useContext(Ctx);
@@ -47,6 +48,15 @@ export default function App() {
 
   const Screen = SCREENS[g.screen] || Title;
   const showHud = g.screen !== 'title' && g.screen !== 'silence';
+
+  // ?lab — standalone animation previewer, bypasses the game entirely.
+  if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('lab')) {
+    return (
+      <div className="app">
+        <AnimationLab />
+      </div>
+    );
+  }
 
   return (
     <Ctx.Provider value={{ g, dispatch }}>
