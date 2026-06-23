@@ -48,7 +48,7 @@ const defaultParty = {
   sjen: [0, 1],
   veato: [1, 3],
   chan: [0, 3],
-  chibi: [0, 2],
+  chibi: [2, 1],
   wretch: [2, 2],
 };
 
