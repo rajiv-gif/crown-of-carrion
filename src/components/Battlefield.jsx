@@ -107,7 +107,7 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
               style={{
                 gridColumn: (u.tile?.x || 0) + 1,
                 gridRow: (u.tile?.y || 0) + 1,
-                zIndex: 20 + (u.tile?.y || 0) * 3 + (u.boss ? 2 : 0),
+                zIndex: 20 + (u.tile?.y || 0) * 3 + (u.boss ? 2 : 0) + (cur?.uid === u.uid ? 50 : 0),
                 ...(mv && !sp
                   ? { '--mvdx': Math.sign(mv.from.x - mv.to.x), '--mvdy': Math.sign(mv.from.y - mv.to.y) }
                   : null),
