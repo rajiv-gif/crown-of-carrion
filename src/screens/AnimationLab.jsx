@@ -1,6 +1,19 @@
 import React, { useRef, useState } from 'react';
 import Battlefield from '../components/Battlefield.jsx';
 import { ABILITIES } from '../combat/engine.js';
+import { playCombatEvents, playSound } from '../audio.js';
+
+// Per-enemy-type death sounds, for click-to-hear auditioning.
+const DEATH_SOUNDS = [
+  ['Starved Villager', 'deathFrail'],
+  ['Pox-Slinger', 'deathWet'],
+  ['Plague Guard / Censer', 'deathArmored'],
+  ['Hollow Guard / Husk', 'deathHollow'],
+  ['Ashen Flagellant', 'deathZealot'],
+  ['Dogma Demon', 'deathDemon'],
+  ['Boss (Knight / Saint)', 'bossDeath'],
+  ['Generic fallback', 'death'],
+];
 
 // A standalone animation previewer, reached at ?lab — no combat, no save.
 // It reuses the real Battlefield/BattleUnit, so what you see here is exactly
@@ -37,6 +50,7 @@ export default function AnimationLab() {
         ev.push({ id: seed + 0.2, k: 'hit', unit: TARGET.uid, amount: ability === 'execute' ? 42 : 15, vicious: ability === 'execute', ability });
       }
       setFx(ev);
+      playCombatEvents(ev); // play the matching combat sound too
       timer.current = setTimeout(() => setFx([]), 1700);
     });
   };
@@ -53,6 +67,21 @@ export default function AnimationLab() {
         </p>
       </div>
       <Battlefield c={c} fx={fx} cur={ATTACKER} isTargetable={() => false} onTarget={() => {}} moveTiles={[]} onMove={() => {}} />
+      <div className="lab-head" style={{ marginTop: '18px' }}>
+        <h2 className="lab-title" style={{ fontSize: '15px' }}>☠ DEATH SOUNDS — click to hear</h2>
+        <p className="lab-sub">Make sure the HUD says SOUND ON. The first click may be a touch quiet while audio wakes up — click again.</p>
+      </div>
+      <div className="lab-buttons">
+        {DEATH_SOUNDS.map(([label, key]) => (
+          <button key={key} className="lab-btn" onClick={() => playSound(key)}>
+            <b>{label}</b>
+            <span>{key}</span>
+          </button>
+        ))}
+      </div>
+      <div className="lab-head" style={{ marginTop: '18px' }}>
+        <h2 className="lab-title" style={{ fontSize: '15px' }}>⚔ ATTACK ANIMATIONS + SOUND</h2>
+      </div>
       <div className="lab-buttons">
         {ids.map((id) => (
           <button key={id} className="lab-btn" onClick={() => play(id)} title={ABILITIES[id].desc || id}>
