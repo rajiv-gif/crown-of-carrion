@@ -1,0 +1,15 @@
+# Netlify build config — makes the deploy deterministic regardless of
+# dashboard settings. This is a Vite single-page app.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# The app is a single page (state-driven screens + a ?lab query param, no
+# client-side router), so serve index.html for any path to avoid 404s.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
