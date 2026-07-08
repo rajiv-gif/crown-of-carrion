@@ -80,6 +80,12 @@ function glyph(type) {
           <path d="M3.2 3.1 L10.8 10.9 M10.8 3.1 L3.2 10.9" stroke="#e8d9c8" strokeWidth="1.1" />
         </g>
       );
+    case 'ascension':
+      return (
+        <g fill="none" stroke="#c0392b" strokeWidth="1.5">
+          <path d="M7 1.5 L8.3 5.2 H12.2 L9.1 7.5 L10.2 11.2 L7 9 L3.8 11.2 L4.9 7.5 L1.8 5.2 H5.7 Z" />
+        </g>
+      );
     default:
       return <circle cx="7" cy="7" r="3" fill="#8d8270" />;
   }

@@ -454,6 +454,57 @@ function Saint() {
   );
 }
 
+function CarrionPope() {
+  return (
+    <svg viewBox="0 0 150 185" className="sil sil-carrion-pope" aria-label="The Carrion Pope">
+      {/* tattered papal cope, wide and dragging */}
+      <path d="M44 62 L106 62 L124 178 L106 164 L94 180 L76 166 L58 182 L44 166 L28 176 Z" fill="#140e16" />
+      <path d="M52 66 L98 66 L108 150 L44 152 Z" fill="#1c1420" opacity="0.75" />
+      {/* pallium strip with inverted marks */}
+      <path d="M70 62 L80 62 L84 154 L68 154 Z" fill="#241a28" />
+      <path d="M72 76 L78 82 M78 76 L72 82 M73 100 L79 106 M79 100 L73 106 M74 126 L80 132 M80 126 L74 132" stroke="#8e7bb5" strokeWidth="1.6" opacity="0.8" />
+      {/* gaunt shoulders */}
+      <path d="M40 58 L60 48 L62 70 L42 74 Z" fill="#1c1420" />
+      <path d="M110 58 L90 48 L88 70 L108 74 Z" fill="#1c1420" />
+      {/* skeletal neck and skull */}
+      <path d="M70 40 L80 40 L79 50 L71 50 Z" fill="#4a4238" />
+      <ellipse cx="75" cy="32" rx="11" ry="12" fill="#0a0709" />
+      {/* sunken pale eyes */}
+      <circle cx="70.5" cy="30" r="1.6" fill="#e9e4d6" opacity="0.9" />
+      <circle cx="79.5" cy="30" r="1.6" fill="#e9e4d6" opacity="0.9" />
+      {/* jaw hanging open */}
+      <path d="M70 40 Q75 47 80 40 L79 44 Q75 50 71 44 Z" fill="#0a0709" />
+      {/* cracked bone mitre, too tall */}
+      <path d="M62 26 L75 -8 L88 26 L84 30 L66 30 Z" fill="#cfc3a9" opacity="0.92" />
+      <path d="M75 -8 L75 26" stroke="#8a7d63" strokeWidth="1.4" />
+      <path d="M68 12 L74 16 M82 8 L77 13" stroke="#5c5243" strokeWidth="1.2" />
+      {/* inverted cross on the mitre */}
+      <rect x="73" y="4" width="4" height="14" fill="#571c20" />
+      <rect x="69" y="13" width="12" height="3.6" fill="#571c20" />
+      {/* left arm raised in benediction over a corpse */}
+      <path d="M46 74 L22 92 L27 100 L50 84 Z" fill="#1c1420" />
+      <path d="M24 90 L18 86 L14 92 L20 98 Z" fill="#4a4238" />
+      {/* the unction vial, dripping */}
+      <path d="M14 98 L20 98 L19 108 L15 108 Z" fill="#8e7bb5" opacity="0.7" />
+      <circle cx="17" cy="113" r="1.8" fill="#8e7bb5" opacity="0.8" />
+      <circle cx="17" cy="119" r="1.2" fill="#8e7bb5" opacity="0.55" />
+      {/* right arm holding the ferula (staff) */}
+      <path d="M104 74 L122 84 L118 92 L100 84 Z" fill="#1c1420" />
+      <rect x="121" y="42" width="4.5" height="118" fill="#3a3633" />
+      {/* ferula head: a ring of teeth */}
+      <circle cx="123" cy="36" r="10" fill="none" stroke="#cfc3a9" strokeWidth="3" />
+      <path d="M117 30 L119 26 M123 27.5 L123 23 M129 30 L131 26 M116 40 L112 42 M130 40 L134 42" stroke="#cfc3a9" strokeWidth="2" />
+      <circle cx="123" cy="36" r="3" fill="#571c20" />
+      {/* hovering rot-runes (CSS-animated) */}
+      <g className="sil-runes" fill="#8e7bb5" opacity="0.6">
+        <rect x="34" y="52" width="5" height="5" transform="rotate(45 36 54)" />
+        <rect x="108" y="46" width="4.4" height="4.4" transform="rotate(45 110 48)" />
+        <circle cx="52" cy="118" r="2.6" />
+      </g>
+    </svg>
+  );
+}
+
 const SPRITES = {
   lucian: Lucian,
   sjen: Sjen,
@@ -474,6 +525,7 @@ const SPRITES = {
   demon: Demon,
   ascended_demon: AscendedDemon,
   saint: Saint,
+  carrion_pope: CarrionPope,
 };
 
 function MissingSprite({ name }) {

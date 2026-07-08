@@ -12,6 +12,7 @@ import Aftermath from './screens/Aftermath.jsx';
 import Ascension from './screens/Ascension.jsx';
 import Ledger from './screens/Ledger.jsx';
 import AnimationLab from './screens/AnimationLab.jsx';
+import SkirmishSetup from './screens/SkirmishSetup.jsx';
 
 const Ctx = createContext(null);
 export const useGame = () => useContext(Ctx);
@@ -25,6 +26,7 @@ const SCREENS = {
   aftermath: Aftermath,
   ascension: Ascension,
   ledger: Ledger,
+  skirmish_setup: SkirmishSetup,
 };
 
 export default function App() {

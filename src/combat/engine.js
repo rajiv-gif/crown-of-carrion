@@ -33,13 +33,13 @@ export const ABILITIES = {
   whispering_pact: { name: 'Whispering Pact', cd: 3, target: 'none', desc: 'Ask the things below for help. They may answer wrong.' },
   mo_bos_ie_eye: { name: 'Mo bos ie EYE!', cd: 6, target: 'enemy', desc: 'Ultimate: Sjenke turns his fist into titanium demon fire and crushes the target’s eyes and skull. If the target dies, all other enemies enter Psychosis and lose 1 turn.' },
   crown_hex: { name: 'Crown Hex', cd: 2, target: 'enemy', desc: 'Hex Master: a deeper curse that bites hard and spreads panic from already-rotting prey.' },
-  demon_invocation: { name: 'Demon Invocation', cd: 4, target: 'none', desc: 'Invoker: Sjen partially changes into a demon, gains brutal power, and tears the elements through every enemy.' },
+  demon_invocation: { name: 'Demon Invocation', cd: 5, target: 'none', desc: 'Invoker: Sjen partially changes into a demon, gains brutal power, and tears the elements through every enemy.' },
   // Veato
   bow_shot: { name: 'Mercenary Shot', cd: 0, target: 'enemy', desc: 'Range 5. A reliable shot from Veato’s battered road bow. 105% damage.' },
   venom_arrow: { name: 'Venom Arrow', cd: 1, target: 'enemy', desc: 'Range 5. 85% damage and strong poison. Already-afflicted prey suffers more.' },
   pinning_shot: { name: 'Pinning Shot', cd: 2, target: 'enemy', desc: 'Range 5. Pin the target in place: damage, bleed, and Cripple for 2 turns.' },
   marked_quarry: { name: 'Marked Quarry', cd: 3, target: 'enemy', desc: 'Range 6. Mark one enemy as prey. Veato’s arrows strike it harder and Covering Shot favors it.' },
-  backstab: { name: 'Backstab', cd: 2, target: 'enemy', desc: '260% damage to afflicted prey; 130% otherwise. Deceit cuts deeper.' },
+  backstab: { name: 'Backstab', cd: 2, target: 'enemy', desc: '260% from behind while afflicted. Position or debuffs alone give partial bonuses. No setup: 85%. Deceit is a craft.' },
   poison_blade: { name: 'Poison Blade', cd: 0, target: 'enemy', desc: '90% damage plus poison each turn. Cunning brews it stronger.' },
   nether_bow: { name: 'Bow from the Nether', cd: 1, target: 'enemy', desc: 'Range 6. Loose a poisoned shadow-arrow. Marked or afflicted prey suffers 165% damage.' },
   prowling_pounce: { name: 'Prowling Pounce', cd: 3, target: 'enemy', desc: 'Jaguar Knife: spring onto prey within 4 tiles, close to melee, and strike with both daggers.' },
@@ -57,6 +57,14 @@ export const ABILITIES = {
   // Enemies
   claw: { name: 'Desperate Claw', cd: 0, target: 'party' },
   rusted_blade: { name: 'Rusted Blade', cd: 0, target: 'party' },
+  corpse_feed:   { name: 'Corpse Feed',   cd: 3, target: 'party', desc: '90% damage bite. On a corpse pile: also heals 5 HP.' },
+  spade_strike:  { name: 'Spade Strike',  cd: 0, target: 'party', desc: '115% damage. The rusted spade cripples on hit.' },
+  exhume:        { name: 'Exhume',        cd: 3, target: 'none',  desc: 'The digger turns the earth. All Flesh Congregants on the field regain 6 HP.' },
+  flail_sweep:   { name: 'Flail Sweep',   cd: 2, target: 'party', desc: 'The morning star arcs through two targets. 100% damage to each.' },
+  penance_lash:  { name: 'Penance Lash',  cd: 3, target: 'party', desc: '140% damage. The penitent tears 8 HP from itself to fuel the blow, then gains Might.' },
+  black_unction: { name: 'Black Unction', cd: 4, target: 'none',  desc: 'The Pope anoints a corpse. It rises Depraved: stronger, faster, immune to fear, and burning itself toward the grave it wants back.' },
+  papal_bull:    { name: 'Papal Bull',    cd: 3, target: 'none',  desc: 'A decree nobody living co-signed. All his flock gain Might.' },
+  censer_of_marrow: { name: 'Censer of Marrow', cd: 2, target: 'party', desc: '105% damage and a curse that smells of rendered saints.' },
   desperate_rush: { name: 'Desperate Rush', cd: 3, target: 'party' },
   plague_bite: { name: 'Plague Bite', cd: 2, target: 'party' },
   pox_lob: { name: 'Pox Lob', cd: 0, target: 'party' },
@@ -134,6 +142,11 @@ const ENEMY_BARKS = {
   chained_thrall: ['“Please. Make the chain stop.”', '“He wrote my children beneath my name.”'],
   starved_villager: ['“You ate while we buried ours!”', '“There is nothing left to beg with.”'],
   plague_guard: ['“Hold the line. Hold the rot in.”', '“The uniform still fits.”'],
+  carrion_pope: [
+    '“Death was a door. I nailed it shut.”',
+    '“Every corpse is a congregant who stopped trying.”',
+    '“You will serve. Breathing is not a requirement.”',
+  ],
   hollow_guard: ['“HOLD.”', '“NO MAN INSIDE.”'],
   pox_slinger: ['“Catch.”', '“Breathe deep, rich man.”'],
   default: ['“You should have stayed on the road.”', '“The dead have more patience than you.”'],
@@ -172,6 +185,8 @@ const ABILITY_RANGE = {
   // short reach
   poison_blade: 2,
   backstab: 1,
+  corpse_feed: 1,
+  spade_strike: 1,
   crippling_cut: 1,
   prowling_pounce: 4,
   bow_shot: 5,
@@ -441,6 +456,7 @@ function removeStatus(u, t) {
 }
 function effAtk(u) {
   let a = u.atk;
+  if (u.mods?.deathHungry) a *= 1.25;
   if (hasStatus(u, 'might')) a *= 1.4;
   if (hasStatus(u, 'focus')) a *= 1.35;
   if (hasStatus(u, 'zeal')) a *= 1.25;
@@ -561,6 +577,15 @@ function kill(s, u, attacker) {
     'death'
   );
   evt(s, { k: 'death', unit: u.uid, boss: u.boss, sprite: u.sprite });
+  if (u.mods?.corpsePileOnDeath) {
+    const nearby = s.units.filter((x) => x.alive && x.key === 'flesh_congregant' && x.tile && u.tile &&
+      Math.max(Math.abs(x.tile.x - u.tile.x), Math.abs(x.tile.y - u.tile.y)) <= 2);
+    for (const c of nearby) {
+      const h = Math.min(8, c.maxHp - c.hp);
+      if (h > 0) { c.hp += h; evt(s, { k: 'float', unit: c.uid, text: `+${h} HP`, type: 'word' }); }
+    }
+    if (nearby.length) log(s, 'The Catacomb Digger falls. What it carried feeds the congregation.', 'hex');
+  }
   if (u.side === 'enemy') {
     if (liened) {
       s.bonusGold = (s.bonusGold || 0) + 12;
@@ -602,12 +627,22 @@ function hit(s, attacker, target, mult, label) {
   let base = effAtk(attacker) * mult;
   const attackerTerrain = unitTerrain(s, attacker);
   const targetTerrain = unitTerrain(s, target);
-  if (attackerTerrain.type === 'high_ground') base *= 1.12;
-  if (targetTerrain.type === 'cover') base *= 0.85;
+  if (attackerTerrain.type === 'high_ground') {
+    base *= 1.12;
+    evt(s, { k: 'float', unit: attacker.uid, text: '+High Ground', type: 'word' });
+  }
+  if (targetTerrain.type === 'cover') {
+    base *= 0.85;
+    evt(s, { k: 'float', unit: target.uid, text: 'Cover −15%', type: 'word' });
+  }
   if (attackerTerrain.type === 'desecrated_altar' && ['sjen', 'chibi'].includes(attacker.key) && isHexAbility(s.castAbility)) {
     base *= 1.18;
+    evt(s, { k: 'float', unit: attacker.uid, text: '+Altar Hex', type: 'word' });
   }
-  if (attackerTerrain.type === 'demon_rift' && isUnholy(attacker)) base *= 1.15;
+  if (attackerTerrain.type === 'demon_rift' && isUnholy(attacker)) {
+    base *= 1.15;
+    evt(s, { k: 'float', unit: attacker.uid, text: '+Demon Rift', type: 'word' });
+  }
   if (target.boss && am.bossMult > 1) base *= am.bossMult;
   let vicious = false;
   if (am.crit && Math.random() < am.crit) {
@@ -638,6 +673,13 @@ function hit(s, attacker, target, mult, label) {
   if (target.hp <= 0) {
     kill(s, target, attacker);
     return amount;
+  }
+  if (target.mods?.thornRebuke && attacker.side === 'party' && amount > 0 && attacker.alive) {
+    const thornDmg = 3;
+    attacker.hp -= thornDmg;
+    log(s, `The crown of thorns bites back. ${attacker.name} takes ${thornDmg} bleed.`, 'hurt');
+    evt(s, { k: 'float', unit: attacker.uid, text: `-${thornDmg}`, type: 'hurt' });
+    if (attacker.hp <= 0) kill(s, attacker, target);
   }
   if (hasStatus(target, 'rotten_guard') && attacker.side === 'party' && target.side === 'enemy' && Math.random() < 0.45) {
     addStatus(s, attacker, 'poison', 3, 5 + (s.diff?.afflictionBonus || 0));
@@ -826,7 +868,10 @@ function resolveAbility(s, u, id, targetUid) {
       const wasAlive = t?.alive;
       log(s, 'Sjenke: “Mo bos ie EYE!” His fist becomes titanium demon fire — made to crush eyes and skull.', 'death');
       evt(s, { k: 'bubble', unit: u.uid, text: '“Mo bos ie EYE!”' });
-      hit(s, u, t, 4.2 + (m.hexPower || 0) * 0.04, 'Mo bos ie EYE!');
+      hit(s, u, t, 3.2 + (m.hexPower || 0) * 0.04, 'Mo bos ie EYE!');
+      addStatus(s, u, 'stun', 2);
+      log(s, 'The demon fire burns back through Sjen. He cannot act for two turns.', 'hex');
+      evt(s, { k: 'float', unit: u.uid, text: 'Burned Out', type: 'blood-word' });
       if (wasAlive && t && !t.alive) {
         const witnesses = alive(s, 'enemy');
         if (witnesses.length) {
@@ -859,15 +904,14 @@ function resolveAbility(s, u, id, targetUid) {
       break;
     }
     case 'demon_invocation': {
-      addStatus(s, u, 'might', 2);
-      addStatus(s, u, 'focus', 2);
-      log(s, 'Sjen lets the borrowed thing unfold under his skin. One arm becomes too strong. The air around him remembers fire, salt, and storm.', 'death');
+      addStatus(s, u, 'might', 1);
+      addStatus(s, u, 'focus', 1);
+      log(s, 'Sjen lets the borrowed thing unfold under his skin. The air around him remembers fire, salt, and storm — and the memory tears through the enemy line.', 'death');
       evt(s, { k: 'bubble', unit: u.uid, text: '“Only partly. For now.”' });
       for (const e of alive(s, 'enemy')) {
-        hit(s, u, e, 1.35, 'Demon Invocation');
+        hit(s, u, e, 0.80, 'Demon Invocation');
         if (e.alive) {
           addStatus(s, e, 'curse', 2, 7 + (m.hexPower || 0));
-          if (Math.random() < 0.5) addStatus(s, e, Math.random() < 0.5 ? 'bleed' : 'poison', 2, 5 + (m.hexPower || 0));
         }
       }
       s.corruptionDelta += 2;
@@ -900,7 +944,24 @@ function resolveAbility(s, u, id, targetUid) {
       break;
     case 'backstab': {
       const weakened = t.statuses.some((x) => DEBUFFS.includes(x.type));
-      hit(s, u, t, weakened ? 2.6 + (m.backstabBonus || 0) : 1.3, weakened ? 'Backstab' : 'Backstab (unweakened prey)');
+      const flanked = u.tile && t.tile && u.tile.x > t.tile.x;
+      let bsMult, bsLabel;
+      if (flanked && weakened) {
+        bsMult = 2.6 + (m.backstabBonus || 0);
+        bsLabel = 'Backstab — In the Dark';
+      } else if (flanked) {
+        bsMult = 1.5 + (m.backstabBonus || 0);
+        bsLabel = 'Backstab — From Behind';
+      } else if (weakened) {
+        bsMult = 1.8 + (m.backstabBonus || 0);
+        bsLabel = 'Backstab — Open Wound';
+      } else {
+        bsMult = 0.85;
+        bsLabel = 'Backstab (frontal, no advantage)';
+      }
+      if (flanked) evt(s, { k: 'float', unit: u.uid, text: '+Behind', type: 'word' });
+      if (weakened) evt(s, { k: 'float', unit: t.uid, text: '+Afflicted', type: 'word' });
+      hit(s, u, t, bsMult, bsLabel);
       break;
     }
     case 'poison_blade':
@@ -1006,6 +1067,119 @@ function resolveAbility(s, u, id, targetUid) {
       break;
     }
     // Enemy abilities
+    case 'spade_strike': {
+      hit(s, u, t, 1.15, 'Spade Strike');
+      if (t?.alive) {
+        addStatus(s, t, 'cripple', 2);
+        log(s, `The rusted spade tears into ${t.name}. Movement slows. The wound stays open.`, 'hurt');
+      }
+      break;
+    }
+    case 'exhume': {
+      log(s, 'The Catacomb Digger drives its spade into the earth — what it uncovers should have stayed buried.', 'hex');
+      evt(s, { k: 'bubble', unit: u.uid, text: '“——”' });
+      const congregants = s.units.filter((x) => x.alive && x.key === 'flesh_congregant');
+      for (const c of congregants) {
+        const heal = Math.min(6, c.maxHp - c.hp);
+        if (heal > 0) {
+          c.hp += heal;
+          evt(s, { k: 'float', unit: c.uid, text: `+${heal} HP`, type: 'word' });
+        }
+      }
+      if (congregants.length) log(s, `${congregants.length} Flesh Congregant${congregants.length > 1 ? 's feed' : ' feeds'} on what the earth gives up.`, 'hex');
+      break;
+    }
+    case 'corpse_feed': {
+      const onPile = unitTerrain(s, u).type === 'corpse_pile';
+      hit(s, u, t, 0.9, onPile ? 'Corpse Feed — the pile fuels it' : 'Corpse Feed');
+      if (onPile && u.alive) {
+        const healed = Math.min(5, u.maxHp - u.hp);
+        if (healed > 0) {
+          u.hp += healed;
+          log(s, `${u.name} feeds from the corpse pile. It regains ${healed} HP.`, 'hex');
+          evt(s, { k: 'float', unit: u.uid, text: `+${healed} HP`, type: 'word' });
+        }
+      }
+      if (t?.alive) addStatus(s, t, 'bleed', 2, 3);
+      break;
+    }
+    case 'flail_sweep': {
+      const targets = s.units.filter((x) => x.alive && x.side === 'party');
+      const primary = t;
+      const adjacent = targets.filter((x) => x.uid !== primary?.uid).slice(0, 1);
+      hit(s, u, primary, 1.0, 'Flail Sweep');
+      for (const x of adjacent) {
+        if (x.alive) hit(s, u, x, 1.0, 'Flail Sweep');
+      }
+      log(s, `The morning star arcs. The chain remembers everyone.`, 'hurt');
+      break;
+    }
+    case 'penance_lash': {
+      const selfCost = 8;
+      u.hp = Math.max(1, u.hp - selfCost);
+      evt(s, { k: 'float', unit: u.uid, text: `-${selfCost}`, type: 'hurt' });
+      log(s, `${u.name} tears flesh from itself. The doctrine demands it.`, 'hex');
+      hit(s, u, t, 1.4, 'Penance Lash');
+      if (u.alive) {
+        addStatus(s, u, 'might', 2);
+        evt(s, { k: 'float', unit: u.uid, text: 'Martyr', type: 'word' });
+      }
+      break;
+    }
+    case 'black_unction': {
+      const corpses = s.units.filter(
+        (x) => !x.alive && !x.fled && x.side === 'enemy' && !x.unctioned && x.key !== u.key
+      );
+      if (!corpses.length) break;
+      const c = corpses.sort((a, b) => b.maxHp - a.maxHp)[0];
+      c.unctioned = true;
+      c.alive = true;
+      c.hp = Math.max(1, Math.round(c.maxHp * 0.6));
+      c.atk = Math.round(c.atk * 1.3);
+      c.speed += 2;
+      c.name = `Depraved ${c.name}`;
+      c.statuses = [];
+      c.mods = { ...(c.mods || {}), deathHungry: true };
+      if (!c.immunities) c.immunities = [];
+      if (!c.immunities.includes('fear')) c.immunities.push('fear');
+      // If something now stands on the corpse, the risen thing claws out beside it.
+      if (c.tile && s.units.some((x) => x.alive && x !== c && x.tile && x.tile.x === c.tile.x && x.tile.y === c.tile.y)) {
+        const cols = s.field?.columns || 8;
+        const rows = s.field?.rows || 5;
+        outer: for (let r = 1; r <= 3; r++) {
+          for (let dy = -r; dy <= r; dy++) {
+            for (let dx = -r; dx <= r; dx++) {
+              const nx = c.tile.x + dx;
+              const ny = c.tile.y + dy;
+              if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+              if (!s.units.some((x) => x.alive && x.tile && x.tile.x === nx && x.tile.y === ny)) {
+                c.tile = { x: nx, y: ny };
+                break outer;
+              }
+            }
+          }
+        }
+      }
+      log(s, `${u.name} kneels over the corpse and pours the Black Unction into what used to be its mouth.`, 'death');
+      log(s, `${c.name} rises. Whatever came back is not what fell. It looks at the living the way the starving look at bread.`, 'death');
+      evt(s, { k: 'bubble', unit: u.uid, text: '“Rise. You are not finished being useful.”' });
+      evt(s, { k: 'summon', unit: c.uid });
+      evt(s, { k: 'float', unit: c.uid, text: 'RISEN WORSE', type: 'blood-word' });
+      break;
+    }
+    case 'papal_bull': {
+      log(s, `${u.name} unrolls a decree written on skin nobody donated.`, 'hex');
+      for (const ally of s.units.filter((x) => x.alive && x.side === 'enemy' && x.uid !== u.uid)) {
+        addStatus(s, ally, 'might', 1);
+        evt(s, { k: 'float', unit: ally.uid, text: 'Blessed', type: 'word' });
+      }
+      break;
+    }
+    case 'censer_of_marrow': {
+      hit(s, u, t, 1.05, 'Censer of Marrow');
+      if (t?.alive) addStatus(s, t, 'curse', 2, 4 + (s.diff?.afflictionBonus || 0));
+      break;
+    }
     case 'claw':
     case 'heavy_blow':
     case 'gnaw':
@@ -1341,15 +1515,35 @@ function advance_(s) {
       }
     }
 
+    // The Depraved burn themselves toward the grave they were denied.
+    if (u.mods?.deathHungry) {
+      const burn = 3;
+      u.hp -= burn;
+      log(s, `${u.name} strains against its own borrowed flesh. It loses ${burn} HP hurrying back to death.`, 'hex');
+      evt(s, { k: 'dot', unit: u.uid, type: 'curse', amount: burn });
+      if (u.hp <= 0) {
+        kill(s, u, null);
+        continue;
+      }
+    }
+    // Flesh Congregants passively feed from corpse piles each round.
+    if (u.mods?.corpsePileRegen && terrain.type === 'corpse_pile' && u.hp < u.maxHp) {
+      const regen = 3;
+      u.hp = Math.min(u.maxHp, u.hp + regen);
+      log(s, `${u.name} draws sustenance from the corpse pile. +${regen} HP.`, 'dim');
+      evt(s, { k: 'float', unit: u.uid, text: `+${regen}`, type: 'word' });
+    }
+
     // Damage over time ticks at the start of the unit's turn.
     let died = false;
     for (const st of u.statuses) {
       if (DOTS[st.type]) {
         let dmg = st.power;
-        if (st.type === 'bleed' && terrain.type === 'blood_slick') dmg += 2;
+        const onBloodSlick = st.type === 'bleed' && terrain.type === 'blood_slick';
+        if (onBloodSlick) dmg += 2;
         if (st.type !== 'bleed') dmg = Math.max(1, dmg - (u.mods?.dotResist || 0));
         u.hp -= dmg;
-        log(s, `${u.name} suffers ${dmg} ${DOTS[st.type]}.`, 'hurt');
+        log(s, `${u.name} suffers ${dmg} ${DOTS[st.type]}${onBloodSlick ? ' — the blood slick deepens the wound' : ''}.`, 'hurt');
         evt(s, { k: 'dot', unit: u.uid, type: st.type, amount: dmg });
         if (u.hp <= 0) {
           kill(s, u, null);
@@ -1451,14 +1645,17 @@ function enemyAI(s, u) {
     .filter((p) => !(p.key === 'wretch' && Math.random() >= 0.55))
     .map((p) => {
       let score = 0;
-      if (p.hp <= Math.max(12, u.atk * 1.8)) score += 6;
-      if (p.hp < p.maxHp * 0.4) score += 4;
-      if (hasStatus(p, 'marked')) score += 5;
-      if (hasStatus(p, 'poison') || hasStatus(p, 'bleed') || hasStatus(p, 'fear')) score += 2;
-      if (hasStatus(p, 'might')) score += 3;
-      if (p.key === 'sjen' || p.key === 'veato') score += 1;
+      if (p.hp <= Math.max(10, u.atk * 2)) score += 10;   // near kill range
+      if (p.hp < p.maxHp * 0.35) score += 8;              // bloodied
+      if (p.hp < p.maxHp * 0.2) score += 8;               // near death, finish them
+      if (hasStatus(p, 'marked')) score += 7;              // marked prey
+      if (hasStatus(p, 'poison') || hasStatus(p, 'bleed')) score += 3; // already rotting
+      if (hasStatus(p, 'fear')) score += 2;                // fear them into the grave
+      if (hasStatus(p, 'might') || hasStatus(p, 'focus')) score += 4; // shut down their buffs
+      if (p.key === 'sjen') score += 3;                    // silence the hex-caster
+      if (p.key === 'veato') score += 1;
       if (p.key === 'lucian' && p.hp > p.maxHp * 0.6) score += 2;
-      return { p, score: score + Math.random() * 2 };
+      return { p, score: score + Math.random() * 1.5 };
     })
     .sort((a, b) => b.score - a.score);
   let target = scored[0]?.p || wretch || pick(party);
@@ -1555,6 +1752,14 @@ function enemyAI(s, u) {
     }
   }
 
+  // Score every available ability and pick the best one for the situation.
+  const BASIC_IDS = new Set(['basic_attack', 'rusted_blade', 'claw']);
+  const FINISHER_IDS = new Set(['heavy_blow', 'cinder_maul', 'sermon_of_teeth', 'faith_eater', 'grave_bloom', 'bone_clutch', 'penitent_flurry', 'burning_writ', 'desperate_rush']);
+  const AOE_IDS = new Set(['smoke_censer', 'chain_tax', 'sermon_of_teeth', 'martyr_tax', 'pox_lob', 'chain_lash']);
+  const DOT_IDS = new Set(['plague_bite', 'pox_lob', 'audit_sin', 'burning_writ', 'kneel_debtor']);
+  const targetLow = target.hp < target.maxHp * 0.35;
+  const targetClean = !DEBUFFS.some((d) => hasStatus(target, d));
+  const candidates = [];
   for (const id of u.abilities) {
     const A = ABILITIES[id];
     if ((u.cooldowns[id] || 0) > 0) continue;
@@ -1563,10 +1768,27 @@ function enemyAI(s, u) {
     if (id === 'collection_swing' && !party.some((p) => hasStatus(p, 'marked'))) continue;
     if (id === 'debt_mark' && party.some((p) => hasStatus(p, 'marked'))) continue;
     if (id === 'chain_tax' && !u.boss && party.length < 2) continue;
+    if (id === 'black_unction' && !s.units.some((x) => !x.alive && !x.fled && x.side === 'enemy' && !x.unctioned && x.key !== u.key)) continue;
+    if (id === 'papal_bull' && !s.units.some((x) => x.alive && x.side === 'enemy' && x.uid !== u.uid)) continue;
     if (!u.boss && (A.target === 'enemy' || A.target === 'party') && !inReach(s, u, target, id)) continue;
+    let sc = BASIC_IDS.has(id) ? 0 : 8;           // always prefer specials
+    if (FINISHER_IDS.has(id) && targetLow) sc += 12;  // press the kill
+    if (AOE_IDS.has(id) && party.length >= 2) sc += 7; // AoE with multiple targets
+    if (DOT_IDS.has(id) && targetClean) sc += 5;    // apply first debuff
+    if (DOT_IDS.has(id) && !targetClean) sc -= 3;   // don't stack same DoT twice
+    if (id === 'desperate_rush') sc += 14;           // only fires when low HP
+    if (id === 'black_unction') sc += 16;            // the dead are a resource; spend them
+    if (A.target === 'self') sc += 5;
+    candidates.push({ id, sc });
+  }
+  candidates.sort((a, b) => b.sc - a.sc);
+  if (candidates.length) {
+    const { id } = candidates[0];
+    const A = ABILITIES[id];
     resolveAbility(s, u, id, A.target === 'self' ? u.uid : A.target === 'none' ? null : target.uid);
     return;
   }
+  // Fallback: last ability in list
   const lastId = u.abilities[u.abilities.length - 1];
   const lastA = ABILITIES[lastId];
   if (!u.boss && lastA && (lastA.target === 'enemy' || lastA.target === 'party') && !inReach(s, u, target, lastId)) return;
@@ -1576,7 +1798,11 @@ function enemyAI(s, u) {
 // ── Public API ──────────────────────────────────────────────
 
 export function createCombat(g) {
-  const enc = ENCOUNTERS[g.encounterId];
+  const isSkirmish = g.encounterId === 'skirmish';
+  const skirmCfg = g.skirmishConfig;
+  const enc = isSkirmish
+    ? (skirmCfg?.fakeEnc || { name: 'Skirmish', enemies: [], gold: 30, xp: 50 })
+    : ENCOUNTERS[g.encounterId];
   const diff = DIFFICULTIES[g.difficulty || 'merciless'] || DIFFICULTIES.merciless;
   const units = [];
   const partyKeys = [
@@ -1647,6 +1873,7 @@ export function createCombat(g) {
     units.push(u);
   }
   for (const ek of enc.enemies) {
+    if (!ENEMIES[ek]) continue;
     const e = mkUnit(ENEMIES[ek], 'enemy', ek);
     const scaled = scaleEnemyTemplate(ENEMIES[ek], diff);
     e.atk = scaled.atk;
@@ -1655,10 +1882,66 @@ export function createCombat(g) {
     units.push(e);
   }
 
+  // Apply skirmish card and enemy omen modifiers.
+  if (isSkirmish && skirmCfg) {
+    const partyUnits = units.filter((u) => u.side === 'party');
+    const enemyUnits = units.filter((u) => u.side === 'enemy');
+    const cardId = skirmCfg.pickedCard;
+    if (cardId) {
+      for (const u of partyUnits) {
+        if (cardId === 'iron_fist') u.atk = Math.round(u.atk * 1.18);
+        else if (cardId === 'borrowed_time') { u.hp = Math.round(u.maxHp * 0.7); u.atk = Math.round(u.atk * 1.22); }
+        else if (cardId === 'lucky_break') { u.maxHp = Math.round(u.maxHp * 1.2); u.hp = u.maxHp; }
+        else if (cardId === 'cold_contract') u.speed = Math.max(4, u.speed - 1);
+        else if (cardId === 'the_long_march') u.speed = Math.max(4, u.speed - 2);
+        else if (cardId === 'dead_skin') { u.atk = Math.round(u.atk * 0.88); u.statuses.push({ type: 'shield', turns: 99, power: 12 }); }
+        else if (cardId === 'doomed_bargain') u.atk = Math.round(u.atk * 1.25);
+        else if (cardId === 'iron_shackle') u.speed = Math.max(3, u.speed - 2);
+        else if (cardId === 'tainted_rations') u.statuses.push({ type: 'poison', turns: 2, power: 4 });
+        else if (cardId === 'bitter_loss') u.atk = Math.round(u.atk * 0.80);
+      }
+      if (cardId === 'hex_blooded') {
+        for (const u of partyUnits.filter((p) => p.key === 'sjen' || p.key === 'chibi')) {
+          u.statuses.push({ type: 'might', turns: 2 });
+          u.statuses.push({ type: 'focus', turns: 2 });
+        }
+      }
+      for (const e of enemyUnits) {
+        if (cardId === 'hollow_rite') e.statuses.push({ type: 'curse', turns: 2, power: 7 });
+        else if (cardId === 'blind_terror') e.statuses.push({ type: 'fear', turns: 1 });
+        else if (cardId === 'doomed_bargain') e.atk = Math.round(e.atk * 1.15);
+        else if (cardId === 'the_long_march') e.speed = Math.max(4, e.speed - 3);
+      }
+    }
+    if (skirmCfg.omen) {
+      const omenId = skirmCfg.omen.id;
+      for (const e of enemyUnits) {
+        if (omenId === 'frenzy') e.atk = Math.round(e.atk * 1.20);
+        else if (omenId === 'ironbones') { e.maxHp = Math.round(e.maxHp * 1.25); e.hp = e.maxHp; }
+        else if (omenId === 'driven') e.speed += 3;
+        else if (omenId === 'hollow_touched' && e.transformInto) {
+          e.transformTimer = 1;
+          const asc = e.statuses.find((st) => st.type === 'ascension');
+          if (asc) asc.power = 1;
+        } else if (omenId === 'fevered') {
+          e.statuses.push({ type: 'might', turns: 1 });
+        } else if (omenId === 'blessed') {
+          e.statuses.push({ type: 'shield', turns: 99, power: 12 });
+        } else if (omenId === 'starved') {
+          e.atk = Math.round(e.atk * 0.80);
+        } else if (omenId === 'hollow_bones') {
+          e.maxHp = Math.round(e.maxHp * 0.80); e.hp = e.maxHp;
+        } else if (omenId === 'lethargic') {
+          e.speed = Math.max(2, e.speed - 2);
+        }
+      }
+    }
+  }
+
   const s = {
-    encounterId: g.encounterId,
+    encounterId: isSkirmish ? (skirmCfg?.fieldId || 'ash_road_ambush') : g.encounterId,
     name: enc.name,
-    rewardGold: enc.gold || 0,
+    rewardGold: (isSkirmish && skirmCfg?.pickedCard === 'cold_contract') ? Math.round((enc.gold || 0) * 1.5) : (enc.gold || 0),
     rewardXp: enc.xp || 0,
     units,
     round: 0,

@@ -9,6 +9,7 @@
 import { SCRIPTS, ITEMS, SCARS } from './data/story.js';
 import { ENCOUNTERS, ENEMIES } from './data/units.js';
 import { availableTalents, talentNode } from './data/progression.js';
+import { rollSkirmish } from './data/skirmish.js';
 
 export const SAVE_KEY = 'crown_of_carrion_save';
 export const SAVE_VERSION = 4;
@@ -184,11 +185,20 @@ export function reducer(g, a) {
       const s = { ...g, screen: 'dialogue', scriptId: a.scriptId };
       return mark(gotoNode(s, SCRIPTS[a.scriptId].start), 'The contract is entered. The ledger remembers.');
     }
+    case 'START_SKIRMISH': {
+      const config = rollSkirmish(g.difficulty || 'merciless');
+      return { ...g, screen: 'skirmish_setup', encounterId: 'skirmish', skirmishConfig: config, victoryNode: null };
+    }
+    case 'ENTER_SKIRMISH':
+      return { ...g, screen: 'combat' };
     case 'START_COMBAT':
       return { ...g, screen: 'combat', encounterId: a.encounterId, victoryNode: a.then };
     case 'COMBAT_END': {
       if (a.result === 'victory') {
-        const enc = ENCOUNTERS[g.encounterId];
+        const isSkirmish = g.encounterId === 'skirmish';
+        const enc = isSkirmish
+          ? (g.skirmishConfig?.fakeEnc || { gold: 30, xp: 50, enemies: [] })
+          : ENCOUNTERS[g.encounterId];
         // Greed fattens the purse; Ambition feeds on the act of rising.
         const greedMult = 1 + 0.15 * (g.sins.veato.greed || 0);
         const ambMult = 1 + 0.15 * (g.sins.lucian.ambition || 0);
@@ -201,7 +211,7 @@ export function reducer(g, a) {
           ...(a.cocoliObjective ? { cocoli_ascension_objective: true } : {}),
         };
         if (a.tensionDelta) s = applyEffects(s, { tension: a.tensionDelta });
-        const bossKilled = enc.enemies.some((e) => ENEMIES[e].boss);
+        const bossKilled = !isSkirmish && enc.enemies.some((e) => ENEMIES[e]?.boss);
         if (bossKilled && !s.defeatedBosses.includes(g.encounterId)) {
           s.defeatedBosses = [...s.defeatedBosses, g.encounterId];
         }
@@ -217,14 +227,18 @@ export function reducer(g, a) {
           (_, i) => s.level - levelsGained + i + 1
         ).filter((level) => level <= 4).length;
         if (talentLevelsGained > 0) {
-          // One visible specialization-tree choice per core party member.
-          s.pendingAscension = Array.from({ length: talentLevelsGained }, () => ['lucian', 'sjen', 'veato']).flat();
-          s.ascensionReturn = 'dialogue';
+          s.pendingAscension = Array.from({ length: talentLevelsGained }, () => ["lucian", "sjen", "veato"]).flat();
+          s.ascensionReturn = isSkirmish ? "map" : "dialogue";
           s.screen = 'ascension';
-          return mark(s, bossKilled ? 'The boss’s debt is crossed out. The ledger remembers.' : undefined);
+          return mark(s, bossKilled ? "The boss's debt is crossed out. The ledger remembers." : undefined);
+        }
+        if (isSkirmish) {
+          s.screen = 'map';
+          s.skirmishConfig = null;
+          return mark(s, "Skirmish done. The blood doesn't go in the ledger. The gold does.");
         }
         s.screen = 'dialogue';
-        return mark(gotoNode(s, g.victoryNode), bossKilled ? 'The boss’s debt is crossed out. The ledger remembers.' : undefined);
+        return mark(gotoNode(s, g.victoryNode), bossKilled ? "The boss's debt is crossed out. The ledger remembers." : undefined);
       }
       // Defeat: Lucian goes somewhere outside death.
       return { ...g, deaths: g.deaths + 1, screen: 'silence' };
@@ -242,7 +256,7 @@ export function reducer(g, a) {
       if (picked?.specialization && a.char === 'veato') flags.veato_specialization = picked.specialization;
       let s = { ...g, talents, flags, pendingAscension: pending };
       if (pending.length) return s;
-      if (s.ascensionReturn === 'map') return mark({ ...s, screen: 'map', ascensionReturn: null }, 'The company’s new methods are entered in the ledger.');
+      if (s.ascensionReturn === 'map') return mark({ ...s, screen: 'map', ascensionReturn: null }, "The company's new methods are entered in the ledger.");
       s = { ...s, screen: 'dialogue', ascensionReturn: null };
       return mark(gotoNode(s, g.victoryNode), 'The company has learned something expensive. The ledger remembers.');
     }

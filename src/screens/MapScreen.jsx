@@ -137,6 +137,13 @@ export default function MapScreen() {
             ✠ Open the Campaign Ledger
           </button>
 
+          <button className="btn btn-blood skirmish-btn" onClick={() => dispatch({ type: 'START_SKIRMISH' })}>
+            ⚔ SKIRMISH — Roll for Blood
+          </button>
+          <p className="side-note">
+            A pick-up fight. Random map, random enemies, dice for a modifier. No story. Just the kill.
+          </p>
+
           <section className="panel">
             <h3 className="panel-title">THE BLACK TITHE</h3>
             {Object.entries(PARTY)

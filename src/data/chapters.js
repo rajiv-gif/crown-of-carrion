@@ -7,7 +7,7 @@
 // and omens are short fragments, never long italic sentences.
 
 export const CAMPAIGN_TAGLINE =
-  'The Carrion Crown is not taken in one night. Five debts must be paid. The first two are playable now.';
+  'The Carrion Crown is not taken in one night. Six debts must be paid. The first two are playable now.';
 
 export const CHAPTERS = [
   {
@@ -71,6 +71,48 @@ export const CHAPTERS = [
   {
     id: 3,
     numeral: 'III',
+    name: 'The Bone Congregation',
+    theme: 'Devotion that rotted from the inside. Followers who consumed the innocent they were told were guilty. The catacombs remember what the doctrine tried to bury.',
+    factionId: 'bone_congregation',
+    factionName: 'The Bone Congregation',
+    boss: 'The Carrion Pope',
+    region: 'The Church Catacombs / The Iron Marches',
+    regionId: 'iron_marches',
+    danger: 'Lethal',
+    omens: 'Robes still fitted on bodies that no longer need them. A patriarch still preaching. To empty seats. To things that used to be people.',
+    requires: 'Complete Chapter II',
+    unlockedCopy: 'The Church Catacombs have opened. Something beneath the Iron Marches has been eating.',
+    missions: [
+      {
+        id: 'the_descent',
+        script: 'the_descent',
+        name: 'The Descent',
+        patron: 'Lucian’s ledger',
+        desc: 'The Black Tithe attracted followers. Some believed. Some consumed the innocent they were told were guilty. The feast was literal. Follow the ledger traces into the catacombs and see what the gold bought.',
+      },
+      {
+        id: 'the_first_table',
+        script: 'the_first_table',
+        name: 'The First Table',
+        patron: 'No one living',
+        desc: 'The Warden of the First Table is still preaching. To empty seats. To things that used to be people. Find the source. End the sermon.',
+        requiresMission: 'the_descent',
+        requiresText: 'Complete The Descent',
+      },
+      {
+        id: 'the_black_conclave',
+        script: 'the_black_conclave',
+        name: 'The Black Conclave',
+        patron: 'The ledger itself',
+        desc: 'Below the table sits the thing the congregation kneels to. The Carrion Pope outranked death nineteen years ago. He has been re-hiring the fallen ever since.',
+        requiresMission: 'the_first_table',
+        requiresText: 'Complete The First Table',
+      },
+    ],
+  },
+  {
+    id: 4,
+    numeral: 'IV',
     name: 'The Iron Feast',
     theme: 'War for sale, oath-law beyond death, and contracts that spend stolen lifetimes.',
     factionId: 'iron_covenant',
@@ -78,14 +120,14 @@ export const CHAPTERS = [
     boss: 'The Contract-King',
     region: 'The Iron Marches',
     regionId: 'iron_marches',
-    danger: 'Lethal',
+    danger: 'Dire',
     omens: 'Corpse auctions. Oath-dead soldiers. Contracts enforceable in the grave.',
-    requires: 'Complete Chapter II',
+    requires: 'Complete Chapter III',
     missions: [],
   },
   {
-    id: 4,
-    numeral: 'IV',
+    id: 5,
+    numeral: 'V',
     name: 'The Hollow Choir',
     theme: 'The Root-Beneath, dead alphabets, stolen identities, and what Sjen already opened.',
     factionId: 'hollow_choir',
@@ -95,12 +137,12 @@ export const CHAPTERS = [
     regionId: 'bone_wells',
     danger: 'Forbidden',
     omens: 'Buried names. Bodies worn by failed souls. Bargains made in Lucian’s name. Sjen, smiling.',
-    requires: 'Complete Chapter III',
+    requires: 'Complete Chapter IV',
     missions: [],
   },
   {
-    id: 5,
-    numeral: 'V',
+    id: 6,
+    numeral: 'VI',
     name: 'Carrion Ascendant',
     theme: 'The Crownward Plane opens. The broken cycle acquires an owner.',
     factionId: null,
@@ -110,7 +152,7 @@ export const CHAPTERS = [
     regionId: 'ascendant',
     danger: 'Absolute',
     omens: 'Seven slivers. The White Silence thinning. One hand closing around every return.',
-    requires: 'Complete Chapters I–IV',
+    requires: 'Complete Chapters I–V',
     missions: [],
   },
 ];
@@ -121,10 +163,14 @@ export const CHAPTERS = [
 //   unlocked  — region open, content still being written (next build)
 //   locked    — requirement not met
 export function chapterStatus(ch, g) {
-  if ((g.completedChapters || []).includes(ch.id)) return 'complete';
+  const done = g.completedChapters || [];
+  if (done.includes(ch.id)) return 'complete';
   if (ch.id === 1) return 'playable';
-  if (ch.id === 2 && (g.completedChapters || []).includes(1)) return ch.missions.length ? 'playable' : 'unlocked';
-  if (ch.id === 3 && (g.completedChapters || []).includes(2)) return 'unlocked';
+  if (ch.id === 2 && done.includes(1)) return ch.missions.length ? 'playable' : 'unlocked';
+  if (ch.id === 3 && done.includes(2)) return ch.missions.length ? 'playable' : 'unlocked';
+  if (ch.id === 4 && done.includes(3)) return 'unlocked';
+  if (ch.id === 5 && done.includes(4)) return 'unlocked';
+  if (ch.id === 6 && done.includes(5)) return 'unlocked';
   return 'locked';
 }
 

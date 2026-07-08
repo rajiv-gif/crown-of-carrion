@@ -165,6 +165,12 @@ export default function BattleUnit({ u, fx, isCurrent, targetable, onClick }) {
           <Silhouette name={u.sprite} />
         )}
         {vfxHit && u.alive !== undefined && <div className={`vfx ${VFX[vfxHit.ability] || 'vfx-impact'}`} />}
+        {incoming.length > 0 && (
+          <div className="vfx vfx-anime-hit">
+            <i /><i /><i /><i /><i /><i /><i />
+          </div>
+        )}
+        {incoming.some((e) => e.vicious || e.amount >= 18) && <div className="vfx vfx-speedlines" />}
         {gripped && <div className="vfx vfx-grip" />}
         {(hexed || summoned) && <div className="vfx vfx-sigil" />}
         {warded && <div className="vfx vfx-ward" />}

@@ -1,6 +1,7 @@
 import React from 'react';
 import BattleUnit from './BattleUnit.jsx';
 import { TERRAIN } from '../data/battlefields.js';
+import { ABILITIES } from '../combat/engine.js';
 
 // Tactical battlefield: units live as small map figures until an action
 // makes the actor and victim flare up for a readable combat animation.
@@ -45,20 +46,37 @@ export default function Battlefield({ c, fx, cur, isTargetable, onTarget, moveTi
     (e) => (e.k === 'hit' && HEAVY_HITS.includes(e.ability)) || (e.k === 'death' && e.boss)
   );
   const occult = fx.some((e) => e.k === 'cast' && e.ability === 'whispering_pact');
-  const ultimate = fx.some((e) => e.k === 'cast' && (e.ability === 'mo_bos_ie_eye' || e.ability === 'demon_invocation'));
+  const ultimateCast = fx.find((e) => e.k === 'cast' && (e.ability === 'mo_bos_ie_eye' || e.ability === 'demon_invocation'));
+  const ultimate = !!ultimateCast;
   const psychosis = fx.some((e) => e.k === 'status' && e.status === 'psychosis') || c.units.some((u) => u.alive && u.statuses.some((st) => st.type === 'psychosis'));
   const bossDeath = fx.some((e) => e.k === 'death' && e.boss);
+  const killShock = fx.some((e) => e.k === 'death' && !e.boss);
+  const heavyHitId = fx.find(
+    (e) => e.k === 'hit' && (HEAVY_HITS.includes(e.ability) || e.vicious || e.amount >= 18)
+  )?.id;
+  const [hitStop, setHitStop] = React.useState(false);
+  React.useEffect(() => {
+    if (heavyHitId == null) return;
+    setHitStop(true);
+    const t = setTimeout(() => setHitStop(false), 90);
+    return () => clearTimeout(t);
+  }, [heavyHitId]);
 
   return (
     <div
       className={`battlefield-stage ${quake ? 'quake' : ''} ${occult ? 'occult-surge' : ''} ${
         ultimate ? 'ultimate-surge' : ''
-      } ${psychosis ? 'psychosis-field' : ''} ${bossDeath ? 'boss-death' : ''}`}
+      } ${psychosis ? 'psychosis-field' : ''} ${bossDeath ? 'boss-death' : ''} ${killShock ? 'kill-shock' : ''} ${hitStop ? 'hit-stop' : ''}`}
     >
       <div className="bf-skyline" />
       <div className="bf-fog far" />
       <div className="bf-fog near" />
       <div className="bf-ground" />
+      {ultimateCast && (
+        <div className="bf-cutin">
+          <span>{ABILITIES[ultimateCast.ability]?.name || ''}</span>
+        </div>
+      )}
       <div className="bf-terrain-title">
         <span>{field.name || c.name}</span>
         <small>{field.rules?.join(' ')}</small>
